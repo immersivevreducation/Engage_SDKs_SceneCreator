@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Engage_NetworkObjectFromSceneObject : MonoBehaviour
+public class Engage_CreateNetworkObjectFromSceneObject : MonoBehaviour
 {
     public string veryUniqueObjectName;
     public bool gravityEnabled;

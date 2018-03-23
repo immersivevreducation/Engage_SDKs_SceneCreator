@@ -161,7 +161,7 @@ namespace AssetBundles
 				return "/test.exe";
 			case BuildTarget.StandaloneOSXIntel:
 			case BuildTarget.StandaloneOSXIntel64:
-			case BuildTarget.StandaloneOSXUniversal:
+			case BuildTarget.StandaloneOSX:
 				return "/test.app";
 			//case BuildTarget.WebPlayer:
 			//case BuildTarget.WebPlayerStreamed:
