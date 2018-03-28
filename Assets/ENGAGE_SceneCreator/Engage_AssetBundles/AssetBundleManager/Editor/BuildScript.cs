@@ -22,7 +22,7 @@ namespace AssetBundles
                 Directory.CreateDirectory(outputPath);
 
             //@TODO: use append hash... (Make sure pipeline works correctly with it.)
-            AssetBundleManifest mani = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.UncompressedAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+            AssetBundleManifest mani = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
             foreach (string bund in mani.GetAllAssetBundles())
             {
                 Debug.Log("Trying to compress " + bund);
@@ -52,8 +52,8 @@ namespace AssetBundles
                     if (!string.IsNullOrEmpty(crc))
                     {
                         File.WriteAllText(outputPath + "/" + bund + "_info", crc,Encoding.Default);
-                        lzip.compress_File(9, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund, false,"_data");
-                        lzip.compress_File(9, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund+"_info", true,"_info");
+                        lzip.compress_File(1, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund, false,"_data");
+                        lzip.compress_File(1, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund+"_info", true,"_info");
                         File.Delete(outputPath + "/" + bund);
                         File.Delete(outputPath + "/" + bund + "_info");
                         Debug.Log("Compressed " + bund+ " successfully");
