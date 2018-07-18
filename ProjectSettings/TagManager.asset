@@ -1,3 +1,74 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e4c8d873e1e58020982b2647a46e04c918f090b3de217b6f8be973d7dc8b6b8e
-size 1154
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - na0
+  - na1
+  - TeleportGround
+  - ItemPlacementGoal
+  - na3
+  - na4
+  - TeleportSeat
+  - na6
+  - na7
+  - na8
+  - na9
+  - na10
+  - CastObject
+  - ShockTarget
+  - SmileTarget
+  - na12
+  - na13
+  - na14
+  - TheaterScreen
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - GunAndObjects
+  - HandCollider
+  - RightEyeCull
+  - PlayerHand
+  - WhiteboardScreenshot
+  - PlayerBody
+  - FirstPersonHidden
+  - PlayerBodyMine
+  - ScreenLighting
+  - IgnorePlayerBody
+  - SitTrigger
+  - LayerCamera
+  - TheaterDecorLighting
+  - TeleportCollider
+  - AvatarLighting
+  - EffectLighting
+  - WorldGUI
+  - TabletGUI
+  - TheaterScreenBothEyes
+  - LeftEyeCull
+  - IgnoreCollisionHallwayLighting
+  - BothEyeCull
+  - door
+  - Occludee
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 1093696345
+    locked: 0
+  - name: Foreground
+    uniqueID: 1859086223
+    locked: 0
+  - name: Characters
+    uniqueID: 3940858523
+    locked: 0
+  - name: UI
+    uniqueID: 771169021
+    locked: 0
