@@ -51,11 +51,11 @@ TagManager:
   - WorldGUI
   - TabletGUI
   - TheaterScreenBothEyes
-  - LeftEyeCull
+  - Camera-MirrorOnly
   - IgnoreCollisionHallwayLighting
   - BothEyeCull
   - door
-  - Occludee
+  - imposterRender
   m_SortingLayers:
   - name: Default
     uniqueID: 0
