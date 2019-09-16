@@ -38,8 +38,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4000011180036440}
-  - component: {fileID: 114000014133570948}
-  - component: {fileID: 114000010632197142}
+  - component: {fileID: 114279255718969244}
   m_Layer: 0
   m_Name: TestCharacter(RemoveFromSceneBeforeBuild)
   m_TagString: Untagged
@@ -264,19 +263,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!114 &114000010632197142
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000013771176050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89bd9dc83dabd544e9347b392bfdf000, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 1000010364468554}
-  copyVolumetricFog: 0
 --- !u!114 &114000010845469086
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -528,7 +514,7 @@ MonoBehaviour:
   _fogOfWarTextureSize: 256
   _fogOfWarRestoreDelay: 0
   _fogOfWarRestoreDuration: 2
---- !u!114 &114000014133570948
+--- !u!114 &114279255718969244
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -536,7 +522,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000013771176050}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e5fcf6ab7eba7d47af9aa017b415f5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e0cbd65e5d5f9040b5361cce402e8ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!143 &143000010282365418
