@@ -5,13 +5,23 @@ using UnityEngine;
 /*
  * Attach this script to the boundary cube object itself
  */
-public class LVR_SceneCreator_BoundaryCatcher : MonoBehaviour {
+public class LVR_SceneCreator_BoundaryCatcher : MonoBehaviour
+{
 
-    public GameObject playerSpawnPoint;
+    GameObject playerSpawnPoint;
 #if UNITY_ENGAGE
     private Vector3 m_spawnPos;
     private Collider m_boundCollider;
     bool resettingPosition;
+
+    void Awake()
+    {
+        playerSpawnPoint = GameObject.Find("TheaterStartPosition");
+
+        if(playerSpawnPoint == null)
+            playerSpawnPoint = GameObject.Find("PlayerSpawnPosition");
+    }
+
     void Start () {
         resettingPosition = false;
         if (GetComponent<Collider>() != null)
