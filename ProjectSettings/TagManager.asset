@@ -44,7 +44,7 @@ TagManager:
   - IgnorePlayerBody
   - SitTrigger
   - LayerCamera
-  - TheaterDecorLighting
+  - NoCollision
   - TeleportCollider
   - AvatarLighting
   - EffectLighting
