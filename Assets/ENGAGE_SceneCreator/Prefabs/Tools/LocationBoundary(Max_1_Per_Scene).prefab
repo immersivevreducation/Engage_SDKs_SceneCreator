@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 114590448758986310}
   m_Layer: 0
   m_Name: LocationBoundary(Max_1_Per_Scene)
-  m_TagString: TeleportGround
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,4 +110,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ce5e8872c8bac54dbfaa1fabcb0aece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSpawnPoint: {fileID: 0}
