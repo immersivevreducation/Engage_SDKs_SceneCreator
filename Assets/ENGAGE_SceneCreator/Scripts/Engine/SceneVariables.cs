@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 /// <summary>
 /// For manually defining a scene's unique variables
 /// On an initial scene load (not additive), this script will create
@@ -31,6 +32,21 @@ public class SceneVariables : MonoBehaviour
     /// The gravity of the scene
     /// </summary>
 	public Vector3 gravity = new Vector3(0, -9.8f, 0);
+
+    /// <summary>
+    /// Empty Transform to identify the spawn point
+    /// </summary>
+    public GameObject userSpawnPoint;
+
+    /// <summary>
+    /// Numerical value identifying the radius (in meters) from spawn point the users can safely spawn.
+    /// </summary>
+    public float userSpawnRadius = 1;
+
+    /// <summary>
+    /// To use the perfect seat system, identify the seats in order here (optional)
+    /// </summary>
+    public List<LVR_SitTrigger> perfectSeatList = new List<LVR_SitTrigger>();
 
     /// <summary>
     /// Disable local player shadows
@@ -119,9 +135,8 @@ public class SceneVariables : MonoBehaviour
     void Awake()
     {
         DestroyEventSystems();
-		if (GameObject.Find ("TheaterVariables")) {
-			theaterVariablesObject = GameObject.Find ("TheaterVariables");
-			TheaterVariables varScript = theaterVariablesObject.GetComponent<TheaterVariables> ();
+        theaterVariablesObject = GameObject.Find("TheaterVariables");
+		if (theaterVariablesObject != null) {
 			TheaterVariables.roomOverrideMinDrawDistance = overrideMinDrawDistance;
 			TheaterVariables.roomOverrideMaxDrawDistance = overrideMaxDrawDistance;
 			TheaterVariables.roomMinDrawDistanceAmount = minDrawDistanceAmount;
@@ -132,7 +147,25 @@ public class SceneVariables : MonoBehaviour
 			TheaterVariables.sceneScale = theSceneScale;
             TheaterVariables.originalSceneScale = theSceneScale;
 			TheaterVariables.myIfxPoint = null;
-			
+            TheaterVariables.legacyWhiteboardType = legacyWhiteboardType;
+
+            TheaterVariables.spawnPoint = userSpawnPoint;
+
+            if (userSpawnPoint == null)
+            {
+                GameObject spawnPoint = GameObject.Find("PlayerStartPosition");
+                if (spawnPoint == null)
+                    spawnPoint = GameObject.Find("TheaterStartPosition");
+
+                TheaterVariables.spawnPoint = spawnPoint;
+            }
+
+            TheaterVariables.spawnRadius = Mathf.Abs(userSpawnRadius);
+
+            foreach (LVR_SitTrigger seat in perfectSeatList)
+                if (seat != null)
+                    TheaterVariables.perfectSeats.Add(seat);
+
 			TheaterVariables.roomOutfitOverrideOnStart = outfitOverrideOnStart;
 			TheaterVariables.roomKeepHeadboxOnAfterStart = keepHeadboxOnAfterStart;
 			TheaterVariables.roomDelayHeadBoxRemoval = delayHeadBoxRemoval;
@@ -157,8 +190,23 @@ public class SceneVariables : MonoBehaviour
     /// <returns></returns>
     void Start()
     {
+        CheckEngineObjectStatus();
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (PhotonNetwork.IsMasterClient && newMasterClient.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            Debug.Log("New Master Client, checking engine object");
+            CheckEngineObjectStatus();
+        }
+    }
+
+    void CheckEngineObjectStatus()
+    { 
         if (Component.FindObjectOfType<ENG_IGM_PlayerManager>())
         {
+            Debug.Log("Engine Found");
             //Engine is already available. (additive scene)
         }
         else
@@ -169,19 +217,13 @@ public class SceneVariables : MonoBehaviour
                 {
                     if (PhotonNetwork.IsMasterClient)
                     {
-                        engineObject = PhotonNetwork.Instantiate("Engage_Engine_Object", transform.position, transform.rotation, 0) as GameObject;
+                        engineObject = PhotonNetwork.InstantiateSceneObject("Engage_Engine_Object", transform.position, transform.rotation, 0) as GameObject;
                     }
                     else {
-#if !ENGAGE_FOCUS
+#if !ENGAGE_FOCUS && !ENGAGE_PICO_SDK && !ENGAGE_XRSPACE
                         Instantiate(Resources.Load("TempCamera") as GameObject);
 #endif
                     }
-                }
-            }
-            else {
-                if (SceneManager.GetActiveScene().buildIndex != 0 && SceneManager.GetActiveScene().buildIndex != 1 && SceneManager.GetActiveScene().buildIndex != 2)
-                {
-                    engineObject = Instantiate(Resources.Load("Engage_Engine_Object"), transform.position, transform.rotation) as GameObject;
                 }
             }
         }
