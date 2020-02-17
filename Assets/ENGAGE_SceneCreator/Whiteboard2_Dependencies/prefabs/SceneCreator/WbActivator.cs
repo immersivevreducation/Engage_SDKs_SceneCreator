@@ -1,0 +1,27 @@
+﻿using IVRE.whiteboard;
+using UnityEngine;
+
+public class WbActivator : MonoBehaviour {
+#if UNITY_ENGAGE
+    public WbSurface surface;
+
+    public void onPress()
+    {
+        if (WbUi.I.surface == surface) {
+            //Wb2Ui.I.buttonDisconnect();
+        } else {
+            //dont connect if already connected to a surface
+            if (WbUi.I.surface != null) {
+                return;
+            }
+            //only connect if nearer than disconnect distance, otherwise will
+            //disconnect immediatley
+            Ray lookRay = WbUi.I.input.getLookRay();
+            float distance = (surface.transform.position - lookRay.origin).magnitude;
+            if (distance < surface.d.disconnectDistance *0.9f) {
+                WbBoss.I.tryLockSurface(surface);
+            }
+        }
+    }
+#endif
+}
