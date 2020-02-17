@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -10,8 +10,7 @@ using System.Collections.Generic;
 /// static variables, and rules for the scene. Also sets up the scene
 /// by instantiating the core GameObjects on MasterClient 
 /// </summary>
-public class SceneVariables : MonoBehaviour
-{
+public class SceneVariables : MonoBehaviour {
 
     public enum LegacyWhiteboardType
     {
@@ -31,7 +30,7 @@ public class SceneVariables : MonoBehaviour
     /// <summary>
     /// The gravity of the scene
     /// </summary>
-	public Vector3 gravity = new Vector3(0, -9.8f, 0);
+	public Vector3 gravity = new Vector3 (0, -9.8f, 0);
 
     /// <summary>
     /// Empty Transform to identify the spawn point
@@ -42,11 +41,6 @@ public class SceneVariables : MonoBehaviour
     /// Numerical value identifying the radius (in meters) from spawn point the users can safely spawn.
     /// </summary>
     public float userSpawnRadius = 1;
-
-    /// <summary>
-    /// To use the perfect seat system, identify the seats in order here (optional)
-    /// </summary>
-    public List<LVR_SitTrigger> perfectSeatList = new List<LVR_SitTrigger>();
 
     /// <summary>
     /// Disable local player shadows
@@ -66,12 +60,25 @@ public class SceneVariables : MonoBehaviour
     //If there is a legacy whiteboard in this location, what type is it
     public LegacyWhiteboardType legacyWhiteboardType;
 
-    /// <summary>
-    /// Outfit override for this scene (Or -1 for normal clothes)
+    [Header("")]
+    [Header("-Perfect Seats / Summon to seat system (optional)")]
+    [Header("")]
+    // <summary>
+    /// Players will not spawn into PerfectSeats, false by default
     /// </summary>
+    public bool ignorePerfectSeatsOnSpawn = false;
+
+    /// <summary>
+    /// To use the perfect seat system, identify the seats in order here (optional)
+    /// </summary>
+    public List<LVR_SitTrigger> perfectSeatList = new List<LVR_SitTrigger>();
+
     [Header("")]
     [Header("Only if override is necessary, otherwise -1")]
     [Header("")]
+    /// <summary>
+    /// Outfit override for this scene (Or -1 for normal clothes)
+    /// </summary>
     public int outfitOverrideOnStart = -1;
 
 
@@ -126,7 +133,6 @@ public class SceneVariables : MonoBehaviour
 
 
     GameObject theaterVariablesObject = null;
-    GameObject engineObject;
 
 #if UNITY_ENGAGE
     /// <summary>
@@ -148,19 +154,12 @@ public class SceneVariables : MonoBehaviour
             TheaterVariables.originalSceneScale = theSceneScale;
 			TheaterVariables.myIfxPoint = null;
             TheaterVariables.legacyWhiteboardType = legacyWhiteboardType;
-
+            TheaterVariables.ignorePerfectSeatsOnInitialSpawn = ignorePerfectSeatsOnSpawn;
             TheaterVariables.spawnPoint = userSpawnPoint;
 
-            if (userSpawnPoint == null)
-            {
-                GameObject spawnPoint = GameObject.Find("PlayerStartPosition");
-                if (spawnPoint == null)
-                    spawnPoint = GameObject.Find("TheaterStartPosition");
-
-                TheaterVariables.spawnPoint = spawnPoint;
-            }
-
             TheaterVariables.spawnRadius = Mathf.Abs(userSpawnRadius);
+
+            TheaterVariables.perfectSeats = new List<LVR_SitTrigger>();
 
             foreach (LVR_SitTrigger seat in perfectSeatList)
                 if (seat != null)
@@ -183,51 +182,6 @@ public class SceneVariables : MonoBehaviour
 		}
 		
 	}
-
-    /// <summary>
-    /// Instantiate Engage engine objects, destroy temp cameras
-    /// </summary>
-    /// <returns></returns>
-    void Start()
-    {
-        CheckEngineObjectStatus();
-    }
-
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        if (PhotonNetwork.IsMasterClient && newMasterClient.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            Debug.Log("New Master Client, checking engine object");
-            CheckEngineObjectStatus();
-        }
-    }
-
-    void CheckEngineObjectStatus()
-    { 
-        if (Component.FindObjectOfType<ENG_IGM_PlayerManager>())
-        {
-            Debug.Log("Engine Found");
-            //Engine is already available. (additive scene)
-        }
-        else
-        {
-            if (PhotonNetwork.IsConnected && PhotonNetwork.InRoom)
-            {
-                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "LoadingRoomAdditive")
-                {
-                    if (PhotonNetwork.IsMasterClient)
-                    {
-                        engineObject = PhotonNetwork.InstantiateSceneObject("Engage_Engine_Object", transform.position, transform.rotation, 0) as GameObject;
-                    }
-                    else {
-#if !ENGAGE_FOCUS && !ENGAGE_PICO_SDK && !ENGAGE_XRSPACE
-                        Instantiate(Resources.Load("TempCamera") as GameObject);
-#endif
-                    }
-                }
-            }
-        }
-    }
 
     /// <summary>
     /// Destroy rogue event systems
