@@ -17,4 +17,15 @@ public class OutfitZoneHandler : MonoBehaviour
     public List<int> overrideValues;
     [Header("Override value for if player isn't in a zone")]
     public int defaultZoneOverride;
+    //private variables
+    Dictionary<Collider, int> zoneMap;
+    bool outfitSet = false;
+    bool goTriggered = false;
+    bool goTriggeredSummon = false;
+    int startZoneOverride;
+
+    /// <summary>
+    /// Initialise lists and add values to dictionary
+    /// </summary>
+
 }
