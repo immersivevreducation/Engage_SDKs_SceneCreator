@@ -10,22 +10,103 @@ using UnityEngine;
 public class OutfitZoneHandler : MonoBehaviour
 {
     //Public variables
-    [Header("Colliders for each zone")]
-    public List<GameObject> zones;
-    [Header("Override value for each zone in order")]
-    [Tooltip("-1 for no outfit, 0 for spacesuit")]
-    public List<int> overrideValues;
+    [Header("")]
+    [Header("Add all outfit zones here")]
+    [Header("")]
+    public List<OutfitZone> outfitZones;
+    [Header("")]
     [Header("Override value for if player isn't in a zone")]
+    [Header("")]
     public int defaultZoneOverride;
     //private variables
-    Dictionary<Collider, int> zoneMap;
-    bool outfitSet = false;
-    bool goTriggered = false;
-    bool goTriggeredSummon = false;
     int startZoneOverride;
 
+    int layermask;
+
+    float outfitZoneCounter = 0;
+    float checkPeriod = 0.5f;
+    Collider[] areaColliders;
+
+#if UNITY_ENGAGE
     /// <summary>
     /// Initialise lists and add values to dictionary
     /// </summary>
+    private void Start()
+    {
+        listenersSet = false;
+        layermask = 1 << 20;
+        outfitZoneCounter = 0;
+        startZoneOverride = TheaterVariables.roomOutfitOverrideOnStart;
+    }
 
+    private void OnDestroy()
+    {
+        //best practice
+        if (listenersSet)
+            RemoveListeners();
+    }
+
+    /// <summary>
+    /// Check if player summoned and start summon coroutine
+    /// otherwise change outfit immediately
+    /// </summary>
+    void Update()
+    {
+        if (Time.timeSinceLevelLoad < 5f)
+            return;
+
+        if (outfitZoneCounter > 0)
+        {
+            outfitZoneCounter -= Time.deltaTime;
+        }
+        else
+        {
+            outfitZoneCounter = checkPeriod;
+            DoZoneCheck();
+        }        
+    }
+
+    void DoZoneCheck()
+    {
+        outfitZoneCounter = checkPeriod;
+
+        if (ENG_IGM_PlayerManager.instance != null)
+            if (ENG_IGM_PlayerManager.instance.myPlayerObject != null)
+            {
+                if (!listenersSet)
+                    AddListeners();
+
+                areaColliders = Physics.OverlapSphere(ENG_IGM_PlayerManager.instance.myPlayerObject.playerObject.transform.position, 0.25f, layermask, QueryTriggerInteraction.Collide);
+                for (int i = 0; i < areaColliders.Length; i++)
+                {
+                    if (areaColliders[i].gameObject)
+                    {
+                        OutfitZone zone = areaColliders[i].gameObject.GetComponent<OutfitZone>();
+                        if (zone != null && outfitZones.Contains(zone))
+                        {
+                            if (zone.outfit_override != ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.outfitOverridesIndex)
+                                ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.OutfitOverride(zone.outfit_override);
+
+                            return;
+                        }
+                    }
+                }
+            }
+    }
+
+    bool listenersSet;
+    void AddListeners()
+    {
+        ENG_IGM_PlayerManager.instance.OnPlayerSit.AddListener(DoZoneCheck);
+        ENG_IGM_PlayerManager.instance.OnPlayerTeleported.AddListener(DoZoneCheck);
+        listenersSet = true;
+    }
+
+    void RemoveListeners()
+    {
+        ENG_IGM_PlayerManager.instance.OnPlayerSit.RemoveListener(DoZoneCheck);
+        ENG_IGM_PlayerManager.instance.OnPlayerTeleported.RemoveListener(DoZoneCheck);
+        listenersSet = true;
+    }
+#endif
 }
