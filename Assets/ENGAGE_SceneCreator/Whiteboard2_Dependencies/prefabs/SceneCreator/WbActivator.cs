@@ -4,9 +4,10 @@ using UnityEngine;
 public class WbActivator : MonoBehaviour {
 #if UNITY_ENGAGE
     public WbSurface surface;
-
+#endif
     public void onPress()
     {
+#if UNITY_ENGAGE
         if (WbUi.I.surface == surface) {
             //Wb2Ui.I.buttonDisconnect();
         } else {
@@ -22,6 +23,6 @@ public class WbActivator : MonoBehaviour {
                 WbBoss.I.tryLockSurface(surface);
             }
         }
-    }
 #endif
+    }
 }
