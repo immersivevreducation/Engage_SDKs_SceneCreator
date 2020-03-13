@@ -39,13 +39,6 @@ public class OutfitZoneHandler : MonoBehaviour
         startZoneOverride = TheaterVariables.roomOutfitOverrideOnStart;
     }
 
-    private void OnDestroy()
-    {
-        //best practice
-        if (listenersSet)
-            RemoveListeners();
-    }
-
     /// <summary>
     /// Check if player summoned and start summon coroutine
     /// otherwise change outfit immediately
@@ -70,43 +63,42 @@ public class OutfitZoneHandler : MonoBehaviour
     {
         outfitZoneCounter = checkPeriod;
 
-        if (ENG_IGM_PlayerManager.instance != null)
-            if (ENG_IGM_PlayerManager.instance.myPlayerObject != null)
+        if (ENG_IGM_PlayerManager.instance == null)
+            return;
+
+        if (ENG_IGM_PlayerManager.instance.myPlayerObject != null)
+        {
+            if (!listenersSet)
+                AddListeners();
+
+            areaColliders = Physics.OverlapSphere(ENG_IGM_PlayerManager.instance.myPlayerObject.playerObject.transform.position, 0.25f, layermask, QueryTriggerInteraction.Collide);
+            for (int i = 0; i < areaColliders.Length; i++)
             {
-                if (!listenersSet)
-                    AddListeners();
-
-                areaColliders = Physics.OverlapSphere(ENG_IGM_PlayerManager.instance.myPlayerObject.playerObject.transform.position, 0.25f, layermask, QueryTriggerInteraction.Collide);
-                for (int i = 0; i < areaColliders.Length; i++)
+                if (areaColliders[i].gameObject)
                 {
-                    if (areaColliders[i].gameObject)
+                    OutfitZone zone = areaColliders[i].gameObject.GetComponent<OutfitZone>();
+                    if (zone != null && outfitZones.Contains(zone))
                     {
-                        OutfitZone zone = areaColliders[i].gameObject.GetComponent<OutfitZone>();
-                        if (zone != null && outfitZones.Contains(zone))
-                        {
-                            if (zone.outfit_override != ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.outfitOverridesIndex)
-                                ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.OutfitOverride(zone.outfit_override);
+                        if (zone.outfit_override != ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.outfitOverridesIndex)
+                            ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.OutfitOverride(zone.outfit_override);
 
-                            return;
-                        }
+                        return;
                     }
                 }
             }
+
+            if (defaultZoneOverride != ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.outfitOverridesIndex)
+                ENG_IGM_PlayerManager.instance.myPlayerObject.playerSyncScript.lvr_Avatar.avatarRef.OutfitOverride(defaultZoneOverride);
+
+        }
     }
 
     bool listenersSet;
     void AddListeners()
     {
+        listenersSet = true;
         ENG_IGM_PlayerManager.instance.OnPlayerSit.AddListener(DoZoneCheck);
         ENG_IGM_PlayerManager.instance.OnPlayerTeleported.AddListener(DoZoneCheck);
-        listenersSet = true;
-    }
-
-    void RemoveListeners()
-    {
-        ENG_IGM_PlayerManager.instance.OnPlayerSit.RemoveListener(DoZoneCheck);
-        ENG_IGM_PlayerManager.instance.OnPlayerTeleported.RemoveListener(DoZoneCheck);
-        listenersSet = true;
     }
 #endif
 }
