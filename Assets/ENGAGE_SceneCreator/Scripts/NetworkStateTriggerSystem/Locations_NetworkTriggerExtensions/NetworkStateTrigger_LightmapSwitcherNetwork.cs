@@ -9,12 +9,13 @@ public class NetworkStateTrigger_LightmapSwitcherNetwork : MonoBehaviour
 {
     private LVR_Location_NetworkState m_state;
 
+    [Header("Reference to LSS_FrontEnd object")]
     public LSS_FrontEnd lightSwitcher;
 
-    [Tooltip("0=BasteState, 1=TheaterState, 2= PodiumState, 3=CinemaState")]
+    [Header("Array containing objects to enable during lightmodes")]
     public GameObject[] lightObjects;
 
-    [Tooltip("0=BasteState, 1=TheaterState, 2= PodiumState, 3=CinemaState")]
+    [Header("String to represent Lightmaps")]
     public string[] lightmapNames;
 
     private int lastLight;

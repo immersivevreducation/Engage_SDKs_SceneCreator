@@ -8,13 +8,20 @@ public class NetworkStateTrigger_GenericMovable : MonoBehaviour
 
     private LVR_Location_NetworkState m_state;
 
+    [Header("The object to move")]
     public GameObject go;
+
+    [Header("Moves between Transforms, A & B")]
     public Transform transA;
     public Transform transB;
+
+    [Header("Time to complete transition")]
     public float transitionTime = 1;
 
+    [Header("Enable Objects while moving (example, object with audio)")]
     public GameObject[] setObjectsActiveIfMoving;
 
+    [Header("Follow rule of Animation; Slow In, Slow Out")]
     public bool isSlowInSlowOut = true;
 
     private bool isMoving = false;

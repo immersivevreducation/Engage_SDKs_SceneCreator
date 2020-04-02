@@ -1,12 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+/// <summary>
+/// Toggle Skybox in Scene
+/// </summary>
 
 [RequireComponent(typeof(LVR_Location_NetworkState))]
 public class NetworkStateTrigger_ToggleSkybox : MonoBehaviour {
 
     private LVR_Location_NetworkState m_state;
 
+    [Header("Skybox material to toggle with current skybox")]
     public Material skybox;
 
     private Material m_defaultSkybox;

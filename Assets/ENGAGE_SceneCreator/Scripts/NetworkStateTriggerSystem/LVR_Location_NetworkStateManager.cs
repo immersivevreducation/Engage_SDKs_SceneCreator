@@ -11,6 +11,7 @@ public class LVR_Location_NetworkStateManager : MonoBehaviour
     [Header("-----Network State Manager - ONLY ONE OF THESE IN LOCATION!----")]
     [Header("")]
 
+    [Header("States to Manage")]
     public List<LVR_Location_NetworkState> networkStates = new List<LVR_Location_NetworkState>();
 
 #if UNITY_ENGAGE

@@ -7,6 +7,7 @@ public class NetworkStateTrigger_Lightmap : MonoBehaviour {
 
     private LVR_Location_NetworkState m_state;
 
+    
     [System.Serializable]
     public class LightingModes
     {
@@ -20,7 +21,10 @@ public class NetworkStateTrigger_Lightmap : MonoBehaviour {
         public LightProbes lightProbes;
     }
 
+    [Header("List of SO Lightmaps")]
     public List<LightingModes> lightingModes; //Number of used lightmaps
+
+    [Header("Objects to enable along with Lightmap")]
     public List<GameObject> lightObjects;
     public Material[] emissionMaterials;
 
@@ -62,19 +66,6 @@ public class NetworkStateTrigger_Lightmap : MonoBehaviour {
                 }
             }
         }
-
-        //if (m_state.currentState < (lightingModes.Count - 1))
-        //{
-        //    if (lightingModes[m_state.currentState + 1].dontCycle == false)
-        //    {
-        //        m_state.UpdateState(m_state.currentState + 1);
-        //    }
-        //}
-
-        //else
-        //{
-        //    
-        //}
     }
 
 

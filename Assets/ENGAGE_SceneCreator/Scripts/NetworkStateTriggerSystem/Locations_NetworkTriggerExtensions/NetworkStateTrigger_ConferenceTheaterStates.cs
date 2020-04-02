@@ -6,6 +6,7 @@ using UnityEngine;
 public class NetworkStateTrigger_ConferenceTheaterStates : MonoBehaviour
 {
     private LVR_Location_NetworkState m_state;
+    [Header("Script used exclusively for Theatre Stage Scene")]
 
     //[Tooltip("0=BasteState, 1=TheaterState, 2= PodiumState, 3=CinemaState")]
     [Tooltip("0=Curtains, 1= LargeScreenInFront, 2=ScreenBehind, 3=Podium, 4=SmallScreenInFront")]

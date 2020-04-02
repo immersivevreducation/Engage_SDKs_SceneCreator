@@ -9,20 +9,4 @@ using UnityEngine.UI;
 public class VideoMaterialInstance : MonoBehaviour {
     Renderer renderer;
     RawImage rawImage;
-    /*
-    private void Awake()
-    {
-        renderer = GetComponent<Renderer>();
-        rawImage = GetComponent<RawImage>();
-    }
-    void Update(){
-        if (renderer)
-            renderer.material = WebHelper.screenMaterial;
-        if (rawImage) {
-            rawImage.material = WebHelper.screenMaterial;
-            rawImage.texture = WebHelper.screenMaterial.mainTexture;
-        }
-
-        
-	}*/
 }

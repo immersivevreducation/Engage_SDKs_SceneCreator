@@ -2,11 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Script to Toggle Objects with States
+/// </summary>
+
 [RequireComponent(typeof(LVR_Location_NetworkState))]
 public class NetworkStateTrigger_ToggleObjects : MonoBehaviour {
 
     private LVR_Location_NetworkState m_state;
 
+    [Header("Objects to Toggle")]
     public List< GameObject> go = new List<GameObject>();
 
     void Start () {
