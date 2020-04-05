@@ -11,7 +11,7 @@ public class NetworkStateTrigger_GenericMovable : MonoBehaviour
     [Header("The object to move")]
     public GameObject go;
 
-    [Header("Moves between Transforms, A & B")]
+    [Header("Moves between Transforms, A (state 0) & B (state 1)")]
     public Transform transA;
     public Transform transB;
 
