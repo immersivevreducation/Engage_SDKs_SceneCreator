@@ -24,6 +24,7 @@ namespace IVRE.whiteboard
         public float disconnectDistance = 4.0f;
         public GameObject activateButton;
         public MeshRenderer paintMesh;
+        public MeshRenderer[] optionalProjectedMeshes;
         public Color clearColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         public Color inkColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
