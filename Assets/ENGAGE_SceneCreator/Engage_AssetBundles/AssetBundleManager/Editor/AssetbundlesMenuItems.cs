@@ -6,6 +6,8 @@ namespace AssetBundles
 {
 	public class AssetBundlesMenuItems
 	{
+		static bool updateBtnClicked = false;
+
 		[MenuItem ("Assets/AssetBundles/Build Engage AssetBundles")]
 		static public void BuildAssetBundles ()
 		{
