@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.ivre.Engage_SceneCreatorSDK": "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator.git",
+    "com.ivre.engage_scenecreator_sdk": "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "2.0.8",

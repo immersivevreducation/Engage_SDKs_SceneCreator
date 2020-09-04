@@ -9,7 +9,7 @@ namespace AssetBundles
     {
         bool checkComplete = false;
         UnityEditor.PackageManager.Requests.AddRequest sdkUpdateRequest;
-        string packageID = "com.ivre.Engage_SceneCreatorSDK";
+        string packageID = "com.ivre.engage_scenecreator_sdk";
         string url = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/raw/master/Engage_SceneCreatorSDK.unitypackage";
 
         [MenuItem("SDK/Check for updates")]
@@ -22,14 +22,14 @@ namespace AssetBundles
         {
             if (GUILayout.Button("Check for updates"))
             {
-                sdkUpdateRequest = UnityEditor.PackageManager.Client.Add(packageID + ":" + url);
+                sdkUpdateRequest = UnityEditor.PackageManager.Client.Add(packageID);
                 checkComplete = true;
             }
             EditorGUILayout.Space();
 
             if (checkComplete)
                 if (sdkUpdateRequest.IsCompleted)
-                    Debug.Log("SDK update complete with result of: " + sdkUpdateRequest.Result);
+                    Debug.Log("SDK update complete with result of: " + sdkUpdateRequest.Error.message);
         }
     }
 }
