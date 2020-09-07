@@ -10,7 +10,6 @@ namespace AssetBundles
         bool checkComplete = false;
         UnityEditor.PackageManager.Requests.AddRequest sdkUpdateRequest;
         string packageID = "com.ivre.engage_scenecreator_sdk";
-        string url = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator.git";
 
         [MenuItem("SDK/Check for updates")]
         public static void ShowUpdateWindow()
