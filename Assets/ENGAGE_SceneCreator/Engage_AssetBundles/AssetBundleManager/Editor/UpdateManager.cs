@@ -22,7 +22,7 @@ namespace AssetBundles
         {
             if (GUILayout.Button("Check for updates"))
             {
-                sdkUpdateRequest = UnityEditor.PackageManager.Client.Add(url);
+                sdkUpdateRequest = UnityEditor.PackageManager.Client.Add(packageID);
                 checkComplete = true;
             }
             EditorGUILayout.Space();
