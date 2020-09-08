@@ -49,5 +49,11 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
+  },
+  "lock": {
+    "com.ivre.engage_scenecreator_sdk": {
+      "hash": "dabb6675ca2c65f18989ad8d5895c8713976ebd4",
+      "revision": "HEAD"
+    }
   }
 }
