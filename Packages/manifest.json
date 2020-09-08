@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.ivre.engage_scenecreator_sdk": "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "2.0.8",
@@ -49,11 +48,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "lock": {
-    "com.ivre.engage_scenecreator_sdk": {
-      "hash": "dabb6675ca2c65f18989ad8d5895c8713976ebd4",
-      "revision": "HEAD"
-    }
   }
 }
