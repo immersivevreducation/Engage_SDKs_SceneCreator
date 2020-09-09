@@ -71,7 +71,6 @@ namespace AssetBundles
 
                 if (File.Exists(_filepath))
                 {
-                    Debug.Log("Package exists");
                     AssetDatabase.ImportPackage(_filepath, false);
                     updateComplete = true;
                 }
