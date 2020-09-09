@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
-using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using System;
@@ -12,9 +10,9 @@ namespace AssetBundles
     {
         bool checkComplete = false;
         bool updateComplete = false;
-        UnityEditor.PackageManager.Requests.AddRequest sdkUpdateRequest;
-        string packageID = "com.ivre.engage_scenecreator_sdk";
-        string _url = "SceneCreatorSDK.unitypackage";
+        bool updateInProgress = false;
+        readonly string _filepath = "SceneCreatorSDK.unitypackage";
+        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/blob/master/engage_scenecreator_sdk.unitypackage?raw=true";
 
         [MenuItem("SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -26,8 +24,9 @@ namespace AssetBundles
         {
             GUILayout.Label("SceneCreatorSDK package may not be up to date with latest version.");
             EditorGUILayout.Space();
-            if (GUILayout.Button("Check for updates"))
+            if (GUILayout.Button("Check for updates") && !updateInProgress)
             {
+                updateInProgress = true;
                 checkComplete = true;
                 ImportPackage();
             }
@@ -44,13 +43,12 @@ namespace AssetBundles
                     GUILayout.Label("Downloading package from server, this may take several moments...");
                 }
             }
-
         }
 
         private void ImportPackage()
         {
             WebClient wc = new WebClient();
-            Uri _uri = new Uri("https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/blob/master/engage_scenecreator_sdk.unitypackage?raw=true");
+            Uri _uri = new Uri(_packageUrl);
             wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
             try
             {
@@ -64,23 +62,27 @@ namespace AssetBundles
 
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
+            updateInProgress = false;
             try
             {
-                if (File.Exists("SceneCreatorSDK.unitypackage"))
-                    FileUtil.DeleteFileOrDirectory("SceneCreatorSDK.unitypackage");
-                FileUtil.MoveFileOrDirectory("SceneCreatorSDK", "SceneCreatorSDK.unitypackage");
+                if (File.Exists(_filepath))
+                    FileUtil.DeleteFileOrDirectory(_filepath);
+                FileUtil.MoveFileOrDirectory("SceneCreatorSDK", _filepath);
 
-                Debug.Log("Package download completed");
-                if (File.Exists(_url))
+                if (File.Exists(_filepath))
                 {
                     Debug.Log("Package exists");
-                    AssetDatabase.ImportPackage(_url, false);
+                    AssetDatabase.ImportPackage(_filepath, false);
                     updateComplete = true;
+                }
+                else
+                {
+                    throw new FileNotFoundException();
                 }
             }
             catch
             {
-                throw new FileNotFoundException();
+                throw e.Error;
             }
         }
     }
