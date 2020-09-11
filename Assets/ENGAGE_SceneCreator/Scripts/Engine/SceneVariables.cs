@@ -74,6 +74,14 @@ public class SceneVariables : MonoBehaviour {
     public List<LVR_SitTrigger> perfectSeatList = new List<LVR_SitTrigger>();
 
     [Header("")]
+    [Header("UHD Video Default - for 360 video rooms, can cause issues with performance")]
+    [Header("")]
+    /// <summary>
+    /// UHD Video Default - can cause issues with performance, useful for 360 video rooms
+    /// </summary>
+    public bool useUHDVideoAsDefault = false;
+
+    [Header("")]
     [Header("Only if override is necessary, otherwise -1")]
     [Header("")]
     /// <summary>
@@ -131,6 +139,4 @@ public class SceneVariables : MonoBehaviour {
     /// <remarks>Typically used for scenes that aren't free roam / part of an experience</remarks>
 	public bool disableTablet = false;
 
-
-    GameObject theaterVariablesObject = null;
 }
