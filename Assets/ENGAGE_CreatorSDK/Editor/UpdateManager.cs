@@ -11,8 +11,8 @@ namespace AssetBundles
         bool checkComplete = false;
         bool updateComplete = false;
         bool updateInProgress = false;
-        readonly string _filepath = "SceneCreatorSDK.unitypackage";
-        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/blob/master/engage_scenecreator_sdk.unitypackage?raw=true";
+        readonly string _filepath = "CreatorSDK.unitypackage";
+        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/blob/master/engage_creatorsdk.unitypackage?raw=true";
 
         [MenuItem("SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -22,7 +22,7 @@ namespace AssetBundles
 
         private void OnGUI()
         {
-            GUILayout.Label("SceneCreatorSDK package may not be up to date with latest version.");
+            GUILayout.Label("Creator SDK package may not be up to date with latest version.");
             EditorGUILayout.Space();
             if (GUILayout.Button("Check for updates") && !updateInProgress)
             {
@@ -36,7 +36,7 @@ namespace AssetBundles
             {
                 if (updateComplete)
                 {
-                    GUILayout.Label("SceneCreator updated to latest version!");
+                    GUILayout.Label("Creator SDK updated to latest version!");
                 }
                 else
                 {
@@ -52,7 +52,7 @@ namespace AssetBundles
             wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
             try
             {
-                wc.DownloadFileAsync(_uri, "SceneCreatorSDK");
+                wc.DownloadFileAsync(_uri, "CreatorSDK");
             }
             catch
             {
@@ -67,7 +67,7 @@ namespace AssetBundles
             {
                 if (File.Exists(_filepath))
                     FileUtil.DeleteFileOrDirectory(_filepath);
-                FileUtil.MoveFileOrDirectory("SceneCreatorSDK", _filepath);
+                FileUtil.MoveFileOrDirectory("CreatorSDK", _filepath);
 
                 if (File.Exists(_filepath))
                 {
