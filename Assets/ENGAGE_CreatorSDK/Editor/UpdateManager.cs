@@ -12,7 +12,7 @@ namespace AssetBundles
         bool updateComplete = false;
         bool updateInProgress = false;
         readonly string _filepath = "CreatorSDK.unitypackage";
-        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_SDKs_SceneCreator/blob/master/engage_creatorsdk.unitypackage?raw=true";
+        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/engage_creatorsdk.unitypackage?raw=true";
 
         [MenuItem("SDK/Check for updates")]
         public static void ShowUpdateWindow()
