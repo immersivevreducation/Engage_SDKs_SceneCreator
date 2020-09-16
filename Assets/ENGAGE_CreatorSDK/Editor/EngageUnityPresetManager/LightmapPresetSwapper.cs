@@ -15,8 +15,8 @@ public static class LightmapPresetSwapper
     private static int _tryCount = 0;
     private static int TRY_LIMIT = 10;
 
-    private static string ANDROID_TEXTURES_PRESET = "AndroidOverridePreset";
-    private static string ANDROID_LIGHTMAP_PRESET = "AndroidLightmapOverridePreset";
+    private static string ANDROID_TEXTURES_PRESET = "ENGAGEOverridePreset";
+    private static string ANDROID_LIGHTMAP_PRESET = "ENGAGELightmapOverridePreset";
 
     static LightmapPresetSwapper()
     {
