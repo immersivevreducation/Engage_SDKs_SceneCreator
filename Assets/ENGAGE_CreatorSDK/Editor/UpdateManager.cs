@@ -11,6 +11,9 @@ namespace AssetBundles
         bool checkComplete = false;
         bool updateComplete = false;
         bool updateInProgress = false;
+        bool automaticUpdatesEnabled = false;
+        float defaultLabelWidth;
+        readonly float guiLabelWidth = 160f;
         readonly string _filepath = "CreatorSDK.unitypackage";
         readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/engage_creatorsdk.unitypackage?raw=true";
 
@@ -31,6 +34,10 @@ namespace AssetBundles
                 ImportPackage();
             }
             EditorGUILayout.Space();
+            defaultLabelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = guiLabelWidth;
+            automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", false);
+            EditorGUIUtility.labelWidth = defaultLabelWidth;
 
             if (checkComplete)
             {
