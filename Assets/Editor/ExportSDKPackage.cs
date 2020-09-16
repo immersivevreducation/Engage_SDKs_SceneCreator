@@ -8,7 +8,7 @@ public static class ExportWithLayers {
 	    public static void ExportPackage()
 	    {
 		        string[] projectContent = new string[] {"Assets/Engage_CreatorSDK","Assets/Standard Assets","ProjectSettings/TagManager.asset"};
-				AssetDatabase.ExportPackage(projectContent, "engage_creatorsdk.unitypackage", ExportPackageOptions.Recurse); 
+				AssetDatabase.ExportPackage(projectContent, "CreatorSDK.unitypackage", ExportPackageOptions.Recurse); 
 		        Debug.Log("Project Exported");
 		    }
 	 
