@@ -17,7 +17,7 @@ namespace AssetBundles
         readonly string _filepath = "CreatorSDK.unitypackage";
         readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/engage_creatorsdk.unitypackage?raw=true";
 
-        [MenuItem("SDK/Check for updates")]
+        [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
         {
             GetWindow<UpdateManager>(false, "Update manager", true);
