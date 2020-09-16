@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Net;
 using System.IO;
 using System;
+using System.Xml;
 
 namespace AssetBundles
 {
@@ -12,10 +13,15 @@ namespace AssetBundles
         bool updateComplete = false;
         bool updateInProgress = false;
         bool automaticUpdatesEnabled = false;
+        bool packageUpToDate = false;
+
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
         readonly string _filepath = "CreatorSDK.unitypackage";
         readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
+        readonly string _manifestUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/raw/master/Assets/ENGAGE_CreatorSDK/manifest.json";
+        readonly string _tempManifestPath = "manifest.xml";
+        readonly string _localManifestPath = "Assets\\ENGAGE_CreatorSDK\\manifest.xml";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -29,9 +35,10 @@ namespace AssetBundles
             EditorGUILayout.Space();
             if (GUILayout.Button("Check for updates") && !updateInProgress)
             {
-                updateInProgress = true;
-                checkComplete = true;
-                ImportPackage();
+                //updateInProgress = true;
+                //checkComplete = true;
+                //ImportPackage();
+                bool i = PackageIsUpToDate();
             }
             EditorGUILayout.Space();
             defaultLabelWidth = EditorGUIUtility.labelWidth;
@@ -67,6 +74,41 @@ namespace AssetBundles
             }
         }
 
+        private bool PackageIsUpToDate()
+        {
+            WebClient wc = new WebClient();
+            Uri _uri = new Uri(_manifestUrl);
+            wc.DownloadFileCompleted += Wc_DownloadManifestCompleted;
+            try
+            {
+                wc.DownloadFileAsync(_uri, "manifest");
+            }
+            catch
+            {
+                throw new FileNotFoundException();
+            }
+            return true;
+        }
+
+        private void Wc_DownloadManifestCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            string _manifestData;
+            try
+            {
+                if (File.Exists(_tempManifestPath))
+                {
+                    _manifestData = File.ReadAllText(_tempManifestPath);
+                    GetVersionNumberFromXML(_manifestData);
+                }
+            }
+            catch
+            {
+                throw e.Error;
+            }
+
+            packageUpToDate = true;
+        }
+
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             updateInProgress = false;
@@ -90,6 +132,16 @@ namespace AssetBundles
             {
                 throw e.Error;
             }
+        }
+
+        private float GetVersionNumberFromXML(string _s)
+        {
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.LoadXml(_s);
+            string xpath = "packageData/version";
+            var node = xDoc.SelectSingleNode(xpath);
+
+            return float.Parse(node.InnerText);
         }
     }
 }
