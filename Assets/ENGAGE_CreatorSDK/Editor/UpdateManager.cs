@@ -4,6 +4,9 @@ using System.Net;
 using System.IO;
 using System;
 using System.Xml;
+using System.Security.Cryptography;
+using LSS_Components;
+using System.Text;
 
 namespace AssetBundles
 {
@@ -19,8 +22,6 @@ namespace AssetBundles
         readonly float guiLabelWidth = 160f;
         readonly string _filepath = "CreatorSDK.unitypackage";
         readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
-        readonly string _manifestUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/raw/master/Assets/ENGAGE_CreatorSDK/manifest.json";
-        readonly string _tempManifestPath = "manifest.xml";
         readonly string _localManifestPath = "Assets\\ENGAGE_CreatorSDK\\manifest.xml";
 
         [MenuItem("Creator SDK/Check for updates")]
@@ -37,8 +38,7 @@ namespace AssetBundles
             {
                 //updateInProgress = true;
                 //checkComplete = true;
-                //ImportPackage();
-                bool i = PackageIsUpToDate();
+                ImportPackage();
             }
             EditorGUILayout.Space();
             defaultLabelWidth = EditorGUIUtility.labelWidth;
@@ -52,6 +52,10 @@ namespace AssetBundles
                 {
                     GUILayout.Label("Creator SDK updated to latest version!");
                 }
+                else if (packageUpToDate)
+                {
+                    GUILayout.Label("Creator SDK is already up to date with latest version!");
+                }
                 else
                 {
                     GUILayout.Label("Downloading package from server, this may take several moments...");
@@ -61,52 +65,24 @@ namespace AssetBundles
 
         private void ImportPackage()
         {
-            WebClient wc = new WebClient();
-            Uri _uri = new Uri(_packageUrl);
-            wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-            try
-            {
-                wc.DownloadFileAsync(_uri, "CreatorSDK");
-            }
-            catch
-            {
-                throw new FileNotFoundException();
-            }
+            //WebClient wc = new WebClient();
+            //Uri _uri = new Uri(_packageUrl);
+            //wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
+            //try
+            //{
+            //    wc.DownloadFileAsync(_uri, "CreatorSDK");
+            //}
+            //catch
+            //{
+            //    throw new FileNotFoundException();
+            //}
+            Debug.Log("Checksum: " + GetChecksumFromXML(File.ReadAllText(_localManifestPath)));
+            WriteChecksumToXML(File.ReadAllText(_localManifestPath), GetMD5Checksum(_filepath));
         }
 
-        private bool PackageIsUpToDate()
+        private bool PackageIsUpToDate(string _path)
         {
-            WebClient wc = new WebClient();
-            Uri _uri = new Uri(_manifestUrl);
-            wc.DownloadFileCompleted += Wc_DownloadManifestCompleted;
-            try
-            {
-                wc.DownloadFileAsync(_uri, "manifest");
-            }
-            catch
-            {
-                throw new FileNotFoundException();
-            }
-            return true;
-        }
-
-        private void Wc_DownloadManifestCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            string _manifestData;
-            try
-            {
-                if (File.Exists(_tempManifestPath))
-                {
-                    _manifestData = File.ReadAllText(_tempManifestPath);
-                    GetVersionNumberFromXML(_manifestData);
-                }
-            }
-            catch
-            {
-                throw e.Error;
-            }
-
-            packageUpToDate = true;
+            return GetMD5Checksum(_path) == GetChecksumFromXML(_localManifestPath);
         }
 
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -120,8 +96,17 @@ namespace AssetBundles
 
                 if (File.Exists(_filepath))
                 {
-                    AssetDatabase.ImportPackage(_filepath, false);
-                    updateComplete = true;
+                    if (PackageIsUpToDate(_filepath))
+                    {
+                        packageUpToDate = true;
+                        return;
+                    }
+                    else
+                    {
+                        AssetDatabase.ImportPackage(_filepath, false);
+                        updateComplete = true;
+                        WriteChecksumToXML(_localManifestPath, GetMD5Checksum(_filepath));
+                    }
                 }
                 else
                 {
@@ -134,14 +119,36 @@ namespace AssetBundles
             }
         }
 
-        private float GetVersionNumberFromXML(string _s)
+        private string GetChecksumFromXML(string _s)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_s);
-            string xpath = "packageData/version";
+            string xpath = "packageData/checksum";
             var node = xDoc.SelectSingleNode(xpath);
 
-            return float.Parse(node.InnerText);
+            return node.InnerXml;
+        }
+
+        private void WriteChecksumToXML(string _path, string _checksum)
+        {
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.LoadXml(_path);
+            string xpath = "packageData/checksum";
+            var node = xDoc.SelectSingleNode(xpath);
+            node.InnerXml = _checksum;
+            xDoc.Save(_localManifestPath);
+        }
+
+        private string GetMD5Checksum(string _path)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(_path))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
         }
     }
 }
