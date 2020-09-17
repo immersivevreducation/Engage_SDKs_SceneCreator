@@ -36,8 +36,8 @@ namespace AssetBundles
             EditorGUILayout.Space();
             if (GUILayout.Button("Check for updates") && !updateInProgress)
             {
-                //updateInProgress = true;
-                //checkComplete = true;
+                updateInProgress = true;
+                checkComplete = true;
                 ImportPackage();
             }
             EditorGUILayout.Space();
@@ -65,24 +65,22 @@ namespace AssetBundles
 
         private void ImportPackage()
         {
-            //WebClient wc = new WebClient();
-            //Uri _uri = new Uri(_packageUrl);
-            //wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-            //try
-            //{
-            //    wc.DownloadFileAsync(_uri, "CreatorSDK");
-            //}
-            //catch
-            //{
-            //    throw new FileNotFoundException();
-            //}
-            Debug.Log("Checksum: " + GetChecksumFromXML(File.ReadAllText(_localManifestPath)));
-            WriteChecksumToXML(File.ReadAllText(_localManifestPath), GetMD5Checksum(_filepath));
+            WebClient wc = new WebClient();
+            Uri _uri = new Uri(_packageUrl);
+            wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
+            try
+            {
+                wc.DownloadFileAsync(_uri, "CreatorSDK");
+            }
+            catch
+            {
+                throw new FileNotFoundException();
+            }
         }
 
         private bool PackageIsUpToDate(string _path)
         {
-            return GetMD5Checksum(_path) == GetChecksumFromXML(_localManifestPath);
+            return GetMD5Checksum(_path) == GetChecksumFromXML(File.ReadAllText(_localManifestPath));
         }
 
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -105,7 +103,7 @@ namespace AssetBundles
                     {
                         AssetDatabase.ImportPackage(_filepath, false);
                         updateComplete = true;
-                        WriteChecksumToXML(_localManifestPath, GetMD5Checksum(_filepath));
+                        WriteChecksumToXML(File.ReadAllText(_localManifestPath), GetMD5Checksum(_filepath));
                     }
                 }
                 else
@@ -119,20 +117,20 @@ namespace AssetBundles
             }
         }
 
-        private string GetChecksumFromXML(string _s)
+        private string GetChecksumFromXML(string _xml)
         {
             XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_s);
+            xDoc.LoadXml(_xml);
             string xpath = "packageData/checksum";
             var node = xDoc.SelectSingleNode(xpath);
 
             return node.InnerXml;
         }
 
-        private void WriteChecksumToXML(string _path, string _checksum)
+        private void WriteChecksumToXML(string _xml, string _checksum)
         {
             XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_path);
+            xDoc.LoadXml(_xml);
             string xpath = "packageData/checksum";
             var node = xDoc.SelectSingleNode(xpath);
             node.InnerXml = _checksum;
