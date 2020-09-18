@@ -21,8 +21,10 @@ namespace AssetBundles
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
         readonly string _filepath = "CreatorSDK.unitypackage";
-        readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
-        readonly string _localManifestPath = "Assets\\ENGAGE_CreatorSDK\\manifest.xml";
+        //Master URL
+        //readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
+        readonly string _packageUrl = "https://github.com/james-ivre/Test_Repo/blob/master/CreatorSDK.unitypackage?raw=true";
+        readonly string _localManifestPath = "manifest.xml";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
