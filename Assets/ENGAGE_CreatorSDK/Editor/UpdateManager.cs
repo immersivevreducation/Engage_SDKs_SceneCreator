@@ -5,11 +5,10 @@ using System.IO;
 using System;
 using System.Xml;
 using System.Security.Cryptography;
-using LSS_Components;
-using System.Text;
 
 namespace AssetBundles
 {
+    [InitializeOnLoad]
     public class UpdateManager : EditorWindow
     {
         bool checkComplete = false;
@@ -48,14 +47,29 @@ namespace AssetBundles
             automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", false);
             EditorGUIUtility.labelWidth = defaultLabelWidth;
 
+            //if (automaticUpdatesEnabled && !checkComplete)
+            //{
+            //    ImportPackage();
+            //}
+
             if (checkComplete)
             {
                 if (updateComplete)
                 {
+                    if (automaticUpdatesEnabled)
+                    {
+                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK updated to latest version!", "OK");
+                        updateComplete = false;
+                    }
                     GUILayout.Label("Creator SDK updated to latest version!");
                 }
                 else if (packageUpToDate)
                 {
+                    if (automaticUpdatesEnabled)
+                    {
+                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK already up to date!", "OK");
+                        updateComplete = false;
+                    }
                     GUILayout.Label("Creator SDK is already up to date with latest version!");
                 }
                 else
