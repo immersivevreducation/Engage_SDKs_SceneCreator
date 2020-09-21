@@ -31,6 +31,11 @@ namespace AssetBundles
             GetWindow<UpdateManager>(false, "Update manager", true);
         }
 
+        public UpdateManager()
+        {
+            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), "updateConfig/autoupdate"));
+        }
+
         private void OnGUI()
         {
             GUILayout.Label("Creator SDK package may not be up to date with latest version.");
@@ -47,10 +52,10 @@ namespace AssetBundles
             automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", false);
             EditorGUIUtility.labelWidth = defaultLabelWidth;
 
-            //if (automaticUpdatesEnabled && !checkComplete)
-            //{
-            //    ImportPackage();
-            //}
+            if (automaticUpdatesEnabled && !checkComplete)
+            {
+                ImportPackage();
+            }
 
             if (checkComplete)
             {
@@ -96,7 +101,8 @@ namespace AssetBundles
 
         private bool PackageIsUpToDate(string _path)
         {
-            return GetMD5Checksum(_path) == GetChecksumFromXML(File.ReadAllText(_localManifestPath));
+            //return GetMD5Checksum(_path) == GetChecksumFromXML(File.ReadAllText(_localManifestPath));
+            return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/checksum");
         }
 
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -119,7 +125,7 @@ namespace AssetBundles
                     {
                         AssetDatabase.ImportPackage(_filepath, false);
                         updateComplete = true;
-                        WriteChecksumToXML(File.ReadAllText(_localManifestPath), GetMD5Checksum(_filepath));
+                        WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
                     }
                 }
                 else
@@ -133,25 +139,65 @@ namespace AssetBundles
             }
         }
 
-        private string GetChecksumFromXML(string _xml)
+        //private string GetChecksumFromXML(string _xml)
+        //{
+        //    XmlDocument xDoc = new XmlDocument();
+        //    xDoc.LoadXml(_xml);
+        //    string xpath = "packageData/checksum";
+        //    var node = xDoc.SelectSingleNode(xpath);
+
+        //    return node.InnerXml;
+        //}
+
+        private string GetValueFromXML(string _xml, string _xpath)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
-            string xpath = "packageData/checksum";
+            string xpath = _xpath;
             var node = xDoc.SelectSingleNode(xpath);
 
             return node.InnerXml;
         }
 
-        private void WriteChecksumToXML(string _xml, string _checksum)
+        private void WriteDataToXML(string _xml, string _xpath, string _value)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
-            string xpath = "packageData/checksum";
+            string xpath = _xpath;
             var node = xDoc.SelectSingleNode(xpath);
-            node.InnerXml = _checksum;
+            node.InnerXml = _value;
             xDoc.Save(_localManifestPath);
         }
+
+        private void WriteDataToXML(string _xml, string _xpath, int _value)
+        {
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.LoadXml(_xml);
+            string xpath = _xpath;
+            var node = xDoc.SelectSingleNode(xpath);
+            node.InnerXml = _value.ToString();
+            xDoc.Save(_localManifestPath);
+        }
+
+        private void WriteDataToXML(string _xml, string _xpath, bool _value)
+        {
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.LoadXml(_xml);
+            string xpath = _xpath;
+            var node = xDoc.SelectSingleNode(xpath);
+            node.InnerXml = _value.ToString();
+            xDoc.Save(_localManifestPath);
+        }
+
+        //private void WriteChecksumToXML(string _xml, string _checksum)
+        //{
+        //    XmlDocument xDoc = new XmlDocument();
+        //    xDoc.LoadXml(_xml);
+        //    string xpath = "packageData/checksum";
+        //    var node = xDoc.SelectSingleNode(xpath);
+        //    node.InnerXml = _checksum;
+        //    xDoc.Save(_localManifestPath);
+        //}
 
         private string GetMD5Checksum(string _path)
         {
