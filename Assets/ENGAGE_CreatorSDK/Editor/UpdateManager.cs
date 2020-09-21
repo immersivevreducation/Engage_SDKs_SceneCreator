@@ -33,7 +33,7 @@ namespace AssetBundles
 
         public UpdateManager()
         {
-            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), "updateConfig/autoupdate"));
+            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/autoupdate"));
         }
 
         private void OnGUI()
