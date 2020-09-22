@@ -20,10 +20,12 @@ namespace AssetBundles
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
         static readonly string _filepath = "CreatorSDK.unitypackage";
+        static readonly string _localManifestPath = "manifest.xml";
+        static readonly string _xpathConfig = "packageData/autoupdate";
+        static readonly string _xpathVersion = "packageData/checksum";
         //Master URL
         //readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
         static readonly string _packageUrl = "https://github.com/james-ivre/Test_Repo/blob/master/CreatorSDK.unitypackage?raw=true";
-        static readonly string _localManifestPath = "manifest.xml";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -33,9 +35,13 @@ namespace AssetBundles
 
         static UpdateManager()
         {
-            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/autoupdate"));
+            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathConfig));
             if (automaticUpdatesEnabled)
+            {
+                updateInProgress = true;
+                checkComplete = true;
                 ImportPackage();
+            }
         }
 
         private void OnGUI()
@@ -75,7 +81,7 @@ namespace AssetBundles
                 {
                     if (automaticUpdatesEnabled)
                     {
-                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK already up to date!", "OK");
+                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK up to date!", "OK");
                         updateComplete = false;
                     }
                     GUILayout.Label("Creator SDK is already up to date with latest version!");
@@ -104,7 +110,7 @@ namespace AssetBundles
 
         private static bool PackageIsUpToDate(string _path)
         {
-            return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/checksum");
+            return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
         }
 
         private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
