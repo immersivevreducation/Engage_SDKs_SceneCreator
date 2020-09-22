@@ -11,19 +11,19 @@ namespace AssetBundles
     [InitializeOnLoad]
     public class UpdateManager : EditorWindow
     {
-        bool checkComplete = false;
-        bool updateComplete = false;
-        bool updateInProgress = false;
-        bool automaticUpdatesEnabled = false;
-        bool packageUpToDate = false;
+        static bool checkComplete = false;
+        static bool updateComplete = false;
+        static bool updateInProgress = false;
+        static bool automaticUpdatesEnabled = false;
+        static bool packageUpToDate = false;
 
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
-        readonly string _filepath = "CreatorSDK.unitypackage";
+        static readonly string _filepath = "CreatorSDK.unitypackage";
         //Master URL
         //readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
-        readonly string _packageUrl = "https://github.com/james-ivre/Test_Repo/blob/master/CreatorSDK.unitypackage?raw=true";
-        readonly string _localManifestPath = "manifest.xml";
+        static readonly string _packageUrl = "https://github.com/james-ivre/Test_Repo/blob/master/CreatorSDK.unitypackage?raw=true";
+        static readonly string _localManifestPath = "manifest.xml";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -31,9 +31,11 @@ namespace AssetBundles
             GetWindow<UpdateManager>(false, "Update manager", true);
         }
 
-        public UpdateManager()
+        static UpdateManager()
         {
             automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/autoupdate"));
+            if (automaticUpdatesEnabled)
+                ImportPackage();
         }
 
         private void OnGUI()
@@ -47,15 +49,16 @@ namespace AssetBundles
                 ImportPackage();
             }
             EditorGUILayout.Space();
+
             defaultLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = guiLabelWidth;
-            automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", false);
-            EditorGUIUtility.labelWidth = defaultLabelWidth;
 
-            if (automaticUpdatesEnabled && !checkComplete)
+            if (automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", automaticUpdatesEnabled))
             {
-                ImportPackage();
+                WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/autoupdate", automaticUpdatesEnabled);
             }
+
+            EditorGUIUtility.labelWidth = defaultLabelWidth;
 
             if (checkComplete)
             {
@@ -84,7 +87,7 @@ namespace AssetBundles
             }
         }
 
-        private void ImportPackage()
+        private static void ImportPackage()
         {
             WebClient wc = new WebClient();
             Uri _uri = new Uri(_packageUrl);
@@ -99,13 +102,12 @@ namespace AssetBundles
             }
         }
 
-        private bool PackageIsUpToDate(string _path)
+        private static bool PackageIsUpToDate(string _path)
         {
-            //return GetMD5Checksum(_path) == GetChecksumFromXML(File.ReadAllText(_localManifestPath));
             return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), "packageData/checksum");
         }
 
-        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             updateInProgress = false;
             try
@@ -118,11 +120,13 @@ namespace AssetBundles
                 {
                     if (PackageIsUpToDate(_filepath))
                     {
+                        Debug.Log("Already up to date!");
                         packageUpToDate = true;
                         return;
                     }
                     else
                     {
+                        Debug.Log("Importing updated package");
                         AssetDatabase.ImportPackage(_filepath, false);
                         updateComplete = true;
                         WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
@@ -139,17 +143,7 @@ namespace AssetBundles
             }
         }
 
-        //private string GetChecksumFromXML(string _xml)
-        //{
-        //    XmlDocument xDoc = new XmlDocument();
-        //    xDoc.LoadXml(_xml);
-        //    string xpath = "packageData/checksum";
-        //    var node = xDoc.SelectSingleNode(xpath);
-
-        //    return node.InnerXml;
-        //}
-
-        private string GetValueFromXML(string _xml, string _xpath)
+        private static string GetValueFromXML(string _xml, string _xpath)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
@@ -159,7 +153,7 @@ namespace AssetBundles
             return node.InnerXml;
         }
 
-        private void WriteDataToXML(string _xml, string _xpath, string _value)
+        private static void WriteDataToXML(string _xml, string _xpath, string _value)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
@@ -169,7 +163,7 @@ namespace AssetBundles
             xDoc.Save(_localManifestPath);
         }
 
-        private void WriteDataToXML(string _xml, string _xpath, int _value)
+        private static void WriteDataToXML(string _xml, string _xpath, int _value)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
@@ -179,7 +173,7 @@ namespace AssetBundles
             xDoc.Save(_localManifestPath);
         }
 
-        private void WriteDataToXML(string _xml, string _xpath, bool _value)
+        private static void WriteDataToXML(string _xml, string _xpath, bool _value)
         {
             XmlDocument xDoc = new XmlDocument();
             xDoc.LoadXml(_xml);
@@ -189,17 +183,7 @@ namespace AssetBundles
             xDoc.Save(_localManifestPath);
         }
 
-        //private void WriteChecksumToXML(string _xml, string _checksum)
-        //{
-        //    XmlDocument xDoc = new XmlDocument();
-        //    xDoc.LoadXml(_xml);
-        //    string xpath = "packageData/checksum";
-        //    var node = xDoc.SelectSingleNode(xpath);
-        //    node.InnerXml = _checksum;
-        //    xDoc.Save(_localManifestPath);
-        //}
-
-        private string GetMD5Checksum(string _path)
+        private static string GetMD5Checksum(string _path)
         {
             using (var md5 = MD5.Create())
             {
