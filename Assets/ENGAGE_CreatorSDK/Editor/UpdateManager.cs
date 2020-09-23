@@ -76,7 +76,7 @@ namespace AssetBundles
                     }
                     GUILayout.Label("Creator SDK updated to latest version!");
                 }
-                else if (packageUpToDate)
+                if (packageUpToDate)
                 {
                     if (automaticUpdatesEnabled)
                     {
@@ -125,13 +125,13 @@ namespace AssetBundles
                 {
                     if (PackageIsUpToDate(_filepath))
                     {
-                        Debug.Log("Already up to date!");
+                        Debug.Log("CreatorSDK already up to date!");
                         packageUpToDate = true;
                         return;
                     }
                     else
                     {
-                        Debug.Log("Importing updated package");
+                        Debug.Log("Importing updated CreatorSDK package");
                         AssetDatabase.ImportPackage(_filepath, false);
                         updateComplete = true;
                         WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
