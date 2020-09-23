@@ -23,9 +23,7 @@ namespace AssetBundles
         static readonly string _localManifestPath = "manifest.xml";
         static readonly string _xpathConfig = "packageData/autoupdate";
         static readonly string _xpathVersion = "packageData/checksum";
-        //Master URL
-        //readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
-        static readonly string _packageUrl = "https://github.com/james-ivre/Test_Repo/blob/master/CreatorSDK.unitypackage?raw=true";
+        static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
