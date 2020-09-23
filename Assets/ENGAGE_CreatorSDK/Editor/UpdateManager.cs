@@ -59,9 +59,10 @@ namespace AssetBundles
             defaultLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = guiLabelWidth;
 
-            if (automaticUpdatesEnabled = EditorGUILayout.Toggle("Enabled automatic updates", automaticUpdatesEnabled))
+            automaticUpdatesEnabled = EditorGUILayout.Toggle("Enable automatic updates", automaticUpdatesEnabled);
+            if (GUILayout.Button("Save"))
             {
-                WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/autoupdate", automaticUpdatesEnabled);
+                WriteDataToXML(File.ReadAllText(_localManifestPath), _xpathConfig, automaticUpdatesEnabled);
             }
 
             EditorGUIUtility.labelWidth = defaultLabelWidth;
@@ -72,7 +73,7 @@ namespace AssetBundles
                 {
                     if (automaticUpdatesEnabled)
                     {
-                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK updated to latest version!", "OK");
+                        Debug.Log("CreatorSDK updated to latest version!");
                         updateComplete = false;
                     }
                     GUILayout.Label("Creator SDK updated to latest version!");
@@ -81,7 +82,7 @@ namespace AssetBundles
                 {
                     if (automaticUpdatesEnabled)
                     {
-                        EditorUtility.DisplayDialog("CreatorSDK Updater", "CreatorSDK up to date!", "OK");
+                        Debug.Log("CreatorSDK already up to date!");
                         updateComplete = false;
                     }
                     GUILayout.Label("Creator SDK is already up to date with latest version!");
