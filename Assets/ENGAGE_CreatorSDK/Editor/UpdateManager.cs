@@ -44,7 +44,6 @@ namespace AssetBundles
 
         private void OnGUI()
         {
-            GUILayout.Label("Creator SDK package may not be up to date with latest version.");
             EditorGUILayout.Space();
             if (GUILayout.Button("Check for updates") && !updateInProgress)
             {
@@ -62,6 +61,7 @@ namespace AssetBundles
             {
                 WriteDataToXML(File.ReadAllText(_localManifestPath), _xpathConfig, automaticUpdatesEnabled);
             }
+            EditorGUILayout.Space();
 
             EditorGUIUtility.labelWidth = defaultLabelWidth;
 
@@ -76,7 +76,7 @@ namespace AssetBundles
                     }
                     GUILayout.Label("Creator SDK updated to latest version!");
                 }
-                if (packageUpToDate)
+                else if (packageUpToDate)
                 {
                     if (automaticUpdatesEnabled)
                     {
@@ -125,13 +125,13 @@ namespace AssetBundles
                 {
                     if (PackageIsUpToDate(_filepath))
                     {
-                        Debug.Log("CreatorSDK already up to date!");
+                        Debug.Log("Already up to date!");
                         packageUpToDate = true;
                         return;
                     }
                     else
                     {
-                        Debug.Log("Importing updated CreatorSDK package");
+                        Debug.Log("Importing updated package");
                         AssetDatabase.ImportPackage(_filepath, false);
                         updateComplete = true;
                         WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
