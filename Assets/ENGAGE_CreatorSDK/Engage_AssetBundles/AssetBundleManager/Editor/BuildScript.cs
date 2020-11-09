@@ -14,6 +14,33 @@ namespace AssetBundles
     {
         public static string overloadedDevelopmentServerURL = "";
 
+        public static void BuildAssetBundlesWindows()
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.StandaloneWindows64)
+            {
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+            }
+            BuildAssetBundles();
+        }
+
+        public static void BuildAssetBundlesAndroid()
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
+            {
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+            }
+            BuildAssetBundles();
+        }
+
+        public static void BuildAssetBundlesIOS()
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.iOS)
+            {
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
+            }
+            BuildAssetBundles();
+        }
+
         public static void BuildAssetBundles()
         {
             // Choose the output path according to the build target.
@@ -22,51 +49,36 @@ namespace AssetBundles
                 Directory.CreateDirectory(outputPath);
 
             //@TODO: use append hash... (Make sure pipeline works correctly with it.)
+            try
+            {
+                foreach (string f in Directory.EnumerateFiles(outputPath, "*.manifest"))
+                {
+                    File.Delete(f);
+                }
+                foreach (string f in Directory.EnumerateFiles(outputPath, "*.engagebundle"))
+                {
+                    File.Delete(f);
+                }
+            }
+            catch { }
+
             AssetBundleManifest mani = BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+
+            ///UPDATE CHANGED ENGAGE 1.0.3 (JAN 20, 2019) - USE ASSETBUNDLES DIRECTLY, NO EXTRA COMPRESSION ROUTINE 
 
             foreach (string bund in mani.GetAllAssetBundles())
             {
                 Debug.Log("Saving " + bund);
                 try
                 {
-                    //StreamReader theReader = new StreamReader(outputPath + "/" + bund + ".manifest", Encoding.Default);
-                    //string line = "";
-                    //string crc = "";
-                    //using (theReader)
-                    //{
-                    //    do
-                    //    {
-                    //        line = theReader.ReadLine();
-                    //        if (line != null)
-                    //        {
-                    //            if (line.Contains("CRC"))
-                    //            {
-                    //                line = line.Replace("CRC:", "");
-                    //                line = line.Replace(" ", "");
-                    //                crc = line;
-                    //            }
-                    //        }
-                    //    }
-                    //    while (line != null);
-                    //    theReader.Close();
-                    //}
-                    //if (!string.IsNullOrEmpty(crc))
-                    //{
-                    //File.WriteAllText(outputPath + "/" + bund + "_info", crc, Encoding.Default);
 
-                    //lzip.compress_File(1, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund, false, "_data");
-                    //lzip.compress_File(1, outputPath + "/" + bund + ".engagebundle", outputPath + "/" + bund + "_info", true, "_info");
                     if (File.Exists(Path.Combine(outputPath, bund + ".engagebundle")))
                         File.Delete(Path.Combine(outputPath, bund + ".engagebundle"));
 
                     File.Move(Path.Combine(outputPath, bund), Path.Combine(outputPath, bund + ".engagebundle"));
-                    //File.Delete(outputPath + "/" + bund + "_info");
+
                     Debug.Log("Saved " + bund + " successfully");
-                    //}
-                    //else
-                    //{
-                    //    Debug.Log("Problem Evaluating CRC " + bund);
-                    //}
+
                 }
                 catch (System.Exception e)
                 {
