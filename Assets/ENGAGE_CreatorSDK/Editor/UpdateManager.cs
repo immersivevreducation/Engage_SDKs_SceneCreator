@@ -11,14 +11,14 @@ namespace AssetBundles
     [InitializeOnLoad]
     public class UpdateManager : EditorWindow
     {
-        static bool checkComplete = false;
-        static bool updateComplete = false;
         static bool updateInProgress = false;
         static bool automaticUpdatesEnabled = false;
         static bool packageUpToDate = false;
+        static bool checkOnly = false;
 
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
+        static string packageStatus = "";
         static readonly string _filepath = "CreatorSDK.unitypackage";
         static readonly string _localManifestPath = "manifest.xml";
         static readonly string _xpathConfig = "packageData/autoupdate";
@@ -28,68 +28,30 @@ namespace AssetBundles
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
         {
+            packageStatus = "Checking for update";
+            checkOnly = true;
+            ImportPackage();
             GetWindow<UpdateManager>(false, "Update manager", true);
         }
 
         static UpdateManager()
         {
-            automaticUpdatesEnabled = bool.Parse(GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathConfig));
-            if (automaticUpdatesEnabled)
-            {
-                updateInProgress = true;
-                checkComplete = true;
-                ImportPackage();
-            }
+            packageStatus = "Checking for update";
+            checkOnly = true;
+            ImportPackage();
         }
 
         private void OnGUI()
         {
+            GUILayout.Label(packageStatus);
             EditorGUILayout.Space();
-            if (GUILayout.Button("Check for updates") && !updateInProgress)
+            if (GUILayout.Button("Download latest version") && !updateInProgress)
             {
-                updateInProgress = true;
-                checkComplete = true;
+                packageStatus = "Checking for update";
+                checkOnly = false;
                 ImportPackage();
             }
             EditorGUILayout.Space();
-
-            defaultLabelWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = guiLabelWidth;
-
-            automaticUpdatesEnabled = EditorGUILayout.Toggle("Enable automatic updates", automaticUpdatesEnabled);
-            if (GUILayout.Button("Save"))
-            {
-                WriteDataToXML(File.ReadAllText(_localManifestPath), _xpathConfig, automaticUpdatesEnabled);
-            }
-            EditorGUILayout.Space();
-
-            EditorGUIUtility.labelWidth = defaultLabelWidth;
-
-            if (checkComplete)
-            {
-                if (updateComplete)
-                {
-                    if (automaticUpdatesEnabled)
-                    {
-                        Debug.Log("CreatorSDK updated to latest version!");
-                        updateComplete = false;
-                    }
-                    GUILayout.Label("Creator SDK updated to latest version!");
-                }
-                else if (packageUpToDate)
-                {
-                    if (automaticUpdatesEnabled)
-                    {
-                        Debug.Log("CreatorSDK already up to date!");
-                        updateComplete = false;
-                    }
-                    GUILayout.Label("Creator SDK is already up to date with latest version!");
-                }
-                else
-                {
-                    GUILayout.Label("Downloading package from server, this may take several moments...");
-                }
-            }
         }
 
         private static void ImportPackage()
@@ -99,6 +61,7 @@ namespace AssetBundles
             wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
             try
             {
+                updateInProgress = true;
                 wc.DownloadFileAsync(_uri, "CreatorSDK");
             }
             catch
@@ -125,16 +88,21 @@ namespace AssetBundles
                 {
                     if (PackageIsUpToDate(_filepath))
                     {
-                        Debug.Log("Already up to date!");
+                        packageStatus = "Package is up to date";
                         packageUpToDate = true;
                         return;
                     }
                     else
                     {
-                        Debug.Log("Importing updated package");
-                        AssetDatabase.ImportPackage(_filepath, false);
-                        updateComplete = true;
-                        WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
+                        if (!checkOnly)
+                        {
+                            AssetDatabase.ImportPackage(_filepath, false);
+                            WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
+                        }
+                        else
+                        {
+                            packageStatus = "New update available";
+                        }
                     }
                 }
                 else
