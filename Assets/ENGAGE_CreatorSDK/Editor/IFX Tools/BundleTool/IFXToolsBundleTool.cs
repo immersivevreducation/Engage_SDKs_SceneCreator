@@ -215,7 +215,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectAndroidLoc+"/Assets /MIR");
             
-            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod ExternalBuildBundles.BuildAssetBundles");
+            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
             commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc +" /MIR");
@@ -250,7 +250,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectiOSLoc+"/Assets /MIR");
-            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod ExternalBuildBundles.BuildAssetBundles");
+            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS "+userSettings.projectWinLoc+"/AssetBundles/iOS ");
             commands.Add("robocopy "+userSettings.projectiOSLoc+"/AssetBundles/iOS "+userSettings.cdniOSLoc);
