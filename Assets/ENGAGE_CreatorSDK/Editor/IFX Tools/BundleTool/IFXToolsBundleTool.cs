@@ -150,8 +150,13 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                         DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //maybe move this to when bundles go to server so bundles can be built near the same time.
                         //Build the bundle
                         AssetBundles.BuildScript.BuildAssetBundles();
+                        
                         //Copy bundles to cdn
-                        CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", userSettings.cdnWinLoc);
+                        if (userSettings.cdnWinLoc != "" && userSettings.CTMode())
+                        {
+                            CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", userSettings.cdnWinLoc);
+                        }
+                        
                         //Do Git stuff
                         if (autoGitYesNo)
                         {
@@ -219,7 +224,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
-            if (userSettings.cdnAndroidLoc != "")
+            if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
             {
                 commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc +" /MIR");
             }
@@ -259,7 +264,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS "+userSettings.projectWinLoc+"/AssetBundles/iOS ");
-            if (userSettings.cdnAndroidLoc != "")
+            if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
             {
                 commands.Add("robocopy "+userSettings.projectiOSLoc+"/AssetBundles/iOS "+userSettings.cdniOSLoc);
             }

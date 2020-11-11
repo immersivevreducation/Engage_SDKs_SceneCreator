@@ -78,8 +78,8 @@ namespace IFXTools
 
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
             this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";
-            //This is a janky as hell way to prevent doubling up of path
-            if (!cdnWinLoc.Contains("/engage_online_root/asset_bundles/effects/unity_2019_2/Windows") && this.CTMode())
+            //This is a janky as hell way to prevent doubling up of path - fix it later
+            if (this.CTMode() && !cdnWinLoc.Contains("/engage_online_root/asset_bundles/effects/unity_2019_2/Windows") &&  cdnWinLoc != "")
             {
                 this.cdnWinLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
                 this.cdnAndroidLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";

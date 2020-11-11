@@ -83,8 +83,17 @@ namespace IFXTools{
             buildQACheckOverride=false;
             windowsBuildYesNo =true;
             androidBuildYesNo =true;
-            autoGitYesNo =true;
             altCenterMethod=false;
+            if (userSettings.CTMode())
+            {
+                autoGitYesNo =true;
+            }
+            else
+            {
+                autoGitYesNo =false;
+            }
+            
+            
         }
         void OnGUI()
         {
