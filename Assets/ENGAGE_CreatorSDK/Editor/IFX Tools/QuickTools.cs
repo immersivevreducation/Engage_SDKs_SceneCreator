@@ -51,6 +51,7 @@ namespace IFXTools{
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("Assets/QuickTools")]
+        [MenuItem("Creator SDK/Bundle QuickTools")]
         static void Init()
         {
             
