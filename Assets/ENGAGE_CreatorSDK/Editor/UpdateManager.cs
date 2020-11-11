@@ -48,6 +48,7 @@ namespace AssetBundles
 
             if (GUILayout.Button("Check for Updates") && !updateInProgress)
             {
+                CheckXMLExists();
                 packageStatus = "Checking for update";
                 checkOnly = true;
                 ImportPackage();
@@ -65,6 +66,15 @@ namespace AssetBundles
                 }
             }
             EditorGUILayout.Space();
+        }
+
+        static void CheckXMLExists()
+        {
+            if (!File.Exists(_localManifestPath))
+            {
+                string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc7d67302da35e999c9e8</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
+                File.WriteAllText(_localManifestPath, xmlFile);
+            }
         }
 
         private static void ImportPackage()
