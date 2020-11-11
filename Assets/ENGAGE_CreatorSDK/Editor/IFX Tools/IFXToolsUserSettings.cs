@@ -32,26 +32,34 @@ namespace IFXTools
         string settingsFilePath = Application.dataPath + "/Editor/IFX Tools/UserSettings.json";
         public void LoadUserSettings()
         {
-            
-            var textFile = File.ReadAllText(settingsFilePath);
-            IFXToolsUserSettings result = JsonUtility.FromJson<IFXToolsUserSettings>(textFile);
-            if (result !=null)
+            if (File.Exists(settingsFilePath))
             {
-                cdnWinLoc = result.cdnWinLoc;
-                cdnAndroidLoc = result.cdnAndroidLoc;
-                cdniOSLoc = result.cdniOSLoc;
-                projectWinLoc = result.projectWinLoc;
-                projectAndroidLoc = result.projectAndroidLoc;
-                projectiOSLoc = result.projectiOSLoc;
-                unityEXELoc = result.unityEXELoc;
-                prefabPrefix = result.prefabPrefix;
-                prefabAfix = result.prefabAfix;
-                cTCode = result.cTCode;
+                var textFile = File.ReadAllText(settingsFilePath);
+                IFXToolsUserSettings result = JsonUtility.FromJson<IFXToolsUserSettings>(textFile);
+                if (result !=null)
+                {
+                    cdnWinLoc = result.cdnWinLoc;
+                    cdnAndroidLoc = result.cdnAndroidLoc;
+                    cdniOSLoc = result.cdniOSLoc;
+                    projectWinLoc = result.projectWinLoc;
+                    projectAndroidLoc = result.projectAndroidLoc;
+                    projectiOSLoc = result.projectiOSLoc;
+                    unityEXELoc = result.unityEXELoc;
+                    prefabPrefix = result.prefabPrefix;
+                    prefabAfix = result.prefabAfix;
+                    cTCode = result.cTCode;
+                }
+                else
+                {
+                    Debug.Log("No settings found at : "+settingsFilePath);
+                }
             }
             else
             {
-                Debug.Log("No settings found at : "+settingsFilePath);
+                SettingsAutoSetup();
+                SaveUserSettings();
             }
+            
               
         }
         public void SaveUserSettings()
@@ -60,6 +68,7 @@ namespace IFXTools
             File.WriteAllText(settingsFilePath, json);
             Debug.Log("Saving: "+json);
         }
+
         public void SettingsAutoSetup()
         {
             this.unityEXELoc= EditorApplication.applicationPath;
@@ -70,7 +79,7 @@ namespace IFXTools
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
             this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";
             //This is a janky as hell way to prevent doubling up of path
-            if (!cdnWinLoc.Contains("/engage_online_root/asset_bundles/effects/unity_2019_2/Windows"))
+            if (!cdnWinLoc.Contains("/engage_online_root/asset_bundles/effects/unity_2019_2/Windows") && this.CTMode())
             {
                 this.cdnWinLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
                 this.cdnAndroidLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";

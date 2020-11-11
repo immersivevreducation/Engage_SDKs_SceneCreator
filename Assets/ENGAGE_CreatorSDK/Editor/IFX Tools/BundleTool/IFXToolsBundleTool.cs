@@ -214,7 +214,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 commands.Add(command);
             }
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectAndroidLoc+"/Assets /MIR");
-            
+            //delete the old bundles out
+            commands.Add("del /s /q "+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles");
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
@@ -252,7 +253,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 commands.Add(command);
             }
-            
+            //delete the old bundles out
+            commands.Add("del /s /q "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles");
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectiOSLoc+"/Assets /MIR");
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
@@ -294,12 +296,20 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         }
 
         void DeleteFolderContents(string Folder)
-        {
-            System.IO.DirectoryInfo dir = new DirectoryInfo(Folder);
-            foreach (FileInfo file in dir.GetFiles())
+        {   
+            if (Directory.Exists(Folder))
             {
-                file.Delete(); 
+                System.IO.DirectoryInfo dir = new DirectoryInfo(Folder);
+                foreach (FileInfo file in dir.GetFiles())
+                {
+                    file.Delete(); 
+                }
             }
+            else
+            {
+                Debug.Log("DeleteFolderContents: Can't delete contents as no folder exists at path");
+            }
+            
         }
         void ClearAssetLabelsDirectorys(string[] directory)
         {
@@ -359,6 +369,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         }
         public void SetupUnityProjects(string buildType)
         {
+            userSettings.SettingsAutoSetup();
             //needs to set user settings android project location at some point
             string[] commands;            
             
