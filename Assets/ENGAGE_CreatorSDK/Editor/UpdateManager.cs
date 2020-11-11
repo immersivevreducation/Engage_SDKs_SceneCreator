@@ -59,7 +59,7 @@ namespace AssetBundles
             {
                 if (GUILayout.Button("Update to latest version") && !updateInProgress)
                 {
-                    packageStatus = "Checking for update";
+                    packageStatus = "Updating to latest version";
                     checkOnly = false;
                     ImportPackage();
                 }
@@ -130,11 +130,13 @@ namespace AssetBundles
                 }
                 else
                 {
+                    packageStatus = "Error Updating to latest version";
                     throw new FileNotFoundException();
                 }
             }
             catch
             {
+                packageStatus = "Error Updating to latest version";
                 throw e.Error;
             }
         }
