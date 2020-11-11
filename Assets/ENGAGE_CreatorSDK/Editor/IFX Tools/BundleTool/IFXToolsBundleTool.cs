@@ -218,8 +218,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
-            commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc +" /MIR");
-            if (autoGitYesNo)
+            if (userSettings.cdnAndroidLoc != "")
+            {
+                commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc +" /MIR");
+            }
+            
+            if (autoGitYesNo && userSettings.CTMode())
             {
                 //Start of git bit
                 string listOfBundles = string.Join(" ", bundlesBuiltAndroid);
@@ -253,8 +257,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS "+userSettings.projectWinLoc+"/AssetBundles/iOS ");
-            commands.Add("robocopy "+userSettings.projectiOSLoc+"/AssetBundles/iOS "+userSettings.cdniOSLoc);
-            if (autoGitYesNo)
+            if (userSettings.cdnAndroidLoc != "")
+            {
+                commands.Add("robocopy "+userSettings.projectiOSLoc+"/AssetBundles/iOS "+userSettings.cdniOSLoc);
+            }
+            
+            if (autoGitYesNo && userSettings.CTMode())
             {
                 //Start of git bit
                 string listOfBundles = string.Join(" ", bundlesBuiltiOS);
