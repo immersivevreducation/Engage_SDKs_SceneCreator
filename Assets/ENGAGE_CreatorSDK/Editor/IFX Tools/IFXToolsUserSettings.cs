@@ -28,6 +28,7 @@ namespace IFXTools
         /////////////Other tool Settings/////////////
         public string prefabPrefix;
         public string prefabAfix;
+        public string currentIFXNum;
         public string cTCode;
         string settingsFilePath = Application.dataPath + "/Editor/IFX Tools/UserSettings.json";
         public void LoadUserSettings()
@@ -77,14 +78,7 @@ namespace IFXTools
             this.projectWinLoc = this.projectWinLoc.Replace("/Assets", "");
 
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
-            this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";
-            //This is a janky as hell way to prevent doubling up of path - fix it later
-            if (this.CTMode() && !cdnWinLoc.Contains("/engage_online_root/asset_bundles/effects/unity_2019_2/Windows") &&  cdnWinLoc != "")
-            {
-                this.cdnWinLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
-                this.cdnAndroidLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
-                this.cdniOSLoc = this.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
-            }
+            this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";           
             
 
             Debug.Log("Unity Path: "+unityEXELoc);

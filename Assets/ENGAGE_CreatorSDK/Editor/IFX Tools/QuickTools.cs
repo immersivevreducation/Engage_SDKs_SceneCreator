@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEditor.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
 
@@ -235,7 +236,14 @@ namespace IFXTools{
             EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
             GUILayout.Label(thumbnailToolInstance.previewImage, GUILayout.Width(500), GUILayout.Height(281));
             var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
-
+            if (GUILayout.Button("Load Thumbnail Scene"))
+                {
+                    if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
+                    {
+                        EditorSceneManager.OpenScene("Assets/Scenes/IFX_Thumbnail_Scene.unity");
+                    }
+                
+                }
             if (GUILayout.Button("Load Object for camera"))
             {
                 if (thumbnailToolInstance.ifxObject != Selection.activeGameObject)
@@ -344,13 +352,19 @@ namespace IFXTools{
                 userSettings.cdnWinLoc = EditorGUILayout.TextField("CDN Project Folder: ",userSettings.cdnWinLoc);
                 if (GUILayout.Button("CDN Project Folder - Browse"))
                 {
-                    userSettings.cdnWinLoc = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");
+                    string cdnProjectFolder = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");
+                    userSettings.cdnWinLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
+                    userSettings.cdnAndroidLoc = userSettings.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
+                    userSettings.cdniOSLoc = userSettings.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
                     
                     
                 }
                 EditorGUILayout.LabelField("OPTIONAL settings below");
                 userSettings.prefabPrefix = EditorGUILayout.TextField("Prefix for creating prefabs ",userSettings.prefabPrefix);
-                userSettings.prefabAfix = EditorGUILayout.TextField("Afix for creating prefabs ",userSettings.prefabAfix);   
+                userSettings.prefabAfix = EditorGUILayout.TextField("Afix for creating prefabs ",userSettings.prefabAfix);
+
+                EditorGUILayout.LabelField("");//blank space for formating 
+                userSettings.currentIFXNum = EditorGUILayout.TextField("current ifx number:",userSettings.currentIFXNum);  
             } 
 
             EditorGUILayout.LabelField("");//blank space for formating      
@@ -378,10 +392,7 @@ namespace IFXTools{
             {
                 CreateDependenciesFolder();
             }
-            if (GUILayout.Button("Select Dependcnies test"))
-            {
-                bundleTools.RoboCopyDependenciesFiles("Android");
-            }
+            
         }
         void AnimCNTRLFromClipsWindowUI()
         {            
@@ -738,10 +749,10 @@ namespace IFXTools{
         {
             Debug.Log("Creating:" + folderName);
             string createDependenciesFolder = AssetDatabase.CreateFolder("Assets", "Dependencies_" + folderName);
-            string createBundleFolder = AssetDatabase.CreateFolder("Assets/---IFXBundles--Windows_Android_Both", ifxNum + "-" + folderName.ToLower());
-            AssetImporter assetImporter = AssetImporter.GetAtPath("Assets/---IFXBundles--Windows_Android_Both/" + ifxNum + "-" + folderName.ToLower());
-            assetImporter.assetBundleName = ifxNum + folderName.ToLower();
-            assetImporter.SaveAndReimport();
+            string createBundleFolder = AssetDatabase.CreateFolder("Assets/---IFXBundles--Windows_Android_Both", "ifx"+userSettings.currentIFXNum + "-" + folderName.ToLower());
+            // AssetImporter assetImporter = AssetImporter.GetAtPath("Assets/---IFXBundles--Windows_Android_Both/" + userSettings.currentIFXNum + "-" + folderName.ToLower());
+            // assetImporter.assetBundleName = userSettings.currentIFXNum + folderName.ToLower();
+            //assetImporter.SaveAndReimport();
         }
 
         
