@@ -13,7 +13,7 @@ namespace AssetBundles
     {
         static bool updateInProgress = false;
         static bool automaticUpdatesEnabled = false;
-        static bool packageUpToDate = false;
+        static bool packageUpToDate = true;
         static bool checkOnly = false;
 
         float defaultLabelWidth;
@@ -28,28 +28,41 @@ namespace AssetBundles
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
         {
-            packageStatus = "Checking for update";
-            checkOnly = true;
-            ImportPackage();
+            //packageStatus = "Checking for update";
+            //checkOnly = true;
+            //ImportPackage();
             GetWindow<UpdateManager>(false, "Update manager", true);
         }
 
         static UpdateManager()
         {
-            packageStatus = "Checking for update";
-            checkOnly = true;
-            ImportPackage();
+            //packageStatus = "Checking for update";
+            //checkOnly = true;
+            //ImportPackage();
         }
 
         private void OnGUI()
         {
             GUILayout.Label(packageStatus);
             EditorGUILayout.Space();
-            if (GUILayout.Button("Download latest version") && !updateInProgress)
+
+            if (GUILayout.Button("Check for Updates") && !updateInProgress)
             {
                 packageStatus = "Checking for update";
-                checkOnly = false;
+                checkOnly = true;
                 ImportPackage();
+            }
+
+            EditorGUILayout.Space();
+
+            if (!packageUpToDate)
+            {
+                if (GUILayout.Button("Update to latest version") && !updateInProgress)
+                {
+                    packageStatus = "Checking for update";
+                    checkOnly = false;
+                    ImportPackage();
+                }
             }
             EditorGUILayout.Space();
         }
@@ -72,7 +85,14 @@ namespace AssetBundles
 
         private static bool PackageIsUpToDate(string _path)
         {
-            return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
+            if (File.Exists(_localManifestPath))
+            {
+                return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
@@ -98,9 +118,12 @@ namespace AssetBundles
                         {
                             AssetDatabase.ImportPackage(_filepath, false);
                             WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
+                            packageStatus = "Package is up to date";
+                            packageUpToDate = true;
                         }
                         else
                         {
+                            packageUpToDate = false;
                             packageStatus = "New update available";
                         }
                     }
