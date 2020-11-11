@@ -30,6 +30,7 @@ namespace IFXTools
         public string prefabAfix;
         public string currentIFXNum;
         public string cTCode;
+        
         string settingsFilePath = Application.dataPath + "/Editor/IFX Tools/UserSettings.json";
         public void LoadUserSettings()
         {
@@ -65,10 +66,14 @@ namespace IFXTools
         }
         public void SaveUserSettings()
         {
+            
+
             string json = JsonUtility.ToJson(this);
             File.WriteAllText(settingsFilePath, json);
-            Debug.Log("Saving: "+json);
+            Debug.Log("Saving: " + json);
         }
+
+        
 
         public void SettingsAutoSetup()
         {

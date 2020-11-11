@@ -35,7 +35,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         public void Init(IBundleToolsParentWindow parentWindowIN,IFXToolsUserSettings userSettingsIN)
         {
             parentWindow = parentWindowIN;
-            userSettings = userSettingsIN; 
+            userSettings = userSettingsIN;
+            CreateEditorDirectoryies();
         }
         public bool buildQACheckOverride {get; set;}
         public string gitCommitM {get; set;}
@@ -54,7 +55,21 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         List<string> bundlesBuiltWin = new List<string>();
         List<string> bundlesBuiltAndroid = new List<string>();
         List<string> bundlesBuiltiOS = new List<string>();
-       
+       private static void CreateEditorDirectoryies()
+        {
+            if (!Directory.Exists(Application.dataPath + "/Editor"))
+            {
+                Directory.CreateDirectory(Application.dataPath + "/Editor");
+            }
+            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
+            {
+                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
+            }
+            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools/BundleTool/"))
+            {
+                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools/BundleTool/");
+            }
+        }
         public void BuildSelectedBundle(UnityEngine.Object selectedBundleIN,
         bool windowsYes,
         bool androidYes,
@@ -192,7 +207,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         }
         public void CreateTempCommandBatchFile(List<string> commands,string batchfileName)
         {
+            
             string batchFilePath = Application.dataPath + "/Editor/IFX Tools/BundleTool/"+batchfileName+".bat";
+            // if (!Directory.Exists(batchFilePath))
+            // {
+            //     Directory.CreateDirectory(batchFilePath);
+            // }
             //Write some text to the test.txt file
             StreamWriter writer = new StreamWriter(batchFilePath, false);
             foreach (var command in commands)
@@ -219,8 +239,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 commands.Add(command);
             }
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectAndroidLoc+"/Assets /MIR");
-            //delete the old bundles out
-            commands.Add("del /s /q "+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles");
+            
+            
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
@@ -258,8 +278,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 commands.Add(command);
             }
-            //delete the old bundles out
-            commands.Add("del /s /q "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles");
+            
+            
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectiOSLoc+"/Assets /MIR");
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
@@ -374,7 +394,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         }
         public void SetupUnityProjects(string buildType)
         {
-            userSettings.SettingsAutoSetup();
+            //userSettings.SettingsAutoSetup();
             //needs to set user settings android project location at some point
             string[] commands;            
             
@@ -388,10 +408,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             "robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType          
             };
-            //"robocopy "+userSettings.projectWinLoc+"/AssetBundles "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/AssetBundles /MIR"
-            //userSettings.unityEXELoc+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType
-            //commands = new string[]{ "robocopy "+userSettings.projectWinLoc+" "+userSettings.projectWinLoc+"/IFXBuildToolProjects/" +buildType+ " /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            //userSettings.unityEXELoc+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType};
+            
 
             if (buildType == "Android")
             {
@@ -403,12 +420,6 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 userSettings.projectiOSLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
                 userSettings.SaveUserSettings();
             }
-            
-            // foreach (var item in commands)
-            // {
-            //     Debug.Log(item);
-            // }
-            //commands =commands.Replace("/","\\");
             BatchRunCMDS(commands,buildType);
         }
         public void BatchRunCMDS(string[] input,string fileNameforBatch)
