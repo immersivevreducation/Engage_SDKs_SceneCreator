@@ -66,7 +66,10 @@ namespace IFXTools
         }
         public void SaveUserSettings()
         {
-            
+            if (!Directory.Exists(Application.dataPath + "/Editor"))
+                Directory.CreateDirectory(Application.dataPath + "/Editor");
+            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
+                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
 
             string json = JsonUtility.ToJson(this);
             File.WriteAllText(settingsFilePath, json);
