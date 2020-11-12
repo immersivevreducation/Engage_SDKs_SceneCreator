@@ -310,14 +310,27 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         }
         void CopyFolderContents(string source,string destination)
         {
-            //Copy all files found in source folder to destination folder
-            System.IO.DirectoryInfo sourceFolder = new DirectoryInfo(source);
-            foreach (FileInfo file in sourceFolder.GetFiles())
+            
+            if (Directory.Exists(source))
             {
-                string destFile = System.IO.Path.Combine(destination, file.Name);
-                Debug.Log(destFile);
-                System.IO.File.Copy(file.FullName, destFile, true);
+                if (!Directory.Exists(destination))
+                {
+                    Directory.CreateDirectory(destination);
+                }
+                //Copy all files found in source folder to destination folder
+                System.IO.DirectoryInfo sourceFolder = new DirectoryInfo(source);
+                foreach (FileInfo file in sourceFolder.GetFiles())
+                {
+                    string destFile = System.IO.Path.Combine(destination, file.Name);
+                    Debug.Log(destFile);
+                    System.IO.File.Copy(file.FullName, destFile, true);
+                }
             }
+            else
+            {
+                Debug.Log("Could not copy folder contents, Folder doesn't exist: "+ source);
+            }
+            
         }
 
         void DeleteFolderContents(string Folder)
@@ -404,6 +417,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             "mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType, 
             "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+            "robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             
             "robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType          
@@ -572,7 +586,9 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         {
             Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
             EditorUtility.DisplayDialog("Cache Cleared",
-            "Cache cleared, rebuilding projects", "OK");   
+            "Cache cleared, rebuilding projects", "OK");
+            SetupUnityProjects("Android");
+            SetupUnityProjects("iOS");
         }
     }
  }
