@@ -154,7 +154,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     if (iOSYes)
                     {
                         DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //maybe move this to when bundles go to server so bundles can be built near the same time.
-                        string iOSBuildPath = CreateBatchCMDSFile("iOS",SyncUnityProjects("iOS"),CreateAndroidBatchFile(autoGitYesNo));
+                        string iOSBuildPath = CreateBatchCMDSFile("iOS",SyncUnityProjects("iOS"),CreateiOSBatchFile(autoGitYesNo));
                         //RoboCopyDependenciesFiles("iOS");
                         //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSSync.bat");
                         RunBatchFile(iOSBuildPath);
@@ -411,7 +411,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             //needs to set user settings android project location at some point
             List<string> commands;            
             
-            // Initialization of array
+            
             commands = new List<string>();
             commands.Add("mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType);
             commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects");
