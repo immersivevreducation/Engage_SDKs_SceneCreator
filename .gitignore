@@ -32,3 +32,17 @@ sysinfo.txt
 # Builds
 *.apk
 *.engagebundle
+
+/AssetBundles/
+/IFXBuildToolProjects/
+Assets/IFX_Thumbnail_Assets/Saved_Thumbnails/*
+UserSettings.json
+UserSettings.json.meta
+Android_Temp.bat
+Android_Temp.bat.meta
+iOS_Temp.bat
+iOS_Temp.bat.meta
+iOSBuild.bat
+AndroidBuild.bat
+iOSBuild.bat.meta
+AndroidBuild.bat.meta
