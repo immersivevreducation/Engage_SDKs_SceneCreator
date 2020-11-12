@@ -114,9 +114,18 @@ namespace IFXTools{
         }
         public void SaveThumbnail(string path)
         {
-            //Save Image to file
-            byte[] bytes = thumbnailImage.EncodeToPNG();
-            File.WriteAllBytes(path + ifxObject.name + ".png", bytes);
+            if (path !="" && Directory.Exists(path))
+            {
+                //Save Image to file
+                byte[] bytes = thumbnailImage.EncodeToPNG();
+                File.WriteAllBytes(path +"/"+ ifxObject.name + ".png", bytes);
+            }
+            else
+            {
+                 EditorUtility.DisplayDialog("No Folder Found at: "+path,
+                 "Please Choose a thumbnail save location in the settings menu of this tool", "OK");
+            }
+            
         }
 
         public void AutoCamera(GameObject obj, Transform transform )//obj is the asset, and transform in this case was the camera itself. not working 100%

@@ -36,7 +36,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         {
             parentWindow = parentWindowIN;
             userSettings = userSettingsIN;
-            CreateEditorDirectoryies();
+            //CreateEditorDirectoryies();
         }
         public bool buildQACheckOverride {get; set;}
         public string gitCommitM {get; set;}
@@ -145,7 +145,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                         CreateAndroidBatchFile(autoGitYesNo);
                         //RoboCopyDependenciesFiles("Android");
                         //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidSync.bat");
-                        RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidBuild.bat");
+                        RunBatchFile(Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/AndroidBuild.bat");
                         // Git stuff handled in batch file!
                         
                     }
@@ -155,7 +155,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                         CreateiOSBatchFile(autoGitYesNo);
                         //RoboCopyDependenciesFiles("iOS");
                         //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSSync.bat");
-                        RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSBuild.bat");
+                        RunBatchFile(Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/iOSBuild.bat");
                         // Git stuff handled in batch file!
                         
                     }
@@ -208,7 +208,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         public void CreateTempCommandBatchFile(List<string> commands,string batchfileName)
         {
             
-            string batchFilePath = Application.dataPath + "/Editor/IFX Tools/BundleTool/"+batchfileName+".bat";
+            string batchFilePath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+batchfileName+".bat";
             // if (!Directory.Exists(batchFilePath))
             // {
             //     Directory.CreateDirectory(batchFilePath);
@@ -412,10 +412,9 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands = new string[]
             {
             "mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType, 
-            "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            "robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             
+            
+            "robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",            
             "robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType          
             };
@@ -432,10 +431,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 userSettings.SaveUserSettings();
             }
             BatchRunCMDS(commands,buildType);
+            //"robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+            //"robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
         }
         public void BatchRunCMDS(string[] input,string fileNameforBatch)
         {
-            string TempCMDBatchPath = Application.dataPath + "/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
+            string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
             //Write some text to the test.txt file
             StreamWriter writer = new StreamWriter(TempCMDBatchPath, false);
             foreach (string cmd in input)

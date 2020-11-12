@@ -29,9 +29,10 @@ namespace IFXTools
         public string prefabPrefix;
         public string prefabAfix;
         public string currentIFXNum;
+        public string thumbnailSavePath;
         public string cTCode;
         
-        string settingsFilePath = Application.dataPath + "/Editor/IFX Tools/UserSettings.json";
+        string settingsFilePath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/UserSettings.json";
         public void LoadUserSettings()
         {
             if (File.Exists(settingsFilePath))
@@ -49,7 +50,9 @@ namespace IFXTools
                     unityEXELoc = result.unityEXELoc;
                     prefabPrefix = result.prefabPrefix;
                     prefabAfix = result.prefabAfix;
+                    thumbnailSavePath = result.thumbnailSavePath;
                     cTCode = result.cTCode;
+                    
                 }
                 else
                 {
@@ -58,6 +61,7 @@ namespace IFXTools
             }
             else
             {
+                
                 SettingsAutoSetup();
                 SaveUserSettings();
             }
@@ -66,10 +70,10 @@ namespace IFXTools
         }
         public void SaveUserSettings()
         {
-            if (!Directory.Exists(Application.dataPath + "/Editor"))
-                Directory.CreateDirectory(Application.dataPath + "/Editor");
-            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
-                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
+            // if (!Directory.Exists(Application.dataPath + "/Editor"))
+            //     Directory.CreateDirectory(Application.dataPath + "/Editor");
+            // if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
+            //     Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
 
             string json = JsonUtility.ToJson(this);
             File.WriteAllText(settingsFilePath, json);

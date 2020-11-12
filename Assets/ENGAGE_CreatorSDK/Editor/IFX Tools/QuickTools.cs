@@ -240,7 +240,7 @@ namespace IFXTools{
                 {
                     if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
                     {
-                        EditorSceneManager.OpenScene("Assets/Scenes/IFX_Thumbnail_Scene.unity");
+                        EditorSceneManager.OpenScene("Assets/ENGAGE_CreatorSDK/Editor/IFX Tools/ThumbnailToolAssets/IFX_Thumbnail_Scene.unity");
                     }
                 
                 }
@@ -272,7 +272,7 @@ namespace IFXTools{
             EditorGUILayout.LabelField(" ");
             if (GUILayout.Button("Save Thumbnail"))
             {
-                thumbnailToolInstance.SaveThumbnail(Application.dataPath + "/IFX_Thumbnail_Assets/Saved_Thumbnails/");
+                thumbnailToolInstance.SaveThumbnail(userSettings.thumbnailSavePath);
             }
             //if the camera still exists, Update the preview
             if (thumbnailToolInstance.cameraObject)
@@ -364,7 +364,15 @@ namespace IFXTools{
                 userSettings.prefabAfix = EditorGUILayout.TextField("Afix for creating prefabs ",userSettings.prefabAfix);
 
                 EditorGUILayout.LabelField("");//blank space for formating 
-                userSettings.currentIFXNum = EditorGUILayout.TextField("current ifx number:",userSettings.currentIFXNum);  
+                userSettings.currentIFXNum = EditorGUILayout.TextField("current ifx number:",userSettings.currentIFXNum);
+
+                EditorGUILayout.LabelField("");//blank space for formating 
+
+                userSettings.thumbnailSavePath = EditorGUILayout.TextField("Thumbnail Save Location: ",userSettings.thumbnailSavePath);
+                if (GUILayout.Button("Select Thumbnail Save Location"))
+                {
+                    userSettings.thumbnailSavePath = EditorUtility.OpenFolderPanel("Thumbnail Save Location", "", "");                  
+                }  
             } 
 
             EditorGUILayout.LabelField("");//blank space for formating      
