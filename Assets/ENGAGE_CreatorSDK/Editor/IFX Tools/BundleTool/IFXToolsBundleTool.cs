@@ -313,10 +313,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             
             if (Directory.Exists(source))
             {
-                if (!Directory.Exists(destination))
-                {
-                    Directory.CreateDirectory(destination);
-                }
+                
                 //Copy all files found in source folder to destination folder
                 System.IO.DirectoryInfo sourceFolder = new DirectoryInfo(source);
                 foreach (FileInfo file in sourceFolder.GetFiles())
@@ -584,11 +581,19 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
         public void ClearDependenciesCache()
         {
-            Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
-            EditorUtility.DisplayDialog("Cache Cleared",
-            "Cache cleared, rebuilding projects", "OK");
-            SetupUnityProjects("Android");
-            SetupUnityProjects("iOS");
+            if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/"))
+            {
+                Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
+                EditorUtility.DisplayDialog("Cache Cleared",
+                "Cache cleared, rebuilding projects", "OK");
+                SetupUnityProjects("Android");
+                SetupUnityProjects("iOS");
+            }
+            else
+            {
+                Debug.Log("Cache Directory not found");
+            }
+            
         }
     }
  }
