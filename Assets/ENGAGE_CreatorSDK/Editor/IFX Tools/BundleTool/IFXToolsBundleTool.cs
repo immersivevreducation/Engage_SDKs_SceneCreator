@@ -142,20 +142,22 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     if (androidYes)
                     {
                         DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //maybe move this to when bundles go to server so bundles can be built near the same time.
-                        CreateAndroidBatchFile(autoGitYesNo);
+                        string androidBuildPath = CreateBatchCMDSFile("Android",SyncUnityProjects("Android"),CreateAndroidBatchFile(autoGitYesNo));
+                        
+                        
                         //RoboCopyDependenciesFiles("Android");
                         //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidSync.bat");
-                        RunBatchFile(Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/AndroidBuild.bat");
+                        RunBatchFile(androidBuildPath);
                         // Git stuff handled in batch file!
                         
                     }
                     if (iOSYes)
                     {
                         DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //maybe move this to when bundles go to server so bundles can be built near the same time.
-                        CreateiOSBatchFile(autoGitYesNo);
+                        string iOSBuildPath = CreateBatchCMDSFile("iOS",SyncUnityProjects("iOS"),CreateAndroidBatchFile(autoGitYesNo));
                         //RoboCopyDependenciesFiles("iOS");
                         //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSSync.bat");
-                        RunBatchFile(Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/iOSBuild.bat");
+                        RunBatchFile(iOSBuildPath);
                         // Git stuff handled in batch file!
                         
                     }
@@ -228,7 +230,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             System.Diagnostics.Process.Start(info.FullName);
             //Debug.Log(info);
         }
-        public void CreateAndroidBatchFile(bool autoGitYesNo)
+        public List<string> CreateAndroidBatchFile(bool autoGitYesNo)
         {
             // string androidBuildPath = Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidBuild.bat";
             // //Write some text to the test.txt file
@@ -265,9 +267,10 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 commands.Add("git commit -m "+"\""+gitCommitM+"_ANDROID"+"\"");
                 commands.Add("git push");
             }
-            CreateTempCommandBatchFile(commands,"AndroidBuild");
+            return commands;
+            //CreateTempCommandBatchFile(commands,"AndroidBuild");
         }
-        public void CreateiOSBatchFile(bool autoGitYesNo,List<string> commandsIN = null)
+        public List<string> CreateiOSBatchFile(bool autoGitYesNo,List<string> commandsIN = null)
         {
             // string iOSBuildPath = Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSBuild.bat";
             // //Write some text to the test.txt file
@@ -305,8 +308,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 commands.Add("git commit -m "+"\""+gitCommitM+"_iOS"+"\"");
                 commands.Add("git push");
             }
-
-            CreateTempCommandBatchFile(commands,"iOSBuild");
+            return commands;
+            //CreateTempCommandBatchFile(commands,"iOSBuild");
         }
         void CopyFolderContents(string source,string destination)
         {
@@ -402,24 +405,19 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             RunCMD(commands);
             
         }
-        public void SetupUnityProjects(string buildType)
+        public List<string> SyncUnityProjects(string buildType)
         {
             //userSettings.SettingsAutoSetup();
             //needs to set user settings android project location at some point
-            string[] commands;            
+            List<string> commands;            
             
             // Initialization of array
-            commands = new string[]
-            {
-            "mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType, 
+            commands = new List<string>();
+            commands.Add("mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType);
+            commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects");
+            commands.Add("robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects"); 
             
-            
-            "robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",            
-            "robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType          
-            };
-            
-
+                       
             if (buildType == "Android")
             {
                 userSettings.projectAndroidLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
@@ -430,16 +428,29 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 userSettings.projectiOSLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
                 userSettings.SaveUserSettings();
             }
-            BatchRunCMDS(commands,buildType);
-            //"robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            //"robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+            return commands;
+            //CreateBatchCMDSFile(commands,buildType);
+            // "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType
+            // "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+            // "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
         }
-        public void BatchRunCMDS(string[] input,string fileNameforBatch)
+        public string CreateBatchCMDSFile(string fileNameforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
+
+            List<string> commandsList = input;
+            if (input2 != null)
+            {
+                commandsList.AddRange(input2);
+            }
+            if (input3 != null)
+            {
+                commandsList.AddRange(input3);
+            }
+
             string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
             //Write some text to the test.txt file
             StreamWriter writer = new StreamWriter(TempCMDBatchPath, false);
-            foreach (string cmd in input)
+            foreach (string cmd in commandsList)
             {
                 //string cmdIN = cmd.Replace("/","\\");
                 writer.WriteLine(cmd);
@@ -447,7 +458,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             
             
             writer.Close();
-            RunBatchFile(TempCMDBatchPath);
+            return TempCMDBatchPath;
+            //RunBatchFile(TempCMDBatchPath);
             //File.Delete(TempCMDBatchPath);
         }
         void RunCMD(string[] arguments)
@@ -587,8 +599,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
                 EditorUtility.DisplayDialog("Cache Cleared",
                 "Cache cleared, rebuilding projects", "OK");
-                SetupUnityProjects("Android");
-                SetupUnityProjects("iOS");
+                SyncUnityProjects("Android");
+                SyncUnityProjects("iOS");
             }
             else
             {

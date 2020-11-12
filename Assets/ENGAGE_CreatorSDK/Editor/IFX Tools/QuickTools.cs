@@ -329,19 +329,20 @@ namespace IFXTools{
                 
             // }
             EditorGUILayout.LabelField("");//blank space for formating    
-            if (GUILayout.Button("Inital Setup - Build Projects"))
-            {
-                userSettings.SettingsAutoSetup();
-                userSettings.SaveUserSettings();
-                bundleTools.SetupUnityProjects("Android");
-                bundleTools.SetupUnityProjects("iOS");              
-            }
+            // if (GUILayout.Button("Inital Setup - Build Projects"))
+            // {
+            //     userSettings.SettingsAutoSetup();
+            //     userSettings.SaveUserSettings();
+            //     bundleTools.SyncUnityProjects("Android");
+            //     bundleTools.SyncUnityProjects("iOS");              
+            // }
+            EditorGUILayout.LabelField("");//blank space for formating  
             if (GUILayout.Button("Clear Dependencies Cashe"))
             {
                 bundleTools.ClearDependenciesCache();
                 
-                //bundleTools.SetupUnityProjects("Android");
-                //bundleTools.SetupUnityProjects("iOS");              
+                //bundleTools.SyncUnityProjects("Android");
+                //bundleTools.SyncUnityProjects("iOS");              
             }
 
             EditorGUILayout.LabelField("");//blank space for formating 
