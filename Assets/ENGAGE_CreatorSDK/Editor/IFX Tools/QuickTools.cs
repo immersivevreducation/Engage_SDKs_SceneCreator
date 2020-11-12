@@ -372,7 +372,7 @@ namespace IFXTools{
             if (GUILayout.Button("Save Settings"))
             {
                 userSettings.SaveUserSettings();
-                bundleTools.CreateAndroidBatchFile(true);                
+                             
             }
             
             
