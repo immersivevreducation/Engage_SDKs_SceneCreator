@@ -257,7 +257,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
             if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
             {
-                commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc +" /MIR");
+                commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc);
             }
             
             if (autoGitYesNo && userSettings.CTMode())
