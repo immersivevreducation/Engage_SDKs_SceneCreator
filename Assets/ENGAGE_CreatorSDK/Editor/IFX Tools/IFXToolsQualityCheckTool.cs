@@ -20,7 +20,7 @@ namespace IFXTools {
             bundleTool = BundleToolIN; 
         }
         public List<QACheckListItem> checkList= new List<QACheckListItem>();
-        public UnityEngine.Object bundleGettingChecked {get; set;}
+        public List<UnityEngine.Object> bundleGettingChecked;
         
         //UI Varaiables
         Vector2 scrollPos;
@@ -57,7 +57,7 @@ namespace IFXTools {
                 if (GUILayout.Button("Auto Fix prefab"))
                 {
                     FixPrefabs(item.rootGameObject);                    
-                    Debug.Log("Log in test");
+                    //Debug.Log("Log in test");
                 }
                 
                 
@@ -176,47 +176,56 @@ namespace IFXTools {
             }
 
         
-        public bool BundleQualityCheck(UnityEngine.Object inputFolder)// Also clears asset labels from prefabs while it's at it.
+        public bool BundleQualityCheck(List<UnityEngine.Object> inputFolder)// Also clears asset labels from prefabs while it's at it.
         {
-            bundleGettingChecked = inputFolder;
-            string path = AssetDatabase.GetAssetPath(inputFolder);
-            checkList.Clear();
+            bundleGettingChecked = new List<UnityEngine.Object>();
             bool QualityCheck = true;
-            DirectoryInfo dirInfo = new DirectoryInfo(path);
-            FileInfo[] fileInf = dirInfo.GetFiles("*.prefab");
-
-            //loop through directory loading the game object and checking if it has the component you want
-            if (fileInf!=null)
+            checkList.Clear();
+            foreach (UnityEngine.Object item in inputFolder)
             {
-                //the issue is here!
-                foreach (FileInfo file in fileInf)
+                Debug.Log(item.name);
+                bundleGettingChecked.Add(item);
+                string path = AssetDatabase.GetAssetPath(item);
+                
+                
+                DirectoryInfo dirInfo = new DirectoryInfo(path);
+                FileInfo[] fileInf = dirInfo.GetFiles("*.prefab");
+
+                //loop through directory loading the game object and checking if it has the component you want
+                if (fileInf!=null)
                 {
-                    
-                    
-                    string fullPath = file.FullName.Replace(@"\","/");
-                    string assetPath = "Assets" + fullPath.Replace(Application.dataPath, "");
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
-
-                    
-                    bundleTool.ClearAssetLabelGameObject(prefab); //fix
-
-                    if(prefab!= null)
+                    //the issue is here!
+                    foreach (FileInfo file in fileInf)
                     {
-                        List<string> errors = PrefabQualityCheck(prefab);
-                        if (errors.Count>0)
+                        
+                        
+                        string fullPath = file.FullName.Replace(@"\","/");
+                        string assetPath = "Assets" + fullPath.Replace(Application.dataPath, "");
+                        GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+
+                        
+                        bundleTool.ClearAssetLabelGameObject(prefab); //fix
+
+                        if(prefab!= null)
                         {
-                            checkList.Add(new QACheckListItem(prefab,errors));
-                            QualityCheck = false;
-                            OpenQAErrorWindow();
-                        } 
+                            List<string> errors = PrefabQualityCheck(prefab);
+                            if (errors.Count>0)
+                            {
+                                checkList.Add(new QACheckListItem(prefab,errors));
+                                QualityCheck = false;
+                                OpenQAErrorWindow();
+                            } 
+                        }
                     }
                 }
+                else
+                {
+                    Debug.Log("Failed to find prefabs in bundle");
+                }
             }
-            else
-            {
-                Debug.Log("Failed to find prefabs in bundle");
-            }
-            
+                
+                
+                
             return QualityCheck;
             
         }

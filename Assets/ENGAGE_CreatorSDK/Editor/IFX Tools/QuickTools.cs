@@ -499,10 +499,17 @@ namespace IFXTools{
                 else
                 {
                     //BuildSelectedBundle(windowsBuildYesNo,androidBuildYesNo);//build windows true, build android true
+                    List<Object> selectedBundles = new List<Object>();
                     foreach (var dir in Selection.objects)
                     {
-                        bundleTools.BuildSelectedBundle(dir, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);
+                        selectedBundles.Add(dir);
+                        
                     }
+                    bundleTools.BuildSelectedBundle(selectedBundles, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);
+                    // foreach (var dir in Selection.objects)
+                    // {
+                    //     bundleTools.BuildSelectedBundle(dir, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);
+                    // }
                     
                 }  
             }  

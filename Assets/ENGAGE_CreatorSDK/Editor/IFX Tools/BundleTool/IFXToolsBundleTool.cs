@@ -27,7 +27,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         IFXToolsQualityCheckTool qaTool;
         IFXToolsUserSettings userSettings;
         IBundleToolsParentWindow parentWindow;
-        public UnityEngine.Object selectedBundle {get; set;}
+        public List<Object> selectedBundles {get; set;}
         public IFXBundleTools()
         {
   
@@ -70,7 +70,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools/BundleTool/");
             }
         }
-        public void BuildSelectedBundle(UnityEngine.Object selectedBundleIN,
+        public void BuildSelectedBundle(List<Object> selectedBundleIN,
         bool windowsYes,
         bool androidYes,
         bool iOSYes,
@@ -78,7 +78,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         bool buildQACheckOverrideIN=false,
         string gitCommitMessageIN = "")
         {
-            selectedBundle = selectedBundleIN;
+            selectedBundles = selectedBundleIN;
 
             buildQACheckOverride = buildQACheckOverrideIN;
             gitCommitM = gitCommitMessageIN;
@@ -97,41 +97,50 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             /////////////////////////////////////////////////////////////
             
-            if (selectedBundle !=null)
+            if (selectedBundles !=null)
             {
                 //CheckBundleDirectoryiesExist(); //Left for debuging but no longer needed in established projects                
                 
                 //This part isn't auto "add"ing the files to a git comit. this part just makes the varable to hold all the paths
                 if (autoGitYes)
                 {
-                    if (androidYes)
+                    for (int i = 0; i < selectedBundles.Count; i++)
                     {
-                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundle.name + ".engagebundle");
-                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundle.name + ".manifest");
-                    }
-                    if (iOSYes)
-                    {
-                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundle.name + ".engagebundle");
-                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundle.name + ".manifest");
-                    }
-                    if (windowsYes)
-                    {
-                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundle.name + ".engagebundle");
-                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundle.name + ".manifest");
+                        if (androidYes)
+                        {
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".manifest");
+                        }
+                        if (iOSYes)
+                        {
+                            bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".manifest");
+                        }
+                        if (windowsYes)
+                        {
+                            bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".manifest");
+                        }
                     }       
                 }
-                ClearAllAssetLabelsInProject(); // might bother people... Make into a manual button if needed                   
-                SetAssetLabelToFolderName(selectedBundle);
+                ClearAllAssetLabelsInProject(); // might bother people... Make into a manual button if needed 
+                for (int i = 0; i < selectedBundles.Count; i++)
+                {
+                    SetAssetLabelToFolderName(selectedBundles[i]);
+                }                  
+                
                 //Checks for bad components
                 if (!buildQACheckOverride)
                 {
-                    qaTool = (IFXToolsQualityCheckTool )ScriptableObject.CreateInstance(typeof(IFXToolsQualityCheckTool ));
+                    
+                    qaTool = (IFXToolsQualityCheckTool)ScriptableObject.CreateInstance(typeof(IFXToolsQualityCheckTool));
                     qaTool.Init(this);
-                    bool qaCheck = qaTool.BundleQualityCheck(selectedBundle); //pass QA true or false
+                    bool qaCheck = qaTool.BundleQualityCheck(selectedBundles); //pass QA true or false
                     if (!qaCheck)
                     {
                         passedQualityCheck = false;
                     }
+                    
                 }
             
 
