@@ -11,6 +11,7 @@ namespace AssetBundles
     [InitializeOnLoad]
     public class UpdateManager : EditorWindow
     {
+        static bool isBatchMode;
         static bool updateInProgress = false;
         static bool automaticUpdatesEnabled = false;
         static bool packageUpToDate = true;
@@ -40,7 +41,7 @@ namespace AssetBundles
 
         static UpdateManager()
         {
-            if (!initialPackageChecked && !Application.isBatchMode)
+            if (!initialPackageChecked && SystemInfo.graphicsDeviceID != 0)
             {
                 if (!PlayerPrefs.HasKey("SDKAutoUpdate"))
                 {
