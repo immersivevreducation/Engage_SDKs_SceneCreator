@@ -41,7 +41,13 @@ namespace AssetBundles
 
         static UpdateManager()
         {
-            if (!initialPackageChecked && SystemInfo.graphicsDeviceID != 0)
+            EditorApplication.update += Initialize;
+        }
+
+        static void Initialize()
+        {
+            EditorApplication.update -= Initialize;
+            if (!initialPackageChecked && !Application.isBatchMode)
             {
                 if (!PlayerPrefs.HasKey("SDKAutoUpdate"))
                 {
