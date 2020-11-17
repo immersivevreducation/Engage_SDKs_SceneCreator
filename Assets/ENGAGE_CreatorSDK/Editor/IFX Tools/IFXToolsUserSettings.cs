@@ -32,7 +32,7 @@ namespace IFXTools
         public string thumbnailSavePath;
         public string cTCode;
         
-        string settingsFilePath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/UserSettings.json";
+        string settingsFilePath = Application.dataPath.Replace("/Assets", "") + "/UserSettings.json";
         public void LoadUserSettings()
         {
             if (File.Exists(settingsFilePath))
