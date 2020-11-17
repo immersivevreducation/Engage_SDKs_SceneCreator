@@ -15,6 +15,9 @@ namespace AssetBundles
         static bool automaticUpdatesEnabled = false;
         static bool packageUpToDate = true;
         static bool checkOnly = false;
+        static bool autoupdate = true;
+        static bool oldAutoUpdate;
+        static bool initialPackageChecked = false;
 
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
@@ -24,6 +27,7 @@ namespace AssetBundles
         static readonly string _xpathConfig = "packageData/autoupdate";
         static readonly string _xpathVersion = "packageData/checksum";
         static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/CreatorSDK.unitypackage?raw=true";
+        static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/master/manifest.xml?raw=true";
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -36,17 +40,50 @@ namespace AssetBundles
 
         static UpdateManager()
         {
-            //packageStatus = "Checking for update";
-            //checkOnly = true;
-            //ImportPackage();
+            if (!initialPackageChecked && !Application.isBatchMode)
+            {
+                if (!PlayerPrefs.HasKey("SDKAutoUpdate"))
+                {
+                    autoupdate = true;
+                    PlayerPrefs.SetString("SDKAutoUpdate", "True");
+                }
+                else
+                {
+                    if (PlayerPrefs.GetString("SDKAutoUpdate") == "False")
+                    {
+                        autoupdate = false;
+                    }
+                }
+
+                oldAutoUpdate = autoupdate;
+
+                if (autoupdate)
+                {
+                    packageStatus = "Checking for update";
+                    checkOnly = true;
+                    ImportPackage();
+                }
+            }
         }
 
+        
         private void OnGUI()
         {
-            GUILayout.Label(packageStatus);
+            GUILayout.Label("ENGAGE Creator SDK");
             EditorGUILayout.Space();
 
-            if (GUILayout.Button("Check for Updates") && !updateInProgress)
+            autoupdate = GUILayout.Toggle(autoupdate, "Check for SDK Updates automatically");
+
+            if(autoupdate != oldAutoUpdate)
+            {
+                PlayerPrefs.SetString("SDKAutoUpdate", autoupdate.ToString());
+                Debug.Log("Set auto-update to " + autoupdate);
+                oldAutoUpdate = autoupdate;
+            }
+
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            if (GUILayout.Button("Check for Update") && !updateInProgress)
             {
                 CheckXMLExists();
                 packageStatus = "Checking for update";
@@ -65,14 +102,20 @@ namespace AssetBundles
                     ImportPackage();
                 }
             }
+
             EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            GUILayout.Label(packageStatus);
         }
 
         static void CheckXMLExists()
         {
             if (!File.Exists(_localManifestPath))
             {
-                string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc7d67302da35e999c9e8</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
+                string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
                 File.WriteAllText(_localManifestPath, xmlFile);
             }
         }
@@ -118,8 +161,9 @@ namespace AssetBundles
                 {
                     if (PackageIsUpToDate(_filepath))
                     {
-                        packageStatus = "Package is up to date";
+                        packageStatus = "Creator SDK Package is up to date";
                         packageUpToDate = true;
+                        initialPackageChecked = true;
                         return;
                     }
                     else
@@ -128,13 +172,16 @@ namespace AssetBundles
                         {
                             AssetDatabase.ImportPackage(_filepath, false);
                             WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
-                            packageStatus = "Package is up to date";
+                            packageStatus = "Creator SDK Package is up to date";
                             packageUpToDate = true;
+                            initialPackageChecked = true;
                         }
                         else
                         {
                             packageUpToDate = false;
-                            packageStatus = "New update available";
+                            packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
+                            ShowUpdateWindow();
+                            initialPackageChecked = true;
                         }
                     }
                 }
