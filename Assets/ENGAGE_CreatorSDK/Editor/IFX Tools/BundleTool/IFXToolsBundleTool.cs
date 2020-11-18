@@ -588,7 +588,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             foreach (var itemPath in dependencies)
             {
                 var itemDirectory = Path.GetDirectoryName(itemPath);
-                commands.Add("robocopy "+userSettings.projectWinLoc+"/"+itemDirectory+" "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/"+itemDirectory+" /MIR");
+                commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/"+itemDirectory+"\""+" "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/"+itemDirectory+"\""+" /MIR");
 
                 
             }
@@ -598,7 +598,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 Debug.Log(directoryName);
                 //var bundlesParentFolder = System.IO.Directory.GetParent(directoryName);
                 //Debug.Log(bundlesParentFolder.Name);
-                commands.Add("robocopy "+userSettings.projectWinLoc+"/"+directoryName +" "+ userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/" +directoryName +"  *.meta /MIR");
+                commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/"+directoryName +"\""+" "+ "\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/" +directoryName +"\""+"  *.meta /MIR");
                 //commands.Add("robocopy "+userSettings.projectWinLoc+"/"+bundlesParentFolder +" "+ userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/" +bundlesParentFolder +"  *.meta /MIR");
             }
             
