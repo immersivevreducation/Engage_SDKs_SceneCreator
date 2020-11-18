@@ -104,7 +104,7 @@ namespace IFXTools
         public bool CTMode()
         {
             bool activateCT = false;
-            if (this.cTCode == "Up, Up, Down, Down, Left, Right, Left, Right, B, A")
+            if (this.cTCode == "content_team")
             {
                 activateCT = true;
             }

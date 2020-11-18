@@ -254,10 +254,10 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
-            commands.Add("robocopy "+userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/AssetBundles/Android "+userSettings.projectWinLoc+"/AssetBundles/Android");
+            commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
             if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
             {
-                commands.Add("robocopy "+userSettings.projectAndroidLoc+"/AssetBundles/Android "+userSettings.cdnAndroidLoc);
+                commands.Add("robocopy "+"\""+userSettings.projectAndroidLoc+"/AssetBundles/Android"+"\""+" "+"\""+userSettings.cdnAndroidLoc+"\"");
             }
             
             if (autoGitYesNo && userSettings.CTMode())
@@ -295,10 +295,10 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectiOSLoc+"/Assets /MIR");
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
-            commands.Add("robocopy "+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS "+userSettings.projectWinLoc+"/AssetBundles/iOS ");
+            commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\"");
             if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
             {
-                commands.Add("robocopy "+userSettings.projectiOSLoc+"/AssetBundles/iOS "+userSettings.cdniOSLoc);
+                commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+userSettings.cdniOSLoc+"\"");
             }
             
             if (autoGitYesNo && userSettings.CTMode())
@@ -410,7 +410,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             string[] commands;
 
             // Initialization of array
-            commands = new string[7]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git pull"};
+            commands = new string[7]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git pull"}; // this may need to be cd /D to change the drive letter
             RunCMD(commands);
             
         }
@@ -423,8 +423,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             
             commands = new List<string>();
             commands.Add("mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType);
-            commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects");
-            commands.Add("robocopy "+userSettings.projectWinLoc+"/ProjectSettings "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+ "/MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects"); 
+            commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK"+"\""+ " " +"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+"\""+" "+" /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\"");
+            commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/ProjectSettings"+"\""+" "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+"\""+ " /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\""); 
             
                        
             if (buildType == "Android")
@@ -442,6 +442,38 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             // "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType
             // "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             // "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+        }
+        public void GitCommitChangesToRepo(List<Object> selectedBundleIN)
+        {
+            // commands = new string[9]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+"\""+gitCommitM+"\"", "git push"};
+            List<string> commands = new List<string>();
+            List<string> filesToAdd = new List<string>();
+            filesToAdd.AddRange(GetFolderDependencies(selectedBundleIN));
+
+            commands.Add("cd /D "+userSettings.projectWinLoc);
+            commands.Add("git reset");
+            foreach (var item in filesToAdd)
+            {
+                commands.Add("git add "+"\""+userSettings.projectWinLoc+"/"+item+"\"");
+            }
+            commands.Add("git status");
+            commands.Add("PAUSE");
+
+
+            foreach (var item in commands)
+            {
+                Debug.Log(item);
+            }
+            string gitCommitBatch = CreateBatchCMDSFile("Git Commit Changes To Repo",commands);
+            RunBatchFile(gitCommitBatch);
+            
+            
+            // foreach (var item in selectedBundleIN)
+            // {
+            //     filesToAdd.AddRange(GetFolderDependencies(item));
+            // }
+            
+            //commands.Add(userSettings.projectWinLoc);
         }
         public string CreateBatchCMDSFile(string fileNameforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
@@ -539,9 +571,19 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             return dirFound;
         }
+        public List<UnityEngine.Object> GetSelectedObjectsAsList()
+        {
+            List<UnityEngine.Object> selection =new List<UnityEngine.Object>();
+            foreach (var item in Selection.objects)
+            {
+                selection.Add(item);
+            }
+            return selection;
+        }
         public List<string> RoboCopyDependenciesFiles(string buildType)
         {
-            string[] dependencies =  GetFolderDependencies(Selection.objects).ToArray();
+            
+            List<string> dependencies =  GetFolderDependencies(GetSelectedObjectsAsList());
             List<string> commands = new List<string>();
             foreach (var itemPath in dependencies)
             {
@@ -568,7 +610,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             //RunCMD(commands.ToArray());
         }
 
-        private List<string> GetFolderDependencies(UnityEngine.Object[] goIN) // this is a test of the export package idea can probobly delete
+        private List<string> GetFolderDependencies(List<UnityEngine.Object> goIN) // this is a test of the export package idea can probobly delete
         {
             List<string> result = new List<string>();
             foreach (var go in goIN)
@@ -601,15 +643,33 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             return result;
         }
 
-        public void ClearDependenciesCache()
+        public void ClearDependenciesCache(bool hardReset)
         {
             if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/"))
             {
-                Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
-                EditorUtility.DisplayDialog("Cache Cleared",
-                "Cache cleared, rebuilding projects", "OK");
-                SyncUnityProjects("Android");
-                SyncUnityProjects("iOS");
+                if (hardReset)
+                {
+                    Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
+                    EditorUtility.DisplayDialog("Cache Cleared",
+                    "Cache Fully cleared", "OK");
+                }
+                else
+                {
+                    if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/Assets"))
+                    {
+                        Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/Assets",true);
+                    }
+                    if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/iOS/Assets"))
+                    {
+                        Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/iOS/Assets",true);
+                    }
+                    
+                    
+                    EditorUtility.DisplayDialog("Cache Cleared",
+                    "Cache cleared", "OK");
+                }
+                
+                
             }
             else
             {

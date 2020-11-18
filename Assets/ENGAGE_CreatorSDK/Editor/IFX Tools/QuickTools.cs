@@ -39,6 +39,7 @@ namespace IFXTools{
         public bool autoGitYesNo {get; set;}
 
         bool altCenterMethod {get; set;}
+        bool hardResetCache {get; set;}
         
         string destinationFolder;
         List<string> bundlesBuiltWin = new List<string>();
@@ -85,6 +86,7 @@ namespace IFXTools{
             windowsBuildYesNo =true;
             androidBuildYesNo =true;
             altCenterMethod=false;
+            hardResetCache=false;
             if (userSettings.CTMode())
             {
                 autoGitYesNo =true;
@@ -337,9 +339,10 @@ namespace IFXTools{
             //     bundleTools.SyncUnityProjects("iOS");              
             // }
             EditorGUILayout.LabelField("");//blank space for formating  
+            hardResetCache = EditorGUILayout.Toggle( "Full Reset Cache", hardResetCache);
             if (GUILayout.Button("Clear Dependencies Cashe"))
             {
-                bundleTools.ClearDependenciesCache();
+                bundleTools.ClearDependenciesCache(hardResetCache);
                 
                 //bundleTools.SyncUnityProjects("Android");
                 //bundleTools.SyncUnityProjects("iOS");              
@@ -350,13 +353,15 @@ namespace IFXTools{
             if (userSettings.CTMode())
             {
                 EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
-                userSettings.cdnWinLoc = EditorGUILayout.TextField("CDN Project Folder: ",userSettings.cdnWinLoc);
+                EditorGUILayout.LabelField("CDN Win Project Folder: "+userSettings.cdnWinLoc);
+                EditorGUILayout.LabelField("CDN Android Project Folder: "+userSettings.cdnAndroidLoc);
+                EditorGUILayout.LabelField("CDN iOS Project Folder: "+userSettings.cdniOSLoc);
                 if (GUILayout.Button("CDN Project Folder - Browse"))
                 {
                     string cdnProjectFolder = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");
                     userSettings.cdnWinLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
-                    userSettings.cdnAndroidLoc = userSettings.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
-                    userSettings.cdniOSLoc = userSettings.cdnWinLoc+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
+                    userSettings.cdnAndroidLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
+                    userSettings.cdniOSLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
                     
                     
                 }
@@ -454,6 +459,11 @@ namespace IFXTools{
             {
                 autoGitYesNo = EditorGUILayout.Toggle( "Push Bundles To Staging?", autoGitYesNo);
                 gitCommitM = EditorGUILayout.TextField("Git Commit message: ", gitCommitM);
+
+                if (GUILayout.Button("Push changes in folder to git"))
+                {
+                    bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList());
+                }
             }
             
             
