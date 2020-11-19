@@ -443,7 +443,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             // "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
             // "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
         }
-        public void GitCommitChangesToRepo(List<Object> selectedBundleIN)
+        public void GitCommitChangesToRepo(List<Object> selectedBundleIN,string gitCommitM)
         {
             // commands = new string[9]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+"\""+gitCommitM+"\"", "git push"};
             List<string> commands = new List<string>();
@@ -451,12 +451,17 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             filesToAdd.AddRange(GetFolderDependencies(selectedBundleIN));
 
             commands.Add("cd /D "+userSettings.projectWinLoc);
+            commands.Add("git stash");
+            commands.Add("git pull");
+            commands.Add("git stash pop");
             commands.Add("git reset");
             foreach (var item in filesToAdd)
             {
                 commands.Add("git add "+"\""+userSettings.projectWinLoc+"/"+item+"\"");
             }
             commands.Add("git status");
+            commands.Add("git commit -m "+"\""+gitCommitM+"\"");
+            commands.Add("git push");
             commands.Add("PAUSE");
 
 
@@ -464,7 +469,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 Debug.Log(item);
             }
-            string gitCommitBatch = CreateBatchCMDSFile("Git Commit Changes To Repo",commands);
+            string gitCommitBatch = CreateBatchCMDSFile("GitCommitToRepo",commands);
             RunBatchFile(gitCommitBatch);
             
             

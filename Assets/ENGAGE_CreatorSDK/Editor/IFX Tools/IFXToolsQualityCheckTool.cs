@@ -33,12 +33,13 @@ namespace IFXTools {
         {
             Rect groupRect=new Rect(5, 25, Screen.width-20, Screen.height-10);
 
-            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Width(groupRect.width), GUILayout.Height(groupRect.height-150));
-            GUI.BeginGroup(groupRect);
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Width(groupRect.width), GUILayout.Height(groupRect.height-175));
+            //GUI.BeginGroup(groupRect);
                                                     
             foreach (QACheckListItem item in checkList)
             {
-                GUILayout.BeginVertical(EditorStyles.colorField);
+                
+                GUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUILayout.LabelField("Name: "+item.rootGameObject.name, EditorStyles.boldLabel);
                 foreach (string error in item.errors)
                 {
@@ -70,7 +71,7 @@ namespace IFXTools {
             GUILayout.Label(" ");
                      
         
-            GUI.EndGroup();
+            //GUI.EndGroup();
             EditorGUILayout.EndScrollView(); 
 
             if (GUI.Button(new Rect(10, groupRect.height - 175, groupRect.width, 50), "Recheck Bundle"))

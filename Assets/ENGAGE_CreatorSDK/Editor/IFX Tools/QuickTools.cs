@@ -53,7 +53,7 @@ namespace IFXTools{
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("Assets/QuickTools")]
-        [MenuItem("Creator SDK/Bundle QuickTools")]
+        [MenuItem("Creator SDK/Bundle QuickTools - Beta")]
         static void Init()
         {
             
@@ -100,6 +100,7 @@ namespace IFXTools{
         }
         void OnGUI()
         {
+            
             MainUI();            
         }
 
@@ -123,7 +124,7 @@ namespace IFXTools{
                                                     
             if (selGridInt==0)
             {
-                EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                 BuildSelectedBundleWindowUI();
                 EditorGUILayout.EndVertical();
                 
@@ -136,19 +137,19 @@ namespace IFXTools{
                 {
                     
                 
-                    EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                     EmptyPrefabWindowUI();
                     EditorGUILayout.EndVertical();
                     
                     EditorGUILayout.LabelField(" ");
                     
-                    EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                     BatchPrefabWindowUI();
                     EditorGUILayout.EndVertical();
                 
                     EditorGUILayout.LabelField(" ");
                     
-                    EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                     AutoPivotUI();
                     EditorGUILayout.EndVertical();
                 }
@@ -159,7 +160,7 @@ namespace IFXTools{
             if (selGridInt==2)
             {              
                 
-                EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
 
                 NewDependenciesWindowUI();
 
@@ -172,7 +173,7 @@ namespace IFXTools{
             {
                 
                 
-                EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width * 3 - 10));
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
 
                 CreateImagePlaneUI();
 
@@ -181,7 +182,7 @@ namespace IFXTools{
 
                 EditorGUILayout.LabelField(" ");
                 
-                EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width * 3 - 10));
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
 
                 AnimCNTRLFromClipsWindowUI();
 
@@ -189,7 +190,7 @@ namespace IFXTools{
                
 
                 
-                EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width * 3 - 10));
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
                 scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
                 ThumbnailToolUI();
                 EditorGUILayout.EndScrollView();  
@@ -202,7 +203,7 @@ namespace IFXTools{
                 {
                     if (selGridInt==4)
                     {
-                        EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                        EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                         SettingsWindowUI();
                         userSettings.cTCode = EditorGUILayout.TextField("",userSettings.cTCode);
                         EditorGUILayout.EndVertical();
@@ -214,7 +215,7 @@ namespace IFXTools{
                 //Settings Window
                 if (selGridInt==1)
                 {
-                    EditorGUILayout.BeginVertical(EditorStyles.colorField, GUILayout.Width(buttonGroupRect.width*3-10));
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
                     SettingsWindowUI();
                     userSettings.cTCode = EditorGUILayout.TextField("",userSettings.cTCode);
                     EditorGUILayout.EndVertical();
@@ -246,6 +247,7 @@ namespace IFXTools{
                     }
                 
                 }
+            
             if (GUILayout.Button("Load Object for camera"))
             {
                 if (thumbnailToolInstance.ifxObject != Selection.activeGameObject)
@@ -462,7 +464,7 @@ namespace IFXTools{
 
                 if (GUILayout.Button("Push changes in folder to git"))
                 {
-                    bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList());
+                    bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
                 }
             }
             
