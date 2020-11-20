@@ -17,7 +17,7 @@ namespace IFXTools
         }
 
         //Editable variables
-        
+        public string cdnProjectPath;
         public string cdnWinLoc;
         public string cdnAndroidLoc;
         public string cdniOSLoc;
@@ -41,16 +41,22 @@ namespace IFXTools
                 IFXToolsUserSettings result = JsonUtility.FromJson<IFXToolsUserSettings>(textFile);
                 if (result !=null)
                 {
+                    cdnProjectPath= result.cdnProjectPath;
                     cdnWinLoc = result.cdnWinLoc;
                     cdnAndroidLoc = result.cdnAndroidLoc;
                     cdniOSLoc = result.cdniOSLoc;
+
                     projectWinLoc = result.projectWinLoc;
                     projectAndroidLoc = result.projectAndroidLoc;
                     projectiOSLoc = result.projectiOSLoc;
+
                     unityEXELoc = result.unityEXELoc;
+
                     prefabPrefix = result.prefabPrefix;
                     prefabAfix = result.prefabAfix;
+
                     thumbnailSavePath = result.thumbnailSavePath;
+
                     cTCode = result.cTCode;
                     
                 }
@@ -61,20 +67,12 @@ namespace IFXTools
             }
             else
             {
-                
                 SettingsAutoSetup();
                 SaveUserSettings();
-            }
-            
-              
+            }                   
         }
         public void SaveUserSettings()
         {
-            // if (!Directory.Exists(Application.dataPath + "/Editor"))
-            //     Directory.CreateDirectory(Application.dataPath + "/Editor");
-            // if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
-            //     Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
-
             string json = JsonUtility.ToJson(this);
             File.WriteAllText(settingsFilePath, json);
             Debug.Log("Saving: " + json);
@@ -92,6 +90,9 @@ namespace IFXTools
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
             this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";           
             
+            this.cdnWinLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
+            this.cdnAndroidLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
+            this.cdniOSLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
 
             Debug.Log("Unity Path: "+unityEXELoc);
             Debug.Log("CDN Project Path - Windows: "+cdnWinLoc);
@@ -109,15 +110,6 @@ namespace IFXTools
                 activateCT = true;
             }
             return activateCT;
-        }
-        //OLD
-        // public IFXToolsUserSettings LoadUserSettings()
-        // {
-        //     string path = Application.dataPath + "/Editor/IFX Tools/UserSettings.json";
-        //     var textFile = File.ReadAllText(path);
-        //     IFXToolsUserSettings result = JsonUtility.FromJson<IFXToolsUserSettings>(textFile);
-        //     Debug.Log("Loading: "+result); 
-        //     return result;
-        // }                 
+        }               
     }
 }

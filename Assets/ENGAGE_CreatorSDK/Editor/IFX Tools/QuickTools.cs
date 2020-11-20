@@ -18,18 +18,20 @@ using System.Collections.Generic;
 namespace IFXTools{
     public class QuickTools : EditorWindow, IBundleToolsParentWindow
     {
-        
+////////////////////////////////////////////////////////Instance Variables///////////////////////////////////////////////////////
         IFXToolsQualityCheckTool qualityCheckListWindow;
         
         IFXBundleTools bundleTools;
-        //List<IFXQualityCheckListItem> ifxErrorList = new List<IFXQualityCheckListItem>();
         IFXToolsUserSettings userSettings;
 
         IFXThumbnailTool thumbnailToolInstance;  
-
+////////////////////////////////////////////////////////Build Variables///////////////////////////////////////////////////////
         bool passedQualityCheck;
+        List<string> bundlesBuiltWin = new List<string>();
+        List<string> bundlesBuiltAndroid = new List<string>();
+////////////////////////////////////////////////////////UI Variables///////////////////////////////////////////////////////
         
-        string folderName;
+        
 
         public bool buildQACheckOverride{get; set;}
         public string gitCommitM{get; set;}
@@ -40,16 +42,14 @@ namespace IFXTools{
 
         bool altCenterMethod {get; set;}
         bool hardResetCache {get; set;}
+
+        string folderName;
         
         string destinationFolder;
-        List<string> bundlesBuiltWin = new List<string>();
-        List<string> bundlesBuiltAndroid = new List<string>();
+        
         
         int selGridInt=0;
         Vector2 scrollPos;
-        
-        ////////////////////////////////////////////////////////SET THE IFX NUM HERE///////////////////////////////////////////////////////
-        string ifxNum ="ifx3";
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         [MenuItem("Assets/QuickTools")]
@@ -58,14 +58,12 @@ namespace IFXTools{
         {
             
             EditorWindow window = GetWindow(typeof(QuickTools));
-            //window.minSize=new Vector2(500,600);
-
             window.Show();
 
         }
         void OnDestroy()
         {
-            //Debug.Log("Destroyed...");
+            
             if (thumbnailToolInstance.ifxObject !=null)
             {
                 DestroyImmediate(thumbnailToolInstance.ifxObject, true);
@@ -75,18 +73,21 @@ namespace IFXTools{
         
         void OnEnable()
         {
-            userSettings = IFXToolsUserSettings.GetUserSettings(); //fix
+            //set up other class instances
+            userSettings = IFXToolsUserSettings.GetUserSettings();
             userSettings.LoadUserSettings();
             thumbnailToolInstance = new IFXThumbnailTool();
-            //MyCustomWindow window = (IFXBundleTools )ScriptableObject.CreateInstance(typeof(IFXBundleTools ));
-            bundleTools = (IFXBundleTools )ScriptableObject.CreateInstance(typeof(IFXBundleTools )); //fix
+            bundleTools = (IFXBundleTools )ScriptableObject.CreateInstance(typeof(IFXBundleTools ));
             bundleTools.Init(this,userSettings);
+
             //Set defualt checkmarks
             buildQACheckOverride=false;
             windowsBuildYesNo =true;
             androidBuildYesNo =true;
             altCenterMethod=false;
             hardResetCache=false;
+
+            //disable auto git for non content team mode
             if (userSettings.CTMode())
             {
                 autoGitYesNo =true;
@@ -100,13 +101,13 @@ namespace IFXTools{
         }
         void OnGUI()
         {
-            
             MainUI();            
         }
 
     /////////////////////////////////////// -----UI-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         void MainUI()
         {
+            //changes possible buttons based on ct mode
             string[] selStrings = new string[] {"Build Bundles","Settings"};
             if (userSettings.CTMode())
             {
@@ -114,14 +115,15 @@ namespace IFXTools{
             }
             
             
-            
+            //the button area on the left stuff
             Rect buttonGroupRect=new Rect(5, 25, Screen.width / 4, Screen.height-100);
             selGridInt = GUI.SelectionGrid(buttonGroupRect, selGridInt, selStrings, 1);//TAb switching controlls
+
             Rect groupRect=new Rect(buttonGroupRect.width+ 10, 0, Screen.width-buttonGroupRect.width, Screen.height);
             Rect subToolsGroupRect=new Rect(5, 25, buttonGroupRect.width*3, Screen.height-10);
             GUI.BeginGroup(groupRect);
             
-                                                    
+            //build bundles                                       
             if (selGridInt==0)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
@@ -172,7 +174,7 @@ namespace IFXTools{
             if (selGridInt==3)
             {
                 
-                
+                //create iamges plane form image
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
 
                 CreateImagePlaneUI();
@@ -181,7 +183,8 @@ namespace IFXTools{
                 
 
                 EditorGUILayout.LabelField(" ");
-                
+
+                //Anim clips from fbx
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
 
                 AnimCNTRLFromClipsWindowUI();
@@ -189,7 +192,7 @@ namespace IFXTools{
                 EditorGUILayout.EndVertical();
                
 
-                
+                //thumbnail tool
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
                 scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
                 ThumbnailToolUI();
@@ -199,6 +202,7 @@ namespace IFXTools{
                 
                 
             }
+            //changes settings position on button menu based on ctmode
             if (userSettings.CTMode())
                 {
                     if (selGridInt==4)
@@ -222,23 +226,143 @@ namespace IFXTools{
                     
                 }
             }
-            
-            
-            GUI.EndGroup();
-
-                           
+            GUI.EndGroup();                           
         }
-
-        public void CloseWindow()
+        void BuildSelectedBundleWindowUI()
         {
-            Debug.Log("tried to clsoe ");
-            this.Close();
+            
+            QuickToolsHelp.BuildBundlesInstructions(); // displays the instructions for this tool
+
+            //with qa check disabled it will skip the whole qa process. sometimes qeird components or things like that can trip it up so I left the option to skip it.
+            buildQACheckOverride = EditorGUILayout.Toggle( "Disable Quality Check", buildQACheckOverride);
+            
+            //ct mode dsiables the git stuff
+            if (userSettings.CTMode())
+            {
+                autoGitYesNo = EditorGUILayout.Toggle( "Push Bundles To Staging?", autoGitYesNo);
+                gitCommitM = EditorGUILayout.TextField("Git Commit message: ", gitCommitM);
+
+                if (GUILayout.Button("Push changes in folder to git"))
+                {
+                     if (gitCommitM=="")
+                    {
+                        EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
+                    }
+                    else
+                    {
+                        bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
+                    }
+                    
+                }
+            }
+            
+            
+            windowsBuildYesNo = EditorGUILayout.Toggle("Build for Windows?", windowsBuildYesNo);
+            androidBuildYesNo = EditorGUILayout.Toggle("Build for Android?", androidBuildYesNo);
+            iOSBuildYesNo = EditorGUILayout.Toggle("Build for iOS?", iOSBuildYesNo);           
+
+            //CheckList
+            QuickToolsHelp.PreBuildChecklist(); // displays the instructions for this tool 
+
+            if (GUILayout.Button("AssetBundle From Selection"))
+            {
+                if (autoGitYesNo==true && gitCommitM=="")
+                {
+                    EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
+                }
+                
+                else if(bundleTools.DirectoryBoolMulti(Selection.objects) == false)
+                {
+                    DisplayIncorrectSelectionWarning();
+                }
+                else
+                {
+                    List<Object> selectedBundles = new List<Object>();
+                    foreach (var dir in Selection.objects)
+                    {
+                        selectedBundles.Add(dir);                        
+                    }
+                    // Build the bundles!
+                    bundleTools.BuildSelectedBundle(selectedBundles, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);                    
+                }  
+            }
+
+            //Lists all selected items that arn't folders
+            void DisplayIncorrectSelectionWarning()
+            {
+                List<string> itemList = new List<string>();
+
+                foreach (var item in Selection.objects)
+                {
+                    if (bundleTools.DirectoryBool(item) == false)
+                    {
+                        itemList.Add(item.name);
+                    }
+                }
+                string selObjects = string.Join(", ", itemList);
+
+                string warningMSG = "Please select ONLY Folders to be built. Your selection contains These Items that arn't folders:                      " + selObjects;
+                EditorUtility.DisplayDialog("WARNING!", warningMSG, "OK", "Cancel");
+            }
         }
+        void SettingsWindowUI()
+        {          
+            EditorGUILayout.LabelField("");//blank space for formating  
+            // If this is toggled delete the entire project folders in the cache when clear button hit
+            hardResetCache = EditorGUILayout.Toggle( "Full Reset Cache", hardResetCache);
+
+            //delete the asset folders in the build projects
+            if (GUILayout.Button("Clear Build Projects Cache"))
+            {
+                bundleTools.ClearDependenciesCache(hardResetCache);
+            }
+
+            EditorGUILayout.LabelField("");//blank space for formating 
+
+            //ct mode only settings such as cdn
+            if (userSettings.CTMode())
+            {
+                EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
+                EditorGUILayout.LabelField("CDN Win Project Folder: "+userSettings.cdnWinLoc);
+                EditorGUILayout.LabelField("CDN Android Project Folder: "+userSettings.cdnAndroidLoc);
+                EditorGUILayout.LabelField("CDN iOS Project Folder: "+userSettings.cdniOSLoc);
+
+                if (GUILayout.Button("CDN Project Folder - Browse"))
+                {
+                    userSettings.cdnProjectPath = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");                    
+                }
+                EditorGUILayout.LabelField("OPTIONAL settings below");
+                userSettings.prefabPrefix = EditorGUILayout.TextField("Prefix for creating prefabs ",userSettings.prefabPrefix);
+                userSettings.prefabAfix = EditorGUILayout.TextField("Afix for creating prefabs ",userSettings.prefabAfix);
+
+                EditorGUILayout.LabelField("");//blank space for formating 
+                userSettings.currentIFXNum = EditorGUILayout.TextField("current ifx number:",userSettings.currentIFXNum);
+
+                EditorGUILayout.LabelField("");//blank space for formating 
+
+                userSettings.thumbnailSavePath = EditorGUILayout.TextField("Thumbnail Save Location: ",userSettings.thumbnailSavePath);
+                if (GUILayout.Button("Select Thumbnail Save Location"))
+                {
+                    userSettings.thumbnailSavePath = EditorUtility.OpenFolderPanel("Thumbnail Save Location", "", "");                  
+                }  
+            } 
+
+            EditorGUILayout.LabelField("");//blank space for formating      
+                    
+            if (GUILayout.Button("Save Settings"))
+            {
+                userSettings.SaveUserSettings();                             
+            }                              
+        }
+
+        
         private void ThumbnailToolUI()
         {
             EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
+            //the thumbnail preview
             GUILayout.Label(thumbnailToolInstance.previewImage, GUILayout.Width(500), GUILayout.Height(281));
             var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
+
             if (GUILayout.Button("Load Thumbnail Scene"))
                 {
                     if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
@@ -286,136 +410,20 @@ namespace IFXTools{
             }            
         }
 
-        void SettingsWindowUI()
-        {
-            
-            
-            
-            
-            // userSettings.cdnAndroidLoc = EditorGUILayout.TextField("Android Folder of CDN: ",userSettings.cdnAndroidLoc);
-            // if (GUILayout.Button("Android CDN Folder - Browse"))
-            // {
-            //     userSettings.cdnAndroidLoc = EditorUtility.OpenFolderPanel("Select Android CDN folder", "", "");
-                
-            // }
-            // userSettings.cdniOSLoc = EditorGUILayout.TextField("iOS Folder of CDN: ",userSettings.cdniOSLoc);
-            // if (GUILayout.Button("iOS CDN Folder - Browse"))
-            // {
-            //     userSettings.cdniOSLoc = EditorUtility.OpenFolderPanel("Select iOS CDN folder", "", "");
-                
-            // }
-            //EditorGUILayout.LabelField("Set the paths to your IFX Project folders");
-            // userSettings.projectWinLoc = EditorGUILayout.TextField("Windows Project Folder: ",userSettings.projectWinLoc);
-            // if (GUILayout.Button("Windows Project Folder - Browse"))
-            // {
-            //     userSettings.projectWinLoc = EditorUtility.OpenFolderPanel("Select Windows Project folder", "", "");
-                
-            // }
-            // userSettings.projectAndroidLoc = EditorGUILayout.TextField("Android Project Folder: ",userSettings.projectAndroidLoc);
-            // if (GUILayout.Button("Android Project Folder - Browse"))
-            // {
-            //     userSettings.projectAndroidLoc = EditorUtility.OpenFolderPanel("Select Android Project folder", "", "");
-                
-            // }
-            // EditorGUILayout.LabelField("Set the path to your Unity Instal");
-            // EditorGUILayout.LabelField("This needs to be the appropriate Unity version for the projects above");
-            // userSettings.unityEXELoc = EditorGUILayout.TextField("Unity.exe:",userSettings.unityEXELoc);
-
-            // if (GUILayout.Button("Auto Fill Settings"))
-            // {
-            //     userSettings.unityEXELoc=EditorApplication.applicationPath;
-
-            //     userSettings.projectWinLoc = Application.dataPath;
-            //     userSettings.projectWinLoc = userSettings.projectWinLoc.Replace("/Assets", "");
-
-            //     userSettings.projectAndroidLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/Android";
-            //     userSettings.projectiOSLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/iOS";
-                
-            // }
-            EditorGUILayout.LabelField("");//blank space for formating    
-            // if (GUILayout.Button("Inital Setup - Build Projects"))
-            // {
-            //     userSettings.SettingsAutoSetup();
-            //     userSettings.SaveUserSettings();
-            //     bundleTools.SyncUnityProjects("Android");
-            //     bundleTools.SyncUnityProjects("iOS");              
-            // }
-            EditorGUILayout.LabelField("");//blank space for formating  
-            hardResetCache = EditorGUILayout.Toggle( "Full Reset Cache", hardResetCache);
-            if (GUILayout.Button("Clear Dependencies Cashe"))
-            {
-                bundleTools.ClearDependenciesCache(hardResetCache);
-                
-                //bundleTools.SyncUnityProjects("Android");
-                //bundleTools.SyncUnityProjects("iOS");              
-            }
-
-            EditorGUILayout.LabelField("");//blank space for formating 
-
-            if (userSettings.CTMode())
-            {
-                EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
-                EditorGUILayout.LabelField("CDN Win Project Folder: "+userSettings.cdnWinLoc);
-                EditorGUILayout.LabelField("CDN Android Project Folder: "+userSettings.cdnAndroidLoc);
-                EditorGUILayout.LabelField("CDN iOS Project Folder: "+userSettings.cdniOSLoc);
-                if (GUILayout.Button("CDN Project Folder - Browse"))
-                {
-                    string cdnProjectFolder = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");
-                    userSettings.cdnWinLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
-                    userSettings.cdnAndroidLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
-                    userSettings.cdniOSLoc = cdnProjectFolder+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
-                    
-                    
-                }
-                EditorGUILayout.LabelField("OPTIONAL settings below");
-                userSettings.prefabPrefix = EditorGUILayout.TextField("Prefix for creating prefabs ",userSettings.prefabPrefix);
-                userSettings.prefabAfix = EditorGUILayout.TextField("Afix for creating prefabs ",userSettings.prefabAfix);
-
-                EditorGUILayout.LabelField("");//blank space for formating 
-                userSettings.currentIFXNum = EditorGUILayout.TextField("current ifx number:",userSettings.currentIFXNum);
-
-                EditorGUILayout.LabelField("");//blank space for formating 
-
-                userSettings.thumbnailSavePath = EditorGUILayout.TextField("Thumbnail Save Location: ",userSettings.thumbnailSavePath);
-                if (GUILayout.Button("Select Thumbnail Save Location"))
-                {
-                    userSettings.thumbnailSavePath = EditorUtility.OpenFolderPanel("Thumbnail Save Location", "", "");                  
-                }  
-            } 
-
-            EditorGUILayout.LabelField("");//blank space for formating      
-                    
-            if (GUILayout.Button("Save Settings"))
-            {
-                userSettings.SaveUserSettings();
-                             
-            }
-            
-            
-                                
-        }
-
+        
         void NewDependenciesWindowUI()
         {                    
             // Create all the folders and stuff for a new dependencie
-            EditorGUILayout.LabelField("Set up Client folders", EditorStyles.boldLabel);        
-            EditorGUILayout.LabelField("Type client name and click the button to create dependencies folder, ifx and asset label.");
-            EditorGUILayout.LabelField("For example type mcdonalds and you would get Dependencies_mcdonalds, ");
-            EditorGUILayout.LabelField("ifx3-mcdonalds folders and ifx3-mcdonalds assetbunddle created and applied.");
-            folderName = EditorGUILayout.TextField("Folder Name: ", folderName);
-        
+            QuickToolsHelp.NewDependenciesWindowInstructions(); // displays the instructions for this tool
+            folderName = EditorGUILayout.TextField("Folder Name: ", folderName);        
             if (GUILayout.Button("Create Folders"))
             {
                 CreateDependenciesFolder();
             }
-            
         }
         void AnimCNTRLFromClipsWindowUI()
-        {            
-            EditorGUILayout.LabelField("Create Animation Controlers from Selection", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("TO USE: Select the fbx in the project window and hit the button.");
-            EditorGUILayout.LabelField("You will get a named anim controller for every anim clip in the fbx.");
-            EditorGUILayout.LabelField("each anim controler will already be connected to it's animation clip.");
+        {    
+            QuickToolsHelp.AnimClipsFromFBXInstructions(); // displays the instructions for this tool        
             if (GUILayout.Button("Quick Create Anim Controlers"))
             {
             string assetPath =  AssetDatabase.GetAssetPath((GameObject)Selection.activeObject);
@@ -437,127 +445,28 @@ namespace IFXTools{
                             Debug.Log("Found animation clip");
                     }
                 }   
-                
-            
-                
-            
-            }
-            
-        
-            
+            }            
         }
-
-        void BuildSelectedBundleWindowUI()
-        {
-            
-            EditorGUILayout.LabelField("ATTENTION! You need to set up your user settings before this can work!");
-            EditorGUILayout.LabelField("TO USE: Select the folder you want made into a bundle, for example ifx3-mcdonalds.");
-            EditorGUILayout.LabelField("You can shift select more folders if you want to build more than one bundle.");
-            EditorGUILayout.LabelField("Use the check marks below to choose the build type");
-            EditorGUILayout.LabelField("Leave both checked to build windows and android at the same time");
-
-            buildQACheckOverride = EditorGUILayout.Toggle( "Disable Quality Check", buildQACheckOverride);
-            if (userSettings.CTMode())
-            {
-                autoGitYesNo = EditorGUILayout.Toggle( "Push Bundles To Staging?", autoGitYesNo);
-                gitCommitM = EditorGUILayout.TextField("Git Commit message: ", gitCommitM);
-
-                if (GUILayout.Button("Push changes in folder to git"))
-                {
-                     if (gitCommitM=="")
-                    {
-                        EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
-                    }
-                    else
-                    {
-                        bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
-                    }
-                    
-                }
-            }
-            
-            
-            windowsBuildYesNo = EditorGUILayout.Toggle("Build for Windows?", windowsBuildYesNo);
-            androidBuildYesNo = EditorGUILayout.Toggle("Build for Android?", androidBuildYesNo);
-            iOSBuildYesNo = EditorGUILayout.Toggle("Build for iOS?", iOSBuildYesNo);           
-            
-            
-
-            //CheckList
-            EditorGUILayout.LabelField("___________________CHECKLIST__________________");
-            EditorGUILayout.LabelField("0. -PUSH CHANGES TO PROJECT- Push your changes to the project to the appropriate IFX Project.  -OPTIONAL");
-            EditorGUILayout.LabelField("1. -SELECT ONLY FOLDERS- Check that you have only the folders you want bundled selected.");
-            EditorGUILayout.LabelField("2. -CHECK TOGGLES- Check build toggles are set right.");
-            EditorGUILayout.LabelField("3. -COMMIT MESSAGE- if you use auto git you must enter a commit message.");
-            EditorGUILayout.LabelField("4. -PULL- if you use auto git it's not a bad idea to do a manual pull first. -OPTIONAL");
-            EditorGUILayout.LabelField("5. -PULL PROJECT- Have you pulled changes to your project recently? -OPTIONAL");
-            EditorGUILayout.LabelField("6.- HIT BUILD BUTTON-");      
-
-            
-            if (GUILayout.Button("AssetBundle From Selection"))
-            {
-                if (autoGitYesNo==true && gitCommitM=="")
-                {
-                    EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
-                }
-                else if(bundleTools.DirectoryBoolMulti(Selection.objects) == false) //fix
-                {
-                    List<string> itemList = new List<string>();
-                    
-                    foreach (var item in Selection.objects)
-                    {
-                        if (bundleTools.DirectoryBool(item)==false)
-                        {
-                            itemList.Add(item.name);
-                        } 
-                    }
-                    string selObjects = string.Join(", ", itemList);
-                    
-                    string warningMSG="Please select ONLY Folders to be built. Your selection contains These Items that arn't folders:                      "+selObjects;
-                    EditorUtility.DisplayDialog("WARNING!",warningMSG, "OK", "Cancel");                    
-                }
-                else
-                {
-                    //BuildSelectedBundle(windowsBuildYesNo,androidBuildYesNo);//build windows true, build android true
-                    List<Object> selectedBundles = new List<Object>();
-                    foreach (var dir in Selection.objects)
-                    {
-                        selectedBundles.Add(dir);
-                        
-                    }
-                    bundleTools.BuildSelectedBundle(selectedBundles, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);
-                    // foreach (var dir in Selection.objects)
-                    // {
-                    //     bundleTools.BuildSelectedBundle(dir, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);
-                    // }
-                    
-                }  
-            }  
-        }
-
         void EmptyPrefabWindowUI()
         {
             EditorGUILayout.LabelField("Add a top level zeroed out empty", EditorStyles.boldLabel);
             if (GUILayout.Button("Create zeroed prefab"))
             {   
-                    foreach (GameObject item in Selection.objects)
-                    {
-                        var topEmpty = new GameObject();
-                        topEmpty.name = userSettings.prefabPrefix+item.name+userSettings.prefabAfix;
-                        item.transform.parent = topEmpty.transform;
-                        topEmpty.transform.position= new Vector3(0,0,0);
-                        topEmpty.transform.eulerAngles= new Vector3(0,0,0); 
-                    }  
+                foreach (GameObject item in Selection.objects)
+                {
+                    var topEmpty = new GameObject();
+                    topEmpty.name = userSettings.prefabPrefix+item.name+userSettings.prefabAfix;
+                    item.transform.parent = topEmpty.transform;
+                    topEmpty.transform.position= new Vector3(0,0,0);
+                    topEmpty.transform.eulerAngles= new Vector3(0,0,0); 
+                }  
             }
-
         }
 
         void BatchPrefabWindowUI()
         {
-            EditorGUILayout.LabelField("Batch Make Prefabs ", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("This tool adds all the selected objects in a scene as prefabs so you don't have to do it one by one.");
-            EditorGUILayout.LabelField("TO USE: Set the destination folder by selecting the folder and hitting the button or by typing in the box.");
-            EditorGUILayout.LabelField("Then select all the objects you want added as prefabs and click the Make Prefabs button.");
+            QuickToolsHelp.BatchMakePrefabsInstructions(); // displays the instructions for this tool
+            
             destinationFolder = EditorGUILayout.TextField("Destination Folder:",destinationFolder);
             if (GUILayout.Button("Set Destination Folder"))
             {    
@@ -589,17 +498,8 @@ namespace IFXTools{
             }
         }
         void AutoPivotUI()
-        {            
-            EditorGUILayout.LabelField("Center IFX", EditorStyles.boldLabel);
-            EditorGUILayout.LabelField("This tool assumes a top level empty at 0,0,0");
-            EditorGUILayout.LabelField("You can easily add one using the \"quick prefab\" tool.");
-            EditorGUILayout.LabelField(" ");
-            EditorGUILayout.LabelField("\"ALT Centering\" Slower but more accurate.");
-            EditorGUILayout.LabelField("It figures out the center based on mesh verticies.");
-            EditorGUILayout.LabelField(" ");
-            EditorGUILayout.LabelField("NOTE: this tool has no undo.");
-            EditorGUILayout.LabelField("Makes immediate changes to prefabs. No need to override.");
-            EditorGUILayout.LabelField("Works on selections in project view or scene view.");
+        {           
+            QuickToolsHelp.AutoPivotInstructions(); // displays the instructions for this tool
             altCenterMethod = GUILayout.Toggle(altCenterMethod,"ALT Centering");           
             
             if (GUILayout.Button("Auto Pivot"))
@@ -860,4 +760,67 @@ namespace IFXTools{
         }
     }
         
+}
+
+public static class QuickToolsHelp
+{
+    public static void BuildBundlesInstructions()
+    {
+        EditorGUILayout.LabelField("ATTENTION! You need to set up your user settings before this can work!");
+        EditorGUILayout.LabelField("TO USE: Select the folder you want made into a bundle, for example ifx3-mcdonalds.");
+        EditorGUILayout.LabelField("You can shift select more folders if you want to build more than one bundle.");
+        EditorGUILayout.LabelField("Use the check marks below to choose the build type");
+        EditorGUILayout.LabelField("Leave both checked to build windows and android at the same time");
+    }
+    public static void PreBuildChecklist()
+    {
+        EditorGUILayout.LabelField("___________________CHECKLIST__________________");
+        EditorGUILayout.LabelField("0. -PUSH CHANGES TO PROJECT- Push your changes to the project to the appropriate IFX Project.  -OPTIONAL");
+        EditorGUILayout.LabelField("1. -SELECT ONLY FOLDERS- Check that you have only the folders you want bundled selected.");
+        EditorGUILayout.LabelField("2. -CHECK TOGGLES- Check build toggles are set right.");
+        EditorGUILayout.LabelField("3. -COMMIT MESSAGE- if you want to push directly to staging you must enter a commit message.");
+        EditorGUILayout.LabelField("4. -PULL- if you use auto git it's not a bad idea to do a manual pull first. -OPTIONAL");
+        EditorGUILayout.LabelField("5. -PULL PROJECT- Have you pulled changes to your project recently? -OPTIONAL");
+        EditorGUILayout.LabelField("6.- HIT BUILD BUTTON-");   
+    }
+    public static void AutoPivotInstructions()
+    {
+        EditorGUILayout.LabelField("Center IFX", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("This tool assumes a top level empty at 0,0,0");
+        EditorGUILayout.LabelField("You can easily add one using the \"quick prefab\" tool.");
+        EditorGUILayout.LabelField(" ");
+        EditorGUILayout.LabelField("\"ALT Centering\" Slower but more accurate.");
+        EditorGUILayout.LabelField("It figures out the center based on mesh verticies.");
+        EditorGUILayout.LabelField(" ");
+        EditorGUILayout.LabelField("NOTE: this tool has no undo.");
+        EditorGUILayout.LabelField("Makes immediate changes to prefabs. No need to override.");
+        EditorGUILayout.LabelField("Works on selections in project view or scene view.");            
+    }
+
+     public static void NewDependenciesWindowInstructions()
+        {                    
+            
+            EditorGUILayout.LabelField("Set up Client folders", EditorStyles.boldLabel);        
+            EditorGUILayout.LabelField("Type client name and click the button to create dependencies folder, ifx and asset label.");
+            EditorGUILayout.LabelField("For example type mcdonalds and you would get Dependencies_mcdonalds, ");
+            EditorGUILayout.LabelField("ifx3-mcdonalds folders and ifx3-mcdonalds assetbunddle created and applied.");
+        }
+          
+    public static void AnimClipsFromFBXInstructions()
+    {
+        EditorGUILayout.LabelField("Create Animation Controlers from Selection", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("TO USE: Select the fbx in the project window and hit the button.");
+        EditorGUILayout.LabelField("You will get a named anim controller for every anim clip in the fbx.");
+        EditorGUILayout.LabelField("each anim controler will already be connected to it's animation clip.");           
+    }
+    
+    public static void BatchMakePrefabsInstructions()
+        {                    
+            
+            EditorGUILayout.LabelField("Batch Make Prefabs ", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("This tool adds all the selected objects in a scene as prefabs so you don't have to do it one by one.");
+            EditorGUILayout.LabelField("TO USE: Set the destination folder by selecting the folder and hitting the button or by typing in the box.");
+            EditorGUILayout.LabelField("Then select all the objects you want added as prefabs and click the Make Prefabs button.");
+        }
+
 }

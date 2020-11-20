@@ -19,7 +19,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         bool androidBuildYesNo {get; set;}
         bool autoGitYesNo {get; set;}
 
-        void CloseWindow();
+        
      }
     public class IFXBundleTools : EditorWindow
     {
@@ -44,32 +44,14 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         public bool androidBuildYesNo {get; set;}
         public bool iOSBuildYesNo {get; set;}
         public bool autoGitYesNo {get; set;}
-        void OnEnable()
-        {
-            
-        }
-        
+               
         bool passedQualityCheck;
         
         
         List<string> bundlesBuiltWin = new List<string>();
         List<string> bundlesBuiltAndroid = new List<string>();
         List<string> bundlesBuiltiOS = new List<string>();
-       private static void CreateEditorDirectoryies()
-        {
-            if (!Directory.Exists(Application.dataPath + "/Editor"))
-            {
-                Directory.CreateDirectory(Application.dataPath + "/Editor");
-            }
-            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools"))
-            {
-                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools");
-            }
-            if (!Directory.Exists(Application.dataPath + "/Editor/IFX Tools/BundleTool/"))
-            {
-                Directory.CreateDirectory(Application.dataPath + "/Editor/IFX Tools/BundleTool/");
-            }
-        }
+       
         public void BuildSelectedBundle(List<Object> selectedBundleIN,
         bool windowsYes,
         bool androidYes,
@@ -95,35 +77,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 bundlesBuiltAndroid.Clear();
                 bundlesBuiltiOS.Clear();        
             }
-            /////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////^Set Up ^///////////////////////////
             
             if (selectedBundles !=null)
-            {
-                //CheckBundleDirectoryiesExist(); //Left for debuging but no longer needed in established projects                
-                
-                //This part isn't auto "add"ing the files to a git comit. this part just makes the varable to hold all the paths
-                if (autoGitYes)
-                {
-                    for (int i = 0; i < selectedBundles.Count; i++)
-                    {
-                        if (androidYes)
-                        {
-                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".manifest");
-                        }
-                        if (iOSYes)
-                        {
-                            bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                            bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".manifest");
-                        }
-                        if (windowsYes)
-                        {
-                            bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                            bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".manifest");
-                        }
-                    }       
-                }
-                ClearAllAssetLabelsInProject(); // might bother people... Make into a manual button if needed 
+            {                            
+                ClearAllAssetLabelsInProject();
+                //re add asset labels based on folders names to selected folders
                 for (int i = 0; i < selectedBundles.Count; i++)
                 {
                     SetAssetLabelToFolderName(selectedBundles[i]);
@@ -142,30 +101,28 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     }
                     
                 }
-            
-
+            ///////////////////////////////////////////////////////Passed QA Check - Build bundles////////////////////
                 if (passedQualityCheck | buildQACheckOverride)
                 {
                     buildQACheckOverride = false;
+
+                    //This part isn't auto "add"ing the files to a git comit. this part just makes the varable to hold all the paths
+                if (autoGitYes)
+                    {
+                        SetUpGitPathsForCreatedFiles(windowsYes, androidYes, iOSYes);
+                    }
                     // if true build android 
                     if (androidYes)
                     {
-                        DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //maybe move this to when bundles go to server so bundles can be built near the same time.
-                        string androidBuildPath = CreateBatchCMDSFile("Android",SyncUnityProjects("Android"),CreateAndroidBatchFile(autoGitYesNo));
-                        
-                        
-                        //RoboCopyDependenciesFiles("Android");
-                        //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidSync.bat");
-                        RunBatchFile(androidBuildPath);
-                        // Git stuff handled in batch file!
-                        
+                        DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //clears out old bundles
+                        string androidBuildPath = CreateBatchCMDSFile("Android",SyncUnityProjects("Android"),CreateAndroidBatchFile(autoGitYesNo));                      
+                        RunBatchFile(androidBuildPath);                       
                     }
+                    // if true build iOS 
                     if (iOSYes)
                     {
-                        DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //maybe move this to when bundles go to server so bundles can be built near the same time.
+                        DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //clears out old bundles
                         string iOSBuildPath = CreateBatchCMDSFile("iOS",SyncUnityProjects("iOS"),CreateiOSBatchFile(autoGitYesNo));
-                        //RoboCopyDependenciesFiles("iOS");
-                        //RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSSync.bat");
                         RunBatchFile(iOSBuildPath);
                         // Git stuff handled in batch file!
                         
@@ -173,7 +130,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     // if true build windows 
                     if (windowsYes)
                     {
-                        DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //maybe move this to when bundles go to server so bundles can be built near the same time.
+                        DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles
                         //Build the bundle
                         AssetBundles.BuildScript.BuildAssetBundles();
                         
@@ -196,62 +153,53 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 Debug.Log("Notheing Selected - Select the folder you want build first");
             }
-
-            
-
+            ///////////////////////////////////////////Local Methods/////////////////////////////////////////////////
             void SetAssetLabelToFolderName(UnityEngine.Object item)
             {
-                
-                
                 //This part changes the asset labelsS
                 var itemPath = AssetDatabase.GetAssetPath(item);
                 var itemDirectory = Path.GetDirectoryName(itemPath);
-                var itemFolderName = Path.GetFileName(itemPath);//was itemDirectory, this is what it should be when intergrated into DB tool
-
-                AssetImporter assetImporterForSelection = AssetImporter.GetAtPath(itemPath);//was itemDirectory, this is what it should be when intergrated into DB tool
-                                                                                            //Debug.Log(assetImporterForSelection.assetBundleName);
-                                                                                            //Debug.Log("this is the item dir:" + itemFolderName);
+                var itemFolderName = Path.GetFileName(itemPath);
+                AssetImporter assetImporterForSelection = AssetImporter.GetAtPath(itemPath);                                                                                            
                 assetImporterForSelection.assetBundleName = itemFolderName;
+            }
 
-                //Debug.Log(assetImporterForSelection.assetBundleName);
-            }
-        }
-        public void CreateTempCommandBatchFile(List<string> commands,string batchfileName)
-        {
-            
-            string batchFilePath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+batchfileName+".bat";
-            // if (!Directory.Exists(batchFilePath))
-            // {
-            //     Directory.CreateDirectory(batchFilePath);
-            // }
-            //Write some text to the test.txt file
-            StreamWriter writer = new StreamWriter(batchFilePath, false);
-            foreach (var command in commands)
+            void SetUpGitPathsForCreatedFiles(bool winYes, bool andYes, bool iYes)
             {
-                writer.WriteLine(command);
+                for (int i = 0; i < selectedBundles.Count; i++)
+                {
+                    if (androidYes)
+                    {
+                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".manifest");
+                    }
+                    if (iOSYes)
+                    {
+                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".manifest");
+                    }
+                    if (windowsYes)
+                    {
+                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".engagebundle");
+                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".manifest");
+                    }
+                }
             }
-            writer.Close();
         }
+        
         void RunBatchFile(string path)
         {
-            //need some better way to set this for diffrent ifx project numbers
             FileInfo info = new FileInfo(path);
             System.Diagnostics.Process.Start(info.FullName);
             //Debug.Log(info);
         }
         public List<string> CreateAndroidBatchFile(bool autoGitYesNo)
         {
-            // string androidBuildPath = Application.dataPath + "/Editor/IFX Tools/BundleTool/AndroidBuild.bat";
-            // //Write some text to the test.txt file
-            // StreamWriter writer = new StreamWriter(androidBuildPath, false);
             List<string> commands = new List<string>();
             foreach (var command in RoboCopyDependenciesFiles("Android"))
             {
                 commands.Add(command);
-            }
-            //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectAndroidLoc+"/Assets /MIR");
-            
-            
+            }           
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
@@ -265,19 +213,16 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 //Start of git bit
                 string listOfBundles = string.Join(" ", bundlesBuiltAndroid);
                 //commands = new string[8]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+gitCommitM};
-                commands.Add("cd "+userSettings.cdnAndroidLoc);
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
+                commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\""); 
+                commands.Add("git stash");
                 commands.Add("git pull");
+                commands.Add("git stash pop");
                 commands.Add("git add "+listOfBundles);
-                commands.Add("git commit -m "+"\""+gitCommitM+"_ANDROID"+"\"");
+                commands.Add("git commit -m "+"\""+gitCommitM+"_Android"+"\"");
                 commands.Add("git push");
             }
             return commands;
-            //CreateTempCommandBatchFile(commands,"AndroidBuild");
+            
         }
         public List<string> CreateiOSBatchFile(bool autoGitYesNo,List<string> commandsIN = null)
         {
@@ -305,20 +250,17 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 //Start of git bit
                 string listOfBundles = string.Join(" ", bundlesBuiltiOS);
-                //commands = new string[8]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+gitCommitM};
-                commands.Add("cd "+userSettings.cdniOSLoc);
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
-                commands.Add("cd ..");
+                //commands = new string[8]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+gitCommitM};                
+                commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\""); 
+                commands.Add("git stash");
                 commands.Add("git pull");
+                commands.Add("git stash pop");
                 commands.Add("git add "+listOfBundles);
                 commands.Add("git commit -m "+"\""+gitCommitM+"_iOS"+"\"");
                 commands.Add("git push");
             }
             return commands;
-            //CreateTempCommandBatchFile(commands,"iOSBuild");
+            
         }
         void CopyFolderContents(string source,string destination)
         {
@@ -358,59 +300,43 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             
         }
-        void ClearAssetLabelsDirectorys(string[] directory)
-        {
-            foreach (var assetfolder in directory)
-            {
-                Debug.Log(assetfolder);
-                AssetImporter assetImporter = AssetImporter.GetAtPath(assetfolder);
-                //Debug.Log(assetImporter.assetBundleName);
-                assetImporter.assetBundleName = "";
-            }
-        }
-        public void ClearAssetLabelGameObject(GameObject item)
-        {
-            string prefabPath = AssetDatabase.GetAssetPath(item);
-            AssetImporter assetImporter = AssetImporter.GetAtPath(prefabPath);
-            assetImporter.assetBundleName = "";
-        }
+        
         public static void ClearAllAssetLabelsInProject()
         {
-
             var names = AssetDatabase.GetAllAssetBundleNames();
             foreach (var name in names)
             {
                 AssetDatabase.RemoveAssetBundleName(name,true);
             }
-            
-            // string[] LabeledAssets = AssetDatabase.FindAssets("l:", new[] {"Assets"});
-            // List<string> assetPaths = new List<string>();
-            // foreach (var asset in LabeledAssets)
-            // {
-            //     var path = AssetDatabase.GUIDToAssetPath(asset);
-            //     assetPaths.Add(path);
-            //     Debug.Log(path);
-            // }
-            // ClearAssetLabelsDirectorys(assetPaths.ToArray());
         }
         
         void GitPushWin()
         {
             // Declaration of the array
-            string[] commands;
+            List<string> commands= new List<string>();
             string listOfBundles = string.Join(" ", bundlesBuiltWin);
-            Debug.Log(listOfBundles);
+            //Debug.Log(listOfBundles);
             // Initialization of array
-            commands = new string[9]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+"\""+gitCommitM+"\"", "git push"};
+            commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\"");            
+
+            commands.Add("git add "+listOfBundles);
+            commands.Add("git commit -m "+"\""+gitCommitM+"\"");
+            commands.Add("git push");
+            
             RunCMD(commands);
         }
         public void GitPull()
         {
             // Declaration of the array
-            string[] commands;
+            List<string> commands= new List<string>();
 
             // Initialization of array
-            commands = new string[7]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git pull"}; // this may need to be cd /D to change the drive letter
+            commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\"");          
+
+            //commands.Add("git stash");
+            commands.Add("git pull");
+            //commands.Add("git stash pop");
+            
             RunCMD(commands);
             
         }
@@ -418,10 +344,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         {
             //userSettings.SettingsAutoSetup();
             //needs to set user settings android project location at some point
-            List<string> commands;            
+            List<string> commands = new List<string>();            
             
-            
-            commands = new List<string>();
             commands.Add("mkdir "+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType);
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK"+"\""+ " " +"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+"\""+" "+" /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\"");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/ProjectSettings"+"\""+" "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+"\""+ " /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\""); 
@@ -437,15 +361,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 userSettings.projectiOSLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
                 userSettings.SaveUserSettings();
             }
+
             return commands;
-            //CreateBatchCMDSFile(commands,buildType);
-            // "\""+userSettings.unityEXELoc+"\""+" -quit -batchmode -buildTarget \""+buildType+"\" -projectPath "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType
-            // "robocopy "+userSettings.projectWinLoc+"/Assets/--ENGAGE-IFXProjectPlugin "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/--ENGAGE-IFXProjectPlugin"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
-            // "robocopy "+userSettings.projectWinLoc+"/Assets/Editor "+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/Editor"+" /MIR /XD "+userSettings.projectWinLoc+"/IFXBuildToolProjects",
+            
         }
         public void GitCommitChangesToRepo(List<Object> selectedBundleIN,string gitCommitM)
         {
-            // commands = new string[9]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+"\""+gitCommitM+"\"", "git push"};
             List<string> commands = new List<string>();
             List<string> filesToAdd = new List<string>();
             filesToAdd.AddRange(GetFolderDependencies(selectedBundleIN));
@@ -472,14 +393,6 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             string gitCommitBatch = CreateBatchCMDSFile("GitCommitToRepo",commands);
             RunBatchFile(gitCommitBatch);
-            
-            
-            // foreach (var item in selectedBundleIN)
-            // {
-            //     filesToAdd.AddRange(GetFolderDependencies(item));
-            // }
-            
-            //commands.Add(userSettings.projectWinLoc);
         }
         public string CreateBatchCMDSFile(string fileNameforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
@@ -506,10 +419,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             
             writer.Close();
             return TempCMDBatchPath;
-            //RunBatchFile(TempCMDBatchPath);
-            //File.Delete(TempCMDBatchPath);
         }
-        void RunCMD(string[] arguments)
+        void RunCMD(List<string> arguments)
         {
             Process cmd = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
@@ -525,8 +436,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     foreach (string arg in arguments)
                     {
                         
-                        string argIN = arg.Replace("/","\\");
-                        sw.WriteLine(argIN);
+                        //string argIN = arg.Replace("/","\\");
+                        sw.WriteLine(arg);
                         Debug.Log("CMD LINE input command: "+arg);
                     }
                 }
@@ -609,11 +520,6 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             }
             
             return commands;
-            //commands.Add("PAUSE");
-            // string fileName = buildType+"Sync";
-            // CreateTempCommandBatchFile(commands,fileName);
-            // RunBatchFile(Application.dataPath + "/Editor/IFX Tools/BundleTool/"+fileName+".bat");
-            //RunCMD(commands.ToArray());
         }
 
         private List<string> GetFolderDependencies(List<UnityEngine.Object> goIN) // this is a test of the export package idea can probobly delete

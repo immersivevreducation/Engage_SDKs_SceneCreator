@@ -195,7 +195,7 @@ namespace IFXTools {
                 //loop through directory loading the game object and checking if it has the component you want
                 if (fileInf!=null)
                 {
-                    //the issue is here!
+                    
                     foreach (FileInfo file in fileInf)
                     {
                         
@@ -205,7 +205,7 @@ namespace IFXTools {
                         GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
 
                         
-                        bundleTool.ClearAssetLabelGameObject(prefab); //fix
+                        
 
                         if(prefab!= null)
                         {
