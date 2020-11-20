@@ -464,7 +464,15 @@ namespace IFXTools{
 
                 if (GUILayout.Button("Push changes in folder to git"))
                 {
-                    bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
+                     if (gitCommitM=="")
+                    {
+                        EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
+                    }
+                    else
+                    {
+                        bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
+                    }
+                    
                 }
             }
             
@@ -490,7 +498,7 @@ namespace IFXTools{
             {
                 if (autoGitYesNo==true && gitCommitM=="")
                 {
-                    EditorUtility.DisplayDialog("WARNING!", "To use auto git you need to enter a commit message", "OK", "Cancel");                          
+                    EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
                 }
                 else if(bundleTools.DirectoryBoolMulti(Selection.objects) == false) //fix
                 {

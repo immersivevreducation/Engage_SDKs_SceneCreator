@@ -458,6 +458,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             foreach (var item in filesToAdd)
             {
                 commands.Add("git add "+"\""+userSettings.projectWinLoc+"/"+item+"\"");
+                commands.Add("git add "+"\""+userSettings.projectWinLoc+"/"+item+".meta"+"\"");
             }
             commands.Add("git status");
             commands.Add("git commit -m "+"\""+gitCommitM+"\"");
