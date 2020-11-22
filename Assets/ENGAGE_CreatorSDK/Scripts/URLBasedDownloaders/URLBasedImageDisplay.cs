@@ -12,5 +12,8 @@ public class URLBasedImageDisplay : MonoBehaviour
     public Transform _displayTransform;
     public Renderer[] _imageRenderers;
 
-   
+    public void DownloadImage(string imgUrl)
+    {
+    }
+
 }
