@@ -97,7 +97,7 @@ namespace IFXTools{
             lights = ifxThumbnailRig.GetComponentsInChildren<Light>();
 
             camera = cameraObject.GetComponent(typeof(Camera)) as Camera;
-            RenderTexture rt = new RenderTexture(500, 281, 8, RenderTextureFormat.ARGB32);
+            RenderTexture rt = new RenderTexture(750, 500, 8, RenderTextureFormat.ARGB32);
             camera.targetTexture = rt;
             RenderTexture activeRenderTexture = RenderTexture.active;          
             previewImage = new Texture2D(camera.targetTexture.width, camera.targetTexture.height);

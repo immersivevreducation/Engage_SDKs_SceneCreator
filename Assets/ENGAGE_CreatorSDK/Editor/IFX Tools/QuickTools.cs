@@ -719,7 +719,7 @@ namespace IFXTools{
                     DestroyImmediate(plane.GetComponent<Collider>());
                     //Material Stuff
                     Renderer rend = plane.GetComponent<Renderer>();
-                    Material material = new Material(Shader.Find("Standard"));
+                    Material material = new Material(Shader.Find("Unlit/Transparent Cutout"));
                     material.SetFloat("_Mode", 1.0f);
                     material = MaterialCutoutmode(material);
                     material.name = image.name + "_MAT";
@@ -764,23 +764,25 @@ namespace IFXTools{
 
 public static class QuickToolsHelp
 {
+       
+    
     public static void BuildBundlesInstructions()
     {
-        EditorGUILayout.LabelField("ATTENTION! You need to set up your user settings before this can work!");
-        EditorGUILayout.LabelField("TO USE: Select the folder you want made into a bundle, for example ifx3-mcdonalds.");
+        
+        EditorGUILayout.LabelField("TO USE: Select the folder you want made into a bundle");
         EditorGUILayout.LabelField("You can shift select more folders if you want to build more than one bundle.");
-        EditorGUILayout.LabelField("Use the check marks below to choose the build type");
-        EditorGUILayout.LabelField("Leave both checked to build windows and android at the same time");
+        EditorGUILayout.LabelField("Use the check marks to choose the build type");
+        EditorGUILayout.LabelField("you can have more than one build type checked to build multiple bundle types at once");
     }
     public static void PreBuildChecklist()
     {
         EditorGUILayout.LabelField("___________________CHECKLIST__________________");
-        EditorGUILayout.LabelField("0. -PUSH CHANGES TO PROJECT- Push your changes to the project to the appropriate IFX Project.  -OPTIONAL");
-        EditorGUILayout.LabelField("1. -SELECT ONLY FOLDERS- Check that you have only the folders you want bundled selected.");
-        EditorGUILayout.LabelField("2. -CHECK TOGGLES- Check build toggles are set right.");
-        EditorGUILayout.LabelField("3. -COMMIT MESSAGE- if you want to push directly to staging you must enter a commit message.");
-        EditorGUILayout.LabelField("4. -PULL- if you use auto git it's not a bad idea to do a manual pull first. -OPTIONAL");
-        EditorGUILayout.LabelField("5. -PULL PROJECT- Have you pulled changes to your project recently? -OPTIONAL");
+        EditorGUILayout.LabelField("0. -PUSH CHANGES TO PROJECT - It's a good idea to push changes made to the project now if you are using github. - OPTIONAL");
+        EditorGUILayout.LabelField("1. -SELECT ONLY FOLDERS - Check that you have only the folders you want bundled selected.");
+        EditorGUILayout.LabelField("2. -CHECK TOGGLES- Check build toggles are set correctly.");
+        // EditorGUILayout.LabelField("3. -COMMIT MESSAGE- if you want to push directly to staging you must enter a commit message.");
+        // EditorGUILayout.LabelField("4. -PULL- if you use auto git it's not a bad idea to do a manual pull first. -OPTIONAL");
+        // EditorGUILayout.LabelField("5. -PULL PROJECT- Have you pulled changes to your project recently? -OPTIONAL");
         EditorGUILayout.LabelField("6.- HIT BUILD BUTTON-");   
     }
     public static void AutoPivotInstructions()
