@@ -329,7 +329,8 @@ namespace IFXTools{
 
                 if (GUILayout.Button("CDN Project Folder - Browse"))
                 {
-                    userSettings.cdnProjectPath = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");                    
+                    userSettings.cdnProjectPath = EditorUtility.OpenFolderPanel("Select Windows CDN folder", "", "");
+                    userSettings.SettingsAutoSetup();                       
                 }
                 EditorGUILayout.LabelField("OPTIONAL settings below");
                 userSettings.prefabPrefix = EditorGUILayout.TextField("Prefix for creating prefabs ",userSettings.prefabPrefix);
