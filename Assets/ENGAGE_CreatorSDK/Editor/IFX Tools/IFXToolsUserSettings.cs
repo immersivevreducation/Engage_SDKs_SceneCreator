@@ -30,6 +30,7 @@ namespace IFXTools
         public string prefabAfix;
         public string currentIFXNum;
         public string thumbnailSavePath;
+        public bool debugMode;
         public string cTCode;
         
         string settingsFilePath = Application.dataPath.Replace("/Assets", "") + "/UserSettings.json";
@@ -56,6 +57,8 @@ namespace IFXTools
                     prefabAfix = result.prefabAfix;
 
                     thumbnailSavePath = result.thumbnailSavePath;
+
+                    debugMode = result.debugMode;
 
                     cTCode = result.cTCode;
                     

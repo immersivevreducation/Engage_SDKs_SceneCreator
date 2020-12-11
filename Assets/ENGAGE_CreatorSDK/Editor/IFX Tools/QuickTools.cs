@@ -31,7 +31,7 @@ namespace IFXTools{
         List<string> bundlesBuiltAndroid = new List<string>();
 ////////////////////////////////////////////////////////UI Variables///////////////////////////////////////////////////////
         
-        
+        public bool bundlesBuilding{get; set;}
 
         public bool buildQACheckOverride{get; set;}
         public string gitCommitM{get; set;}
@@ -42,6 +42,8 @@ namespace IFXTools{
 
         bool altCenterMethod {get; set;}
         bool hardResetCache {get; set;}
+        
+        
 
         string folderName;
         
@@ -52,8 +54,8 @@ namespace IFXTools{
         Vector2 scrollPos;
         
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        [MenuItem("Assets/QuickTools")]
-        [MenuItem("Creator SDK/Bundle QuickTools - Beta")]
+        [MenuItem("Assets/IFX Tools")]
+        [MenuItem("Creator SDK/Bundle IFX Tools - Beta")]
         static void Init()
         {
             
@@ -79,6 +81,9 @@ namespace IFXTools{
             thumbnailToolInstance = new IFXThumbnailTool();
             bundleTools = (IFXBundleTools )ScriptableObject.CreateInstance(typeof(IFXBundleTools ));
             bundleTools.Init(this,userSettings);
+
+            //other
+            bundlesBuilding=false;
 
             //Set defualt checkmarks
             buildQACheckOverride=false;
@@ -286,6 +291,13 @@ namespace IFXTools{
                     bundleTools.BuildSelectedBundle(selectedBundles, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);                    
                 }  
             }
+            if (bundlesBuilding)
+            {
+                EditorGUILayout.LabelField("Building Bundles...", EditorStyles.boldLabel);
+            }
+
+            
+
 
             //Lists all selected items that arn't folders
             void DisplayIncorrectSelectionWarning()
@@ -322,7 +334,10 @@ namespace IFXTools{
             //ct mode only settings such as cdn
             if (userSettings.CTMode())
             {
+                userSettings.debugMode = EditorGUILayout.Toggle( "Enable DebugMode", userSettings.debugMode); 
+                
                 EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
+                EditorGUILayout.LabelField("CDN Project Folder: "+userSettings.cdnProjectPath);
                 EditorGUILayout.LabelField("CDN Win Project Folder: "+userSettings.cdnWinLoc);
                 EditorGUILayout.LabelField("CDN Android Project Folder: "+userSettings.cdnAndroidLoc);
                 EditorGUILayout.LabelField("CDN iOS Project Folder: "+userSettings.cdniOSLoc);
@@ -353,7 +368,9 @@ namespace IFXTools{
             if (GUILayout.Button("Save Settings"))
             {
                 userSettings.SaveUserSettings();                             
-            }                              
+            }
+
+                                         
         }
 
         
