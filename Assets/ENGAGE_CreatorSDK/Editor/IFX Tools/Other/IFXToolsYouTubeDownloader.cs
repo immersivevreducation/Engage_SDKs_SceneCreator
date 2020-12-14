@@ -15,7 +15,7 @@ public class IFXToolsYouTubeDownloader : EditorWindow
 
     bool res720 = true;
     bool res1080;
-    bool res2K;
+    bool res1440;
     bool res4k;
     bool resCustom;
 
@@ -42,10 +42,10 @@ public class IFXToolsYouTubeDownloader : EditorWindow
 
             youtubeURL = EditorGUILayout.TextField("Video URL: ", youtubeURL);
 
-            res720 = EditorGUILayout.Toggle( "720", res720);
-            res1080 = EditorGUILayout.Toggle( "1080", res1080);
-            res2K = EditorGUILayout.Toggle( "2k", res2K);
-            res4k = EditorGUILayout.Toggle( "4k", res4k);
+            res720 = EditorGUILayout.Toggle( "720p", res720);
+            res1080 = EditorGUILayout.Toggle( "1080p", res1080);
+            res1440 = EditorGUILayout.Toggle( "1440p (360 recomm.)", res1440);
+            res4k = EditorGUILayout.Toggle( "2160p (4k)", res4k);
             resCustom = EditorGUILayout.Toggle( "Custom Res", resCustom);
             
             videoResCustom = EditorGUILayout.TextField("Res: ", videoResCustom);
@@ -76,7 +76,7 @@ public class IFXToolsYouTubeDownloader : EditorWindow
                             string batchFilePath = CreateBatchCMDSFile("youtubeDLBatch",CreateyouTubeDLBatchFile("%%(title)s"+"_1080"));
                             RunBatchFile(batchFilePath);
                         }
-                        if (res2K)
+                        if (res1440)
                         {                        
                             videoRes="1440";
                             string batchFilePath = CreateBatchCMDSFile("youtubeDLBatch",CreateyouTubeDLBatchFile("%%(title)s"+"_1440"));
@@ -85,12 +85,12 @@ public class IFXToolsYouTubeDownloader : EditorWindow
                         if (res4k)
                         {                        
                             videoRes="2160";
-                            string batchFilePath = CreateBatchCMDSFile("youtubeDLBatch",CreateyouTubeDLBatchFile("%%(title)s"+"_2K"));
+                            string batchFilePath = CreateBatchCMDSFile("youtubeDLBatch",CreateyouTubeDLBatchFile("%%(title)s"+"_4k"));
                             RunBatchFile(batchFilePath);
                         }
                         if (resCustom)
                         {                        
-                            videoRes=videoResCustom;
+                            videoRes=videoResCustom.Replace("p","").Replace("P","");
                             string batchFilePath = CreateBatchCMDSFile("youtubeDLBatch",CreateyouTubeDLBatchFile("%%(title)s"+"_"+videoResCustom));
                             RunBatchFile(batchFilePath);
                         }
