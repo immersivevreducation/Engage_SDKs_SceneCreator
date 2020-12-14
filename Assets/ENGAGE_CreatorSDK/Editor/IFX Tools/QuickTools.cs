@@ -166,9 +166,16 @@ namespace IFXTools{
             //Organization Tools
             if (selGridInt==2)
             {              
-                
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
+                if (GUILayout.Button("Youtube Downloader"))
+                {
+                    EditorWindow window = GetWindow(typeof(IFXToolsYouTubeDownloader));
+                    window.Show();
+                }
+                EditorGUILayout.EndVertical();
 
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width*3-10));
+                
                 NewDependenciesWindowUI();
 
                 EditorGUILayout.EndVertical();
