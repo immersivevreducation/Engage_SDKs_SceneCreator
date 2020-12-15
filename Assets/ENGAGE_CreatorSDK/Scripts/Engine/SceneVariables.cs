@@ -10,7 +10,8 @@ using System.Collections.Generic;
 /// static variables, and rules for the scene. Also sets up the scene
 /// by instantiating the core GameObjects on MasterClient 
 /// </summary>
-public class SceneVariables : MonoBehaviour {
+public class SceneVariables : MonoBehaviour
+{
 
     public enum LegacyWhiteboardType
     {
@@ -25,12 +26,12 @@ public class SceneVariables : MonoBehaviour {
 
     /// <summary>The scale the scene was created at (Initial Engage scenes were 1.3)</summary>
     /// <remarks>Affects player height and vr scale settings</remarks>
-	public float theSceneScale = 1.3f;
+	public float theSceneScale = 1f;
 
     /// <summary>
     /// The gravity of the scene
     /// </summary>
-	public Vector3 gravity = new Vector3 (0, -9.8f, 0);
+	public Vector3 gravity = new Vector3(0, -9.8f, 0);
 
     /// <summary>
     /// Empty Transform to identify the spawn point
@@ -60,8 +61,15 @@ public class SceneVariables : MonoBehaviour {
     //If there is a legacy whiteboard in this location, what type is it
     public LegacyWhiteboardType legacyWhiteboardType;
 
+    /// <summary>Should spatial audio be longer distance</summary>
+    /// <remarks>For outdoor scenes, try 1.5, otherwise typically 1</remarks>
     [Header("")]
-    [Header("-Perfect Seats / Summon to seat system (optional)")]
+    [Header("Voice FallOff Distance multiplier (1 = 15 meters)")]
+    [Header("")]
+    public float spatialAudioMultiplier = 1f;
+
+    [Header("")]
+    [Header("Perfect Seats / Summon to seat system (optional)")]
     [Header("")]
     // <summary>
     /// Players will not spawn into PerfectSeats, false by default
@@ -138,5 +146,8 @@ public class SceneVariables : MonoBehaviour {
     /// </summary>
     /// <remarks>Typically used for scenes that aren't free roam / part of an experience</remarks>
 	public bool disableTablet = false;
+
+
+    GameObject theaterVariablesObject = null;
 
 }
