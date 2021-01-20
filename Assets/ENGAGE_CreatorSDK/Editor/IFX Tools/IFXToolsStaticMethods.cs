@@ -12,6 +12,13 @@ namespace IFXTools{
 
 
         //Bundle building related methods////////////////////////////////////////////////////////////////
+        public static string[] GetAllScriptsInProject()
+        {
+            string[] filesOfType = Directory.GetFiles(Application.dataPath, "*.cs", SearchOption.AllDirectories );
+            return filesOfType;    
+        }
+
+
         public static bool CheckBuildModuleInstalled(string ModuleType)
         {
             string editorPath = EditorApplication.applicationPath;
@@ -231,6 +238,15 @@ namespace IFXTools{
         public static List<string> RoboCopyDependenciesFiles(string buildType,string projectLocationPath)
         {
             List<string> commands = new List<string>();
+            foreach (var item in GetAllScriptsInProject())
+            {
+
+                //string itemlocalPath = item.Substring(item.LastIndexOf("Assets"));
+                //commands.Add("robocopy "+"\""+item+" "+"\""+projectLocationPath+"/IFXBuildToolProjects/"+itemlocalPath+"\""+" /MIR"); 
+                var itemDirectory = Path.GetDirectoryName(item);
+                commands.Add("robocopy "+"\""+projectLocationPath+"/"+itemDirectory+"\""+" "+"\""+projectLocationPath+"/IFXBuildToolProjects/"+buildType+"/"+itemDirectory+"\""+" /MIR");   
+
+            }
             
             List<string> dependencies =  GetFolderDependencies(GetSelectedObjectsAsList());
             foreach (var itemPath in dependencies)

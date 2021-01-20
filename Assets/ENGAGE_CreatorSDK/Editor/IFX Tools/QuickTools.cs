@@ -247,9 +247,9 @@ namespace IFXTools{
             if (bundleTools.buildingStatus !=null)
             {
                 GUIStyle buildstatusStyle = new GUIStyle();
-                buildstatusStyle.fontSize = 60;
+                buildstatusStyle.fontSize = 45;
                 buildstatusStyle.normal.textColor = Color.red;
-                GUI.Label(new Rect(20, Screen.height / 2, 300, 50), "Building Bundles...", buildstatusStyle);
+                GUI.Label(new Rect(20, Screen.height / 2, 300, 50), bundleTools.buildingStatus, buildstatusStyle);
                 //EditorGUILayout.LabelField(bundleTools.buildingStatus);//Building Status.
             }
             
@@ -341,13 +341,25 @@ namespace IFXTools{
             {
                 IFXToolSM.ClearDependenciesCache(hardResetCache,userSettings.projectWinLoc);
             }
+            if (GUILayout.Button("Test Button"))
+            {
+               var alldascripts=  IFXToolSM.GetAllScriptsInProject();
+               foreach (var item in alldascripts)
+               {
+                   Debug.Log(item.ToString());
+               }
+            }
 
             EditorGUILayout.LabelField("");//blank space for formating 
 
             //ct mode only settings such as cdn
             if (userSettings.CTMode())
             {
-                //userSettings.debugMode = EditorGUILayout.Toggle( "Enable DebugMode", userSettings.debugMode); 
+                userSettings.debugMode = EditorGUILayout.Toggle( "Enable DebugMode", userSettings.debugMode); 
+
+                EditorGUILayout.LabelField("Windows Project Folder: "+userSettings.projectWinLoc);
+                EditorGUILayout.LabelField("Android Project Folder: "+userSettings.projectAndroidLoc);
+                EditorGUILayout.LabelField("iOS Project Folder: "+userSettings.projectiOSLoc);
                 
                 EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
                 EditorGUILayout.LabelField("CDN Project Folder: "+userSettings.cdnProjectPath);

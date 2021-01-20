@@ -232,6 +232,25 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             {
                 
                 SetUpGitPathsForCreatedFiles();
+
+                 // if true build windows 
+                if (buildSettings.windowsBuildYesNo)
+                {
+                    
+                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles                                                                       //Build the bundle
+                    AssetBundles.BuildScript.BuildAssetBundles();
+                    
+                    //Copy bundles to cdn
+                    if (cdnLocalWinLoc !=null)
+                    {
+                        if (cdnLocalWinLoc != "" && userSettings.CTMode())
+                        {
+                            IFXToolSM.CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", cdnLocalWinLoc);
+                        }
+                    }
+                    
+                    
+                }
                 
                 List<Task<string>> BundleBuildTasks = new List<Task<string>>();
                 // if true build android 
@@ -257,21 +276,13 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                     // Git stuff handled in batch file!
 
                 }
-                // if true build windows 
-                if (buildSettings.windowsBuildYesNo)
-                {
-                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles                                                                       //Build the bundle
-                    AssetBundles.BuildScript.BuildAssetBundles();
-                    //Copy bundles to cdn
-                    if (userSettings.cdnWinIFXLoc != "" && userSettings.CTMode())
-                    {
-                        IFXToolSM.CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", cdnLocalWinLoc);
-                    }
-                }
+               
+                Debug.Log("Waiting for all build tasks to finish");
                 var results = await Task.WhenAll(BundleBuildTasks);
+                Debug.Log("all build tasks now finished");
                 /////////////////////////////CDN Push////////////////////////              
                 
-                buildingStatus = null;
+                buildingStatus = "Finished Building";
                 if (buildSettings.autoGitYesNo)
                 {
                     GitPushBundlesToCDN();
@@ -478,11 +489,14 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             string output="Failed to retrive output from batch!";
             FileInfo info = new FileInfo(path);
             ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);
-          
-            startInfo.WindowStyle = systemDebug.ProcessWindowStyle.Hidden;
-            startInfo.CreateNoWindow =true;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
+            if (userSettings.debugMode ==false)
+            {
+                startInfo.WindowStyle = systemDebug.ProcessWindowStyle.Hidden;
+                startInfo.CreateNoWindow =true;
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardOutput = true;
+            }
+            
             
             
             var process = new Process();           
@@ -510,9 +524,16 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             }           
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
-            if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
+            if (cdnLocalLoc !=null)
             {
-                commands.Add("robocopy "+"\""+userSettings.projectAndroidLoc+"/AssetBundles/Android"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
+                {
+                    commands.Add("robocopy "+"\""+userSettings.projectAndroidLoc+"/AssetBundles/Android"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                }
+            }
+            if (userSettings.debugMode ==true)
+            {
+                commands.Add("PAUSE");
             }
             return commands;
             
@@ -526,10 +547,16 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             }                      
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\"");
-
-            if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
+            if (cdnLocalLoc !=null)
             {
-                commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
+                {
+                    commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                }
+            }
+            if (userSettings.debugMode ==true)
+            {
+                commands.Add("PAUSE");
             }
             return commands;
             
