@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
+using IFXToolSM = IFXTools.IFXToolsStaticMethods;
 
 
 
@@ -10,17 +11,15 @@ using System.Collections.Generic;
 
 
 ////////////////////////////////////////////////////////////////////TO DO//////////////////////////////////////////////////////////
-//1. check for bug making portrait aspect ration images with image plane creater
-
-
+//1. refactor
+//2. scenes builds recognized as scenes
+//3. when syncing projects gather ALL scripts so they can't be any missing dependencies
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 namespace IFXTools{
-    public class QuickTools : EditorWindow, IBundleToolsParentWindow
+    public class QuickTools : EditorWindow
     {
-////////////////////////////////////////////////////////Instance Variables///////////////////////////////////////////////////////
-        IFXToolsQualityCheckTool qualityCheckListWindow;
-        
+////////////////////////////////////////////////////////Instance Variables///////////////////////////////////////////////////////        
         IFXBundleTools bundleTools;
         IFXToolsUserSettings userSettings;
 
@@ -58,8 +57,10 @@ namespace IFXTools{
         [MenuItem("Creator SDK/Bundle IFX Tools - Beta")]
         static void Init()
         {
-            
-            EditorWindow window = GetWindow(typeof(QuickTools));
+            EditorWindow window = EditorWindow.GetWindowWithRect(typeof(QuickTools), new Rect(100, 100, 700, 700));
+            //EditorWindow window = GetWindow(typeof(QuickTools));
+            //window.minSize = new Vector2(500,700);
+           
             window.Show();
 
         }
@@ -80,7 +81,7 @@ namespace IFXTools{
             userSettings.LoadUserSettings();
             thumbnailToolInstance = new IFXThumbnailTool();
             bundleTools = (IFXBundleTools )ScriptableObject.CreateInstance(typeof(IFXBundleTools ));
-            bundleTools.Init(this,userSettings);
+            bundleTools.Init(userSettings);
 
             //other
             bundlesBuilding=false;
@@ -89,6 +90,7 @@ namespace IFXTools{
             buildQACheckOverride=false;
             windowsBuildYesNo =true;
             androidBuildYesNo =true;
+            iOSBuildYesNo =true;
             altCenterMethod=false;
             hardResetCache=false;
 
@@ -121,11 +123,11 @@ namespace IFXTools{
             
             
             //the button area on the left stuff
-            Rect buttonGroupRect=new Rect(5, 25, Screen.width / 4, Screen.height-100);
+            Rect buttonGroupRect=new Rect(5, 25, this.position.width / 4, this.position.height-100);
             selGridInt = GUI.SelectionGrid(buttonGroupRect, selGridInt, selStrings, 1);//TAb switching controlls
 
-            Rect groupRect=new Rect(buttonGroupRect.width+ 10, 0, Screen.width-buttonGroupRect.width, Screen.height);
-            Rect subToolsGroupRect=new Rect(5, 25, buttonGroupRect.width*3, Screen.height-10);
+            Rect groupRect=new Rect(buttonGroupRect.width+ 10, 0, this.position.width-buttonGroupRect.width, this.position.height);
+            Rect subToolsGroupRect=new Rect(5, 25, buttonGroupRect.width*3, this.position.height-10);
             GUI.BeginGroup(groupRect);
             
             //build bundles                                       
@@ -242,6 +244,15 @@ namespace IFXTools{
         }
         void BuildSelectedBundleWindowUI()
         {
+            if (bundleTools.buildingStatus !=null)
+            {
+                GUIStyle buildstatusStyle = new GUIStyle();
+                buildstatusStyle.fontSize = 60;
+                buildstatusStyle.normal.textColor = Color.red;
+                GUI.Label(new Rect(20, Screen.height / 2, 300, 50), "Building Bundles...", buildstatusStyle);
+                //EditorGUILayout.LabelField(bundleTools.buildingStatus);//Building Status.
+            }
+            
             
             QuickToolsHelp.BuildBundlesInstructions(); // displays the instructions for this tool
 
@@ -251,7 +262,7 @@ namespace IFXTools{
             //ct mode dsiables the git stuff
             if (userSettings.CTMode())
             {
-                autoGitYesNo = EditorGUILayout.Toggle( "Push Bundles To Staging?", autoGitYesNo);
+                autoGitYesNo = EditorGUILayout.Toggle( "Push Bundles To CDN?", autoGitYesNo);
                 gitCommitM = EditorGUILayout.TextField("Git Commit message: ", gitCommitM);
 
                 if (GUILayout.Button("Push changes in folder to git"))
@@ -262,7 +273,7 @@ namespace IFXTools{
                     }
                     else
                     {
-                        bundleTools.GitCommitChangesToRepo(bundleTools.GetSelectedObjectsAsList(),gitCommitM);
+                        bundleTools.GitCommitChangesToRepo(IFXToolSM.GetSelectedObjectsAsList(),gitCommitM);
                     }
                     
                 }
@@ -283,45 +294,40 @@ namespace IFXTools{
                     EditorUtility.DisplayDialog("WARNING!", "To auto push you need to enter a commit message", "OK", "Cancel");                          
                 }
                 
-                else if(bundleTools.DirectoryBoolMulti(Selection.objects) == false)
+                else if(IFXToolSM.SelectionIsDirectoryBool(Selection.objects) == false)
                 {
-                    DisplayIncorrectSelectionWarning();
+                    EditorUtility.DisplayDialog("WARNING!", "Please Only Have FOLDERS Selected", "OK", "Cancel");
                 }
                 else
                 {
                     List<Object> selectedBundles = new List<Object>();
                     foreach (var dir in Selection.objects)
                     {
+                        //check if the bundles has scene files and if they are the only file type present
+                        if(IFXToolSM.DoesSelectedFolderContainOnlyScenes(dir)==false && IFXToolSM.DoesSelectedFolderContainFileType(dir,"*.unity") == true)
+                        {
+                            EditorUtility.DisplayDialog("WARNING!", "When Building scenes please ensure ONLY scene files are in the selected folder", "OK", "Cancel");
+                            return;
+                        }
+                        //add the bundle so long as the above dosn't trigger
                         selectedBundles.Add(dir);                        
                     }
+                    BundleBuildSettings buildSettings = new BundleBuildSettings();
+                    buildSettings.selectedBundles = selectedBundles;
+                    buildSettings.windowsBuildYesNo = windowsBuildYesNo;
+                    buildSettings.androidBuildYesNo = androidBuildYesNo;
+                    buildSettings.iOSBuildYesNo = iOSBuildYesNo;
+                    buildSettings.buildQACheckOverride = buildQACheckOverride;
+                    buildSettings.autoGitYesNo = autoGitYesNo;
+                    buildSettings.gitCommitMessage = gitCommitM;
+
                     // Build the bundles!
-                    bundleTools.BuildSelectedBundle(selectedBundles, windowsBuildYesNo,androidBuildYesNo,iOSBuildYesNo,autoGitYesNo,buildQACheckOverride,gitCommitM);                    
+                    bundleTools.BuildSelectedBundle(buildSettings);                    
                 }  
             }
             if (bundlesBuilding)
             {
                 EditorGUILayout.LabelField("Building Bundles...", EditorStyles.boldLabel);
-            }
-
-            
-
-
-            //Lists all selected items that arn't folders
-            void DisplayIncorrectSelectionWarning()
-            {
-                List<string> itemList = new List<string>();
-
-                foreach (var item in Selection.objects)
-                {
-                    if (bundleTools.DirectoryBool(item) == false)
-                    {
-                        itemList.Add(item.name);
-                    }
-                }
-                string selObjects = string.Join(", ", itemList);
-
-                string warningMSG = "Please select ONLY Folders to be built. Your selection contains These Items that arn't folders:                      " + selObjects;
-                EditorUtility.DisplayDialog("WARNING!", warningMSG, "OK", "Cancel");
             }
         }
         void SettingsWindowUI()
@@ -333,7 +339,7 @@ namespace IFXTools{
             //delete the asset folders in the build projects
             if (GUILayout.Button("Clear Build Projects Cache"))
             {
-                bundleTools.ClearDependenciesCache(hardResetCache);
+                IFXToolSM.ClearDependenciesCache(hardResetCache,userSettings.projectWinLoc);
             }
 
             EditorGUILayout.LabelField("");//blank space for formating 
@@ -341,13 +347,17 @@ namespace IFXTools{
             //ct mode only settings such as cdn
             if (userSettings.CTMode())
             {
-                userSettings.debugMode = EditorGUILayout.Toggle( "Enable DebugMode", userSettings.debugMode); 
+                //userSettings.debugMode = EditorGUILayout.Toggle( "Enable DebugMode", userSettings.debugMode); 
                 
                 EditorGUILayout.LabelField("Set the paths to your CDN Project folder");
                 EditorGUILayout.LabelField("CDN Project Folder: "+userSettings.cdnProjectPath);
-                EditorGUILayout.LabelField("CDN Win Project Folder: "+userSettings.cdnWinLoc);
-                EditorGUILayout.LabelField("CDN Android Project Folder: "+userSettings.cdnAndroidLoc);
-                EditorGUILayout.LabelField("CDN iOS Project Folder: "+userSettings.cdniOSLoc);
+                EditorGUILayout.LabelField("IFX CDN Win Project Folder: "+userSettings.cdnWinIFXLoc);
+                EditorGUILayout.LabelField("IFX CDN Android Project Folder: "+userSettings.cdnAndroidIFXLoc);
+                EditorGUILayout.LabelField("IFX CDN iOS Project Folder: "+userSettings.cdniOSIFXLoc);
+
+                EditorGUILayout.LabelField("Scene CDN Win Project Folder: "+userSettings.cdnWinSceneLoc);
+                EditorGUILayout.LabelField("Scene CDN Android Project Folder: "+userSettings.cdnAndroidSceneLoc);
+                EditorGUILayout.LabelField("Scene CDN iOS Project Folder: "+userSettings.cdniOSSceneLoc);
 
                 if (GUILayout.Button("CDN Project Folder - Browse"))
                 {
@@ -443,7 +453,7 @@ namespace IFXTools{
             folderName = EditorGUILayout.TextField("Folder Name: ", folderName);        
             if (GUILayout.Button("Create Folders"))
             {
-                CreateDependenciesFolder();
+                IFXToolSM.CreateDependenciesFolder(userSettings.currentIFXNum,folderName);
             }
         }
         void AnimCNTRLFromClipsWindowUI()
@@ -451,42 +461,22 @@ namespace IFXTools{
             QuickToolsHelp.AnimClipsFromFBXInstructions(); // displays the instructions for this tool        
             if (GUILayout.Button("Quick Create Anim Controlers"))
             {
-            string assetPath =  AssetDatabase.GetAssetPath((GameObject)Selection.activeObject);
-                
-            ModelImporter MI = (ModelImporter)AssetImporter.GetAtPath(assetPath);
-            ModelImporterClipAnimation[] clips = MI.clipAnimations;
-                
-            var itemPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-            var itemDirectory = Path.GetDirectoryName(itemPath);
-            var findClipsAtPath = AssetDatabase.LoadAllAssetRepresentationsAtPath(itemPath);
-                
-            foreach (var aClips in findClipsAtPath) 
-                {
-                    var animationClip = aClips as AnimationClip;
-                
-                    if (animationClip != null) 
-                    {
-                            var createController = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPathWithClip(itemDirectory+"/" +animationClip.name+"_ANIM_CONTROLLER.controller",animationClip);
-                            Debug.Log("Found animation clip");
-                    }
-                }   
-            }            
+                IFXToolSM.CreateAnimClipsFromSelectedFBX();
+            }
         }
+
+        
+
         void EmptyPrefabWindowUI()
         {
             EditorGUILayout.LabelField("Add a top level zeroed out empty", EditorStyles.boldLabel);
             if (GUILayout.Button("Create zeroed prefab"))
-            {   
-                foreach (GameObject item in Selection.objects)
-                {
-                    var topEmpty = new GameObject();
-                    topEmpty.name = userSettings.prefabPrefix+item.name+userSettings.prefabAfix;
-                    item.transform.parent = topEmpty.transform;
-                    topEmpty.transform.position= new Vector3(0,0,0);
-                    topEmpty.transform.eulerAngles= new Vector3(0,0,0); 
-                }  
+            {
+                IFXToolSM.InsertSelectedObjectIntoEmpty(Selection.gameObjects, userSettings.prefabPrefix, userSettings.prefabAfix);
             }
         }
+
+        
 
         void BatchPrefabWindowUI()
         {
@@ -519,7 +509,7 @@ namespace IFXTools{
             EditorGUILayout.LabelField("This feature still needs error handeling to be written");
             if (GUILayout.Button("Image plane from Image"))
             {
-                ImagePlaneFromImage();
+                IFXToolSM.ImagePlaneFromImage();
             }
         }
         void AutoPivotUI()
@@ -534,254 +524,13 @@ namespace IFXTools{
                     //string assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(Selection.gameObjects[0]);
                     //string assetPath = AssetDatabase.GetAssetPath(Selection.gameObjects[0]);
                     //Debug.Log("Asset path is: "+assetPath);
-                    BatchCenterIFX(Selection.gameObjects,false);
+                    IFXToolSM.BatchCenterIFX(Selection.gameObjects,false);
                 }
                 else
                 {
                     Debug.Log("Nothing selected - please select the top most object of the hierarchy and try again");
                 }
             }
-        }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// -----Bundles-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// -----Settings-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// -----Centering Tool-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public static bool ObjectPivotCenteredCheck(GameObject sourceGO, bool useAleternateCenter=false)
-        {
-            bool objectIsCentered=true;
-            float diffrenceTollerence=0.5f;
-            Vector3 sceneCenter = new Vector3(0,0,0);
-            Vector3 center = GetAverageCenter(sourceGO,useAleternateCenter);
-            
-            float diff = center.sqrMagnitude;
-            //Debug.Log(diff);
-            if (diff>=diffrenceTollerence)
-            {
-                objectIsCentered =false;
-                //Debug.Log("Object is this far from center: "+diff);
-            }
-            return objectIsCentered;
-        }
-        static Vector3 MeshCenter(GameObject inputGO)
-        {
-            MeshFilter meshFilter = inputGO.GetComponent<MeshFilter>();
-            if (meshFilter != null)
-            {
-                Mesh mesh = meshFilter.sharedMesh;
-                Vector3[] vertices = mesh.vertices;
-                Bounds tempBounds =  new Bounds(inputGO.transform.TransformPoint(mesh.bounds.center),new Vector3(0,0,0));
-                for (var i = 0; i < vertices.Length; i++)
-                {   
-                    tempBounds.Encapsulate(inputGO.transform.TransformPoint(vertices[i]));
-                }
-                //Debug.Log("TempBounds center: "+tempBounds.center);
-                //inputGO.transform.localScale = inScale;
-                Vector3 result = tempBounds.center;
-                return tempBounds.center;
-            }
-            else
-            {
-                return Vector3.zero;
-            }
-            
-        }
-        static Vector3 GetAverageCenter (GameObject inputGO, bool useAleternateCenter = false)
-        {
-            
-            //index error here
-            Bounds tempBounds;
-            Vector3 centerAverage;
-            if (useAleternateCenter)
-            {
-                
-                MeshFilter[] mFInChildren = inputGO.GetComponentsInChildren<MeshFilter>();
-                
-                if (mFInChildren.Length >0)
-                {                   
-                    tempBounds =  new Bounds(MeshCenter(mFInChildren[0].gameObject),Vector3.zero);
-                    for (var i = 0; i < mFInChildren.Length; i++)
-                    {
-                        GameObject child = mFInChildren[i].gameObject;
-                        Debug.Log("children: "+child.name);
-
-                        Vector3 meshCenter=MeshCenter(child.gameObject);
-                        
-                        tempBounds.Encapsulate(meshCenter);
-                    }
-                    centerAverage = tempBounds.center;
-                    centerAverage = Vector3.zero;
-                }              
-                else
-                {
-                    Debug.Log("no Meshfilter Components found use other centering method");
-                    centerAverage = Vector3.zero;
-                }
-            }
-            else
-            {
-                List<Vector3> boundsCenterList = new List<Vector3>();
-                Renderer[] renderComponentsInChildren = inputGO.GetComponentsInChildren<Renderer>();
-                
-                if (renderComponentsInChildren.Length >0)
-                {
-                   
-                    foreach (Renderer renderComponent in renderComponentsInChildren)
-                    {
-                        //Debug.Log("Render Components test");
-                        boundsCenterList.Add(renderComponent.bounds.center);
-                    }
-                    //Debug.Log("Render Components it aint null bruh");
-                    tempBounds =  new Bounds(boundsCenterList[0],Vector3.zero);
-                    foreach (Vector3 bound in boundsCenterList)
-                    {
-                        tempBounds.Encapsulate(bound);
-                    }
-                    centerAverage = tempBounds.center;  
-                }
-                else
-                {
-                    Debug.Log("no Render Components found use other centering method");
-                    centerAverage = Vector3.zero;
-                }                    
-            } 
-            return centerAverage;
-        }
-        public static void CenterIFX(GameObject inputGO, bool useAleternateCenter = false)
-        {
-            //if it has an asset path AKA it's a prefab then load that prefab for editing otherwise just use the scene GO
-            GameObject prefabRoot = inputGO;
-            string assetPath="";
-            assetPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(inputGO);
-            //Debug.Log("Asset path is: "+assetPath);
-            if (assetPath!="")
-            {
-                prefabRoot = PrefabUtility.LoadPrefabContents(assetPath);
-            }
-            Vector3 averageCenter = GetAverageCenter(prefabRoot,useAleternateCenter);
-            //Need to load all the direct children transforms into a list before reparenting or the foreach count gets confused 
-            List<Transform> childrenTransformsList = new List<Transform>();
-            //create a GO that is moved to the averaged center of geo. Paaretn everything to it then move it to 0,0,0
-            GameObject offsetMoverGO = new GameObject();
-            offsetMoverGO.name="ReCentering Mover";
-            offsetMoverGO.transform.parent = prefabRoot.transform;
-            offsetMoverGO.transform.position = averageCenter;
-            //Debug.Log("average center is: "+averageCenter);
-            //Debug.Log("mover pos is: "+offsetMoverGO.transform.position);
-            //Debug.Log(prefabRoot.transform.childCount);
-            foreach (Transform child in prefabRoot.transform)
-            {
-                Debug.Log(child.name);
-                childrenTransformsList.Add(child.transform);
-            }
-            foreach (Transform child in childrenTransformsList)
-            {
-                child.transform.SetParent(offsetMoverGO.transform);
-            }
-            //move the offset back to zero
-            offsetMoverGO.transform.position =new Vector3(0,0,0);
-            //parent all the objects back to their original parent then delete the offset mover
-            foreach (Transform child in childrenTransformsList)
-            {
-                child.transform.SetParent(prefabRoot.transform);
-            }
-            DestroyImmediate(offsetMoverGO);
-            //if it was used on a prefab save it over the old prefab
-            if (assetPath!="")
-            {
-                PrefabUtility.SaveAsPrefabAsset(prefabRoot, assetPath);
-            }        
-        }
-        void BatchCenterIFX(GameObject[] inputGO, bool useAleternateCenter = false)
-        {
-            foreach (GameObject GO in inputGO)
-            {
-                Debug.Log("got to batch center:");
-                CenterIFX(GO,useAleternateCenter);
-            }
-        }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// -----Folder Making  Tool-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        private void CreateDependenciesFolder()
-        {
-            Debug.Log("Creating:" + folderName);
-            string createDependenciesFolder = AssetDatabase.CreateFolder("Assets", "Dependencies_" + folderName);
-            string createBundleFolder = AssetDatabase.CreateFolder("Assets/---IFXBundles--Windows_Android_Both", "ifx"+userSettings.currentIFXNum + "-" + folderName.ToLower());
-            // AssetImporter assetImporter = AssetImporter.GetAtPath("Assets/---IFXBundles--Windows_Android_Both/" + userSettings.currentIFXNum + "-" + folderName.ToLower());
-            // assetImporter.assetBundleName = userSettings.currentIFXNum + folderName.ToLower();
-            //assetImporter.SaveAndReimport();
-        }
-
-        
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////// -----Image Plane Tool-----///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        void ImagePlaneFromImage()
-        {
-            UnityEngine.Object[] activeGOs = Selection.GetFiltered(typeof(Texture2D),SelectionMode.Editable | SelectionMode.TopLevel);
-            float ratio1=1f;
-            float ratio2=1f;
-            if (activeGOs.Length >0)
-            {
-                foreach (Texture2D image in activeGOs)
-                {
-                    var itemPath = AssetDatabase.GetAssetPath(image);
-                    var itemDirectory = Path.GetDirectoryName(itemPath);
-                    TextureImporter textureImporter = (TextureImporter)TextureImporter.GetAtPath(itemPath);
-                    textureImporter.npotScale = TextureImporterNPOTScale.None;
-                    textureImporter.SaveAndReimport();
-                    GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                    ratio1 = image.height;
-                    ratio2 = image.width;
-                    //scale to the ratios
-                    plane.transform.localScale = new Vector3(ratio2/ratio1, 1, ratio1/ratio1);
-                    //Set the name
-                    plane.name = image.name;
-                    //Remove Colliders
-                    DestroyImmediate(plane.GetComponent<Collider>());
-                    //Material Stuff
-                    Renderer rend = plane.GetComponent<Renderer>();
-                    Material material = new Material(Shader.Find("Unlit/Transparent Cutout"));
-                    material.SetFloat("_Mode", 1.0f);
-                    material = MaterialCutoutmode(material);
-                    material.name = image.name + "_MAT";
-                    material.SetTexture("_MainTex", image);
-                    rend.material = material;
-                    AssetDatabase.CreateAsset(material, itemDirectory + "/" + image.name + "_MAT.mat");
-                    //Rotate
-                    plane.transform.eulerAngles = new Vector3(90, 0, 0);
-                    //Duplicate the plane
-                    GameObject planeOtherSide = Instantiate(plane, new Vector3(0, 0, 0), Quaternion.identity);
-                    planeOtherSide.name = plane.name + "_OtherSide";
-                    planeOtherSide.transform.eulerAngles = new Vector3(90, 0, 180);
-                    //Paretnt to empty
-                    GameObject topEmpty = new GameObject();
-                    topEmpty.name = plane.name+"_ScaleThis";
-                    plane.transform.parent = topEmpty.transform;
-                    planeOtherSide.transform.parent = topEmpty.transform;
-                }
-            }
-            else
-            {
-                Debug.Log("No image selected");
-                EditorUtility.DisplayDialog("WARNING!", "Select an image in the project view first", "OK", "Cancel");
-            } 
-        }
-
-        private static Material MaterialCutoutmode(Material material)
-        {
-            material.SetOverrideTag("RenderType", "TransparentCutout");
-            material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-            material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-            material.SetInt("_ZWrite", 1);
-            material.EnableKeyword("_ALPHATEST_ON");
-            material.DisableKeyword("_ALPHABLEND_ON");
-            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-            material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
-            return material;
         }
     }
         
@@ -849,5 +598,4 @@ public static class QuickToolsHelp
             EditorGUILayout.LabelField("TO USE: Set the destination folder by selecting the folder and hitting the button or by typing in the box.");
             EditorGUILayout.LabelField("Then select all the objects you want added as prefabs and click the Make Prefabs button.");
         }
-
 }

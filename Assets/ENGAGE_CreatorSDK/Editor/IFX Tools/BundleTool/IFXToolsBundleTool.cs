@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 using systemDebug = System.Diagnostics;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
+using IFXToolSM = IFXTools.IFXToolsStaticMethods;
 
 
  /////////////TO-DO////
- // Create log file for all build processes
+ // if scenes are bing built change over all the auto git stuff paths to the scene versions
 
  namespace IFXTools{
 
-     public interface IBundleToolsParentWindow
+     public  class BundleBuildSettings
      {
-        bool buildQACheckOverride {get; set;}
-        string gitCommitM {get; set;}
-        bool windowsBuildYesNo {get; set;}
-        bool androidBuildYesNo {get; set;}
-        bool autoGitYesNo {get; set;}
-
-        bool bundlesBuilding{get; set;}//Only used to update quicktools ui label for building
-
+        public List<Object> selectedBundles {get; set;}
+        public bool buildQACheckOverride {get; set;}
+        public string gitCommitMessage {get; set;}
+        public bool windowsBuildYesNo {get; set;}
+        public bool androidBuildYesNo {get; set;}
+        public bool iOSBuildYesNo {get; set;}
+        public bool autoGitYesNo {get; set;}
         
      }
     public class IFXBundleTools : EditorWindow
@@ -31,8 +31,7 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
               
         IFXToolsQualityCheckTool qaTool;
         IFXToolsUserSettings userSettings;
-        IBundleToolsParentWindow parentWindow;
-        public List<Object> selectedBundles {get; set;}
+        List<Object> selectedBundles {get; set;}
         string bundleBuildLog {get; set;}
         string bundleBuildLogWindows {get; set;}
         //string bundleBuildLogAndroid {get; set;}
@@ -44,74 +43,87 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
         {
   
         }
-        public void Init(IBundleToolsParentWindow parentWindowIN,IFXToolsUserSettings userSettingsIN)
+        public void Init(IFXToolsUserSettings userSettingsIN)
         {
-            parentWindow = parentWindowIN;
             userSettings = userSettingsIN;
-            //CreateEditorDirectoryies();
         }
-        public bool buildQACheckOverride {get; set;}
-        public string gitCommitM {get; set;}
-        public bool windowsBuildYesNo {get; set;}
-        public bool androidBuildYesNo {get; set;}
-        public bool iOSBuildYesNo {get; set;}
-        public bool autoGitYesNo {get; set;}
+        
                
         bool passedQualityCheck;
         
+        public string buildingStatus;
         
         List<string> bundlesBuiltWin = new List<string>();
         List<string> bundlesBuiltAndroid = new List<string>();
         List<string> bundlesBuiltiOS = new List<string>();
+        
        
-        public void BuildSelectedBundle(List<Object> selectedBundleIN,
-        bool windowsYes,
-        bool androidYes,
-        bool iOSYes,
-        bool autoGitYes,
-        bool buildQACheckOverrideIN=false,
-        string gitCommitMessageIN = "")
-        {
-
-            
-
-            selectedBundles = selectedBundleIN;
-
-            buildQACheckOverride = buildQACheckOverrideIN;
-            gitCommitM = gitCommitMessageIN;
-            windowsBuildYesNo = windowsYes;
-            androidBuildYesNo = androidYes;
-            iOSBuildYesNo = iOSYes;
-            autoGitYesNo = autoGitYes;
-            
-            passedQualityCheck = true;
-
-            
-            if (autoGitYes)
+        public void BuildSelectedBundle(BundleBuildSettings buildSettings)
+        {   
+            //check for module folders        
+            if (buildSettings.androidBuildYesNo)
             {
-                GitPull();
-                bundlesBuiltWin.Clear();
-                bundlesBuiltAndroid.Clear();
-                bundlesBuiltiOS.Clear();        
+                if (IFXToolSM.CheckBuildModuleInstalled("AndroidPlayer")==false)
+                {
+                    EditorUtility.DisplayDialog("WARNING!", "Android Build module not installed!", "OK");
+                    return;                          
+                }
+                
             }
+            if (buildSettings.iOSBuildYesNo)
+            {
+                if (IFXToolSM.CheckBuildModuleInstalled("iOSSupport")==false)
+                {
+                    EditorUtility.DisplayDialog("WARNING!", "iOS Build module not installed!", "OK");
+                    return;                          
+                }
+            }
+            passedQualityCheck = true;
+            
+            //local Cdn paths//To enable swaping from ifx to scenes
+            string cdnLocalWinLoc = userSettings.cdnWinIFXLoc;
+            string cdnLocalAndroidLoc = userSettings.cdnAndroidIFXLoc;
+            string cdnLocaliOSLoc = userSettings.cdniOSIFXLoc;
+            for (int i = 0; i < buildSettings.selectedBundles.Count; i++)
+            {
+                if(IFXToolSM.DoesSelectedFolderContainFileType(buildSettings.selectedBundles[i], "*.unity") == true)
+                {
+                    cdnLocalWinLoc = userSettings.cdnWinSceneLoc;
+                    cdnLocalAndroidLoc = userSettings.cdnAndroidSceneLoc;
+                    cdnLocaliOSLoc = userSettings.cdniOSSceneLoc;
+                }          
+            }  
+            
+
+
+            if (buildSettings.autoGitYesNo)
+            {
+                IFXToolSM.GitPull(userSettings.cdnProjectPath);       
+            }
+            bundlesBuiltWin.Clear();
+            bundlesBuiltAndroid.Clear();
+            bundlesBuiltiOS.Clear();
             /////////////////////////////////////////////////////////////^Set Up ^///////////////////////////
             
-            if (selectedBundles !=null)
+            if (buildSettings.selectedBundles !=null)
             {                            
-                ClearAllAssetLabelsInProject();
-                //re add asset labels based on folders names to selected folders
-                for (int i = 0; i < selectedBundles.Count; i++)
+                IFXToolSM.ClearAllAssetLabelsInProject();
+                
+                for (int i = 0; i < buildSettings.selectedBundles.Count; i++)
                 {
-                    SetAssetLabelToFolderName(selectedBundles[i]);
+                    //re add asset labels based on folders names to selected folders
+                    SetAssetLabelToFolderName(buildSettings.selectedBundles[i]);
+                    
+                    
                 }                  
                 
                 //Checks for bad components
-                if (!buildQACheckOverride)
+                if (!buildSettings.buildQACheckOverride)
                 {
                     
                     qaTool = (IFXToolsQualityCheckTool)ScriptableObject.CreateInstance(typeof(IFXToolsQualityCheckTool));
                     qaTool.Init(this);
-                    bool qaCheck = qaTool.BundleQualityCheck(selectedBundles); //pass QA true or false
+                    bool qaCheck = qaTool.BundleQualityCheck(buildSettings); //pass QA true or false
                     if (!qaCheck)
                     {
                         passedQualityCheck = false;
@@ -119,19 +131,19 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     
                 }
             ///////////////////////////////////////////////////////Passed QA Check - Build bundles////////////////////
-                if (passedQualityCheck | buildQACheckOverride)
+                if (passedQualityCheck | buildSettings.buildQACheckOverride)
                 {
-                    buildQACheckOverride = false;
-                    parentWindow.bundlesBuilding =true;
-
-                    //This part isn't auto "add"ing the files to a git comit. this part just makes the varable to hold all the paths
-                    buildBundlesAsync(windowsYes, androidYes, iOSYes, autoGitYes);
+                    buildSettings.buildQACheckOverride = false;                   
+                    buildingStatus = "Building Bundles";
+                    buildBundlesAsync();
                 }
             }
             else
             {
-                Debug.Log("Notheing Selected - Select the folder you want build first");
+                Debug.Log("Nothing Selected - Select the folder you want build first");
             }
+
+
             ///////////////////////////////////////////Local Methods/////////////////////////////////////////////////
             void SetAssetLabelToFolderName(UnityEngine.Object item)
             {
@@ -143,39 +155,91 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                 assetImporterForSelection.assetBundleName = itemFolderName;
             }
 
-            void SetUpGitPathsForCreatedFiles(bool winYes, bool andYes, bool iYes)
+            void SetUpGitPathsForCreatedFiles()
             {
-                for (int i = 0; i < selectedBundles.Count; i++)
+                for (int i = 0; i < buildSettings.selectedBundles.Count; i++)
                 {
-                    if (androidYes)
+                    //Check if any of the selected folders have scenes. 
+                    bool isScene = IFXToolSM.DoesSelectedFolderContainFileType(buildSettings.selectedBundles[i], "*.unity");                    
+
+                    if (isScene == true)
                     {
-                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                        bundlesBuiltAndroid.Add(userSettings.cdnAndroidLoc + "/" + selectedBundles[i].name + ".manifest");
+                        Debug.Log("scene found in bundle: "+buildSettings.selectedBundles[i].name);
+                        if (buildSettings.androidBuildYesNo)
+                        {
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
+                        if (buildSettings.iOSBuildYesNo)
+                        {
+                            bundlesBuiltiOS.Add(userSettings.cdniOSSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltiOS.Add(userSettings.cdniOSSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
+                        if (buildSettings.windowsBuildYesNo)
+                        {
+                            bundlesBuiltWin.Add(userSettings.cdnWinSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltWin.Add(userSettings.cdnWinSceneLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
                     }
-                    if (iOSYes)
+                    else
                     {
-                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                        bundlesBuiltiOS.Add(userSettings.cdniOSLoc + "/" + selectedBundles[i].name + ".manifest");
+                        if (buildSettings.androidBuildYesNo)
+                        {
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltAndroid.Add(userSettings.cdnAndroidIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
+                        if (buildSettings.iOSBuildYesNo)
+                        {
+                            bundlesBuiltiOS.Add(userSettings.cdniOSIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltiOS.Add(userSettings.cdniOSIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
+                        if (buildSettings.windowsBuildYesNo)
+                        {
+                            bundlesBuiltWin.Add(userSettings.cdnWinIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".engagebundle");
+                            bundlesBuiltWin.Add(userSettings.cdnWinIFXLoc + "/" + buildSettings.selectedBundles[i].name + ".manifest");
+                        }
                     }
-                    if (windowsYes)
-                    {
-                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".engagebundle");
-                        bundlesBuiltWin.Add(userSettings.cdnWinLoc + "/" + selectedBundles[i].name + ".manifest");
-                    }
+                    
                 }
             }
-
-            async Task buildBundlesAsync(bool winYes, bool andYes, bool iYes, bool GitYes)
+            void GitPushBundlesToCDN()
             {
                 
-                SetUpGitPathsForCreatedFiles(winYes, andYes, iYes);
+                List<string> commands= new List<string>();
+                //string listOfBundles = string.Join(" ", bundlesBuiltWin);
+                
+                commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\"");            
+
+                foreach (var item in bundlesBuiltWin)
+                {
+                    commands.Add("git add "+"\""+item+"\"");
+                }
+                foreach (var item in bundlesBuiltAndroid)
+                {
+                    commands.Add("git add "+"\""+item+"\"");
+                }
+                foreach (var item in bundlesBuiltiOS)
+                {
+                    commands.Add("git add "+"\""+item+"\"");
+                }
+                commands.Add("git commit -m "+"\""+buildSettings.gitCommitMessage+"\"");
+                commands.Add("git push");
+                
+                IFXToolSM.RunCMD(commands);
+            }
+
+            async Task buildBundlesAsync()
+            {
+                
+                SetUpGitPathsForCreatedFiles();
                 
                 List<Task<string>> BundleBuildTasks = new List<Task<string>>();
                 // if true build android 
-                if (andYes)
+                if (buildSettings.androidBuildYesNo)
                 {
-                    DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //clears out old bundles
-                    string androidBuildPath = CreateBatchCMDSFile("Android", SyncUnityProjects("Android"), CreateAndroidBatchFile(autoGitYesNo));
+                    IFXToolSM.DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //clears out old bundles
+                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Android"); //clears out old bundles
+                    string androidBuildPath = IFXToolSM.CreateBatchCMDSFile("Android", IFXToolSM.SyncUnityProjects("Android",userSettings.projectWinLoc), CreateAndroidBatchFile(buildSettings.autoGitYesNo, cdnLocalAndroidLoc));
                     //RunBuildFileAsync(androidBuildPath, "Android");
                     BundleBuildTasks.Add(Task.Run(() => RunBatchFileAsync(androidBuildPath)));
                     //Debug.Log(androidBuild.Output);
@@ -183,67 +247,52 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
                 }
                 // if true build iOS 
-                if (iYes)
+                if (buildSettings.iOSBuildYesNo)
                 {
-                    DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //clears out old bundles
-                    string iOSBuildPath = CreateBatchCMDSFile("iOS", SyncUnityProjects("iOS"), CreateiOSBatchFile(autoGitYesNo));
+                    IFXToolSM.DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //clears out old bundles
+                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/iOS"); //clears out old bundles
+                    string iOSBuildPath = IFXToolSM.CreateBatchCMDSFile("iOS", IFXToolSM.SyncUnityProjects("iOS",userSettings.projectWinLoc), CreateiOSBatchFile(buildSettings.autoGitYesNo, cdnLocaliOSLoc));
                     //RunBuildFileAsync(iOSBuildPath, "iOS");
                     BundleBuildTasks.Add(Task.Run(() => RunBatchFileAsync(iOSBuildPath)));
                     // Git stuff handled in batch file!
 
                 }
                 // if true build windows 
-                if (winYes)
+                if (buildSettings.windowsBuildYesNo)
                 {
-                    DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles
-                                                                                                //Build the bundle
+                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles                                                                       //Build the bundle
                     AssetBundles.BuildScript.BuildAssetBundles();
-
                     //Copy bundles to cdn
-                    if (userSettings.cdnWinLoc != "" && userSettings.CTMode())
+                    if (userSettings.cdnWinIFXLoc != "" && userSettings.CTMode())
                     {
-                        CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", userSettings.cdnWinLoc);
+                        IFXToolSM.CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", cdnLocalWinLoc);
                     }
-
-                    //Do Git stuff
-                    // if (autoGitYesNo)
-                    // {
-                    //     GitPull();
-                    //     GitPushWin();
-                    // }
                 }
-
-                /////////////////////////////CDN Push////////////////////////
-                
                 var results = await Task.WhenAll(BundleBuildTasks);
+                /////////////////////////////CDN Push////////////////////////              
                 
-                if (GitYes)
+                buildingStatus = null;
+                if (buildSettings.autoGitYesNo)
                 {
                     GitPushBundlesToCDN();
                 }
-                if (BuildDebugChecks(results,winYes,andYes,iYes,autoGitYesNo))
-                {
-                    EditorUtility.DisplayDialog("Complete", " Bundles built", "Ok");
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("Failed", " theres was an issue building the bundle - check logs", "Ok");
-                }
-                parentWindow.bundlesBuilding =false;
+               
+               BuildDebugChecks(results);  
+               ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                
 
-                bool BuildDebugChecks(string[] buildLogsIN,bool buildWindowsYes,bool buildAndroidYes, bool BuildiOSYes,bool autoGit )
+                void BuildDebugChecks(string[] buildLogsIN)
                 {
                     StringBuilder bundleBuildLogFull = new StringBuilder();
                     bundleBuildLogFull.Append(System.Environment.NewLine + " //////////////////////////////////////////USER SETTINGS///////////////////////////////////");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnProjectPath + " CDN Project path");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnWinLoc + " CDN project path Windows");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnAndroidLoc + " CDN project path Android");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdniOSLoc + " CDN project path iOS");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectWinLoc + " Project path Windows");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectAndroidLoc + " Project path Android");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectiOSLoc + " Project path iOS");
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.unityEXELoc + " Unity EXE");                    
-                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.thumbnailSavePath + " Thumbnail save Path");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnProjectPath + " -CDN Project path");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnWinIFXLoc + " -CDN project path Windows");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdnAndroidIFXLoc + " -CDN project path Android");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.cdniOSIFXLoc + " -CDN project path iOS");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectWinLoc + " -Project path Windows");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectAndroidLoc + " -Project path Android");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.projectiOSLoc + " -Project path iOS");
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.unityEXELoc + " -Unity EXE");                    
+                    bundleBuildLogFull.Append(System.Environment.NewLine + userSettings.thumbnailSavePath + " -Thumbnail save Path");
                     
 
 
@@ -251,7 +300,8 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     bool windowsBuildSuccess = true;
                     bool androidBuildSuccess = true;
                     bool iOSBuildSuccess = true;
-                    if (buildWindowsYes)
+
+                    if (buildSettings.windowsBuildYesNo)
                     {
                         windowsBuildSuccess = false;
                         foreach (var item in bundlesBuiltWin)
@@ -271,10 +321,10 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                                 windowsBuildSuccess = false;
                             }
                         }
-                        Debug.Log("Build success Windows "+windowsBuildSuccess);
+                        Debug.Log("Build  Windows "+windowsBuildSuccess);
                     }
                         
-                    if (buildAndroidYes)
+                    if (buildSettings.androidBuildYesNo)
                     {
                         androidBuildSuccess =false;
                         foreach (var item in bundlesBuiltAndroid)
@@ -293,9 +343,9 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                                 androidBuildSuccess = false;
                             }
                         }
-                        Debug.Log("Build success Android "+androidBuildSuccess);
+                        Debug.Log("Build  Android "+androidBuildSuccess);
                     }
-                     if (BuildiOSYes)
+                     if (buildSettings.iOSBuildYesNo)
                     {
                         iOSBuildSuccess = false;
                         foreach (var item in bundlesBuiltiOS)
@@ -336,36 +386,36 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                         }
                         Debug.Log("Build Moved Win "+windowsBuildMoved);
 
-                        bool androidBuildMoved = false;
+                        
                         foreach (var item in bundlesBuiltAndroid)
                         {
                             Debug.Log(item);
                             if (File.Exists(item))
                             {
                                 bundleBuildLogFull.Append(System.Environment.NewLine + item + " : Moved to CDN successfully");
-                                androidBuildMoved = true;
+                                
                             }
                             else
                             {
                                 bundleBuildLogFull.Append(System.Environment.NewLine + item + " :  Moved to CDN Failed");
-                                androidBuildMoved = false;
+                                
                             }
                         }
                         Debug.Log("Build Moved Android "+androidBuildSuccess);
 
-                        bool iOSBuildMoved = false;
+                        
                         foreach (var item in bundlesBuiltiOS)
                         {
                             Debug.Log(item);
                             if (File.Exists(item))
                             {
                                 bundleBuildLogFull.Append(System.Environment.NewLine + item + " : Moved to CDN successfully");
-                                iOSBuildMoved = true;
+                                
                             }
                             else
                             {
                                 bundleBuildLogFull.Append(System.Environment.NewLine + item + " : Moved to CDN Failed");
-                                iOSBuildMoved = false;
+                                
                             }
                         }
                         Debug.Log("Build Moved iOS "+iOSBuildSuccess);
@@ -378,11 +428,10 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     bundleBuildLogFull.Append( System.Environment.NewLine + bundleBuildLogWindows);
                     foreach (var item in buildLogsIN)
                     {
-                        bundleBuildLogFull.Append(System.Environment.NewLine + " //////////////////////////////////////////ANDROID BUILD LOGS///////////////////////////////////");
+                        bundleBuildLogFull.Append(System.Environment.NewLine + " //////////////////////////////////////////BUILD LOG///////////////////////////////////");
                         bundleBuildLogFull.Append(System.Environment.NewLine + item);
-                        bundleBuildLogFull.Append(System.Environment.NewLine + " //////////////////////////////////////////iOS BUILD LOGS///////////////////////////////////");
-                        bundleBuildLogFull.Append(System.Environment.NewLine + item);
-                        Debug.Log(item);
+                        
+                        //Debug.Log(item);
                     }
                     
                     
@@ -399,22 +448,29 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
                     
                     if (windowsBuildSuccess && androidBuildSuccess && iOSBuildSuccess)
                     {
-                        return true;
+                        EditorUtility.DisplayDialog("Complete", " Bundles built", "Ok");
                     }
                     else
                     {
-                        return false;
+                        EditorUtility.DisplayDialog("Failed", " theres was an issue building the bundle - check logs", "Ok");
                     }
                 }
             }
         }
-        // async Task RunBuildFile(string path,string BuildType)
-        // {
-        //     int exitcode = await RunBatchFile(path);
-        //     EditorUtility.DisplayDialog("Complete", BuildType+" Bundle built", "Ok");
-            
-        //     Debug.Log(exitcode);
-        // }
+        bool FolderContainsSceneFile(UnityEngine.Object selection)//selectedBundles
+        {
+            bool sceneFound = false;
+            string path = AssetDatabase.GetAssetPath(selection.GetInstanceID());
+            string[] folderContents = Directory.GetFiles(path);
+            foreach (var item in folderContents)
+            {
+                if (Path.GetExtension(item) ==".unity")
+                {
+                    sceneFound = true;
+                }
+            }
+            return sceneFound;
+        }
         Task<string> RunBatchFileAsync(string path)
         {
             
@@ -422,314 +478,69 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             string output="Failed to retrive output from batch!";
             FileInfo info = new FileInfo(path);
             ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);
-            // if (!userSettings.debugMode)
-            // {
-            //     startInfo.WindowStyle = systemDebug.ProcessWindowStyle.Hidden;
-            // }
+          
             startInfo.WindowStyle = systemDebug.ProcessWindowStyle.Hidden;
             startInfo.CreateNoWindow =true;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
-            // startInfo.RedirectStandardInput = true;
             
             
-            var process = new Process();
-            
-            // {
-            //     StartInfo = { FileName = info.FullName,WindowStyle = systemDebug.ProcessWindowStyle.Hidden, CreateNoWindow = true,},
-            //     EnableRaisingEvents = true
-                
-            // };
-            process.EnableRaisingEvents=true;
-            // process.OutputDataReceived += new systemDebug.DataReceivedEventHandler((sender, e) =>
-            // {
-            //     //Debug.Log("Got to here____2");
-            //     // Prepend line numbers to each line of the output.
-            //     if (!System.String.IsNullOrEmpty(e.Data))
-            //     {
-            //         Debug.Log(e.Data);// to see what happens
-            //         // parse e.Data here
-            //     }
-            // });
-            // process.OutputDataReceived += SortOutputHandler;
+            var process = new Process();           
+            process.EnableRaisingEvents=true;           
            
             process.Exited += (sender, args) =>
             {
-                tcs.SetResult(output+"ExitCode: "+process.ExitCode);
-                //bundleBuildLog = string.Join("--------------------------------------"+System.Environment.NewLine, process.StandardOutput.ReadToEnd());
+                tcs.SetResult(output+"ExitCode: "+process.ExitCode);                
                 process.Dispose();
             };
             process.StartInfo=startInfo;
-            Debug.Log("Got to here____");
             process.Start();
             output = System.Environment.NewLine + process.StandardOutput.ReadToEnd();
-            // while (!process.StandardOutput.EndOfStream) {
-            //     //bundleBuildLog.Append(System.Environment.NewLine+process.StandardOutput);
-            //     output = System.Environment.NewLine + process.StandardOutput.ReadToEnd();
-            // } //kinda worked!
-
-            //_________________________________
-            // process.ErrorDataReceived += (s, e) => 
-            // {
-            //     bundleBuildLog.Append(System.Environment.NewLine+e.Data);
-            //     //process.CancelOutputRead();
-            // };
-            // process.OutputDataReceived += (s, e) => 
-            // {
-            //     bundleBuildLog.Append(System.Environment.NewLine+e.Data);
-            //     //process.CancelOutputRead();
-            // };
-            // process.Exited += (sender, args) =>
-            // {
-            //     tcs.SetResult(process.ExitCode);
-            //     //bundleBuildLog = string.Join("--------------------------------------"+System.Environment.NewLine, process.StandardOutput.ReadToEnd());
-            //     process.Dispose();
-            // };
-            // process.StartInfo=startInfo;
-            // Debug.Log("Got to here____");
-            // process.Start();
-            // process.BeginOutputReadLine();
-            // ________________________________________________
-            // while (!process.StandardOutput.EndOfStream) {
-                
-            //  //bundleBuildLog = string.Join("--------------------------------------"+System.Environment.NewLine, process.StandardOutput.ReadToEnd());
-            // } //kinda worked!
-
-
-            //process.BeginOutputReadLine();
-            // process.BeginErrorReadLine();
-
-             //process.WaitForExit();
             
-
-            //Debug.Log("Got to here____");
-            //process.WaitForExit();
-
-            
-            //bundleBuildLog = string.Join("--------------------------------------"+System.Environment.NewLine, output);
-            // if (process.HasExited)            
-            // {
-            //     tcs.SetResult(process.ExitCode);
-            //     process.Dispose();
-            // };
-            return tcs.Task;
-            // FileInfo info = new FileInfo(path);                   
-            // Task<ProcessAsyncHelper.ProcessResult> androidBuild = await ProcessAsyncHelper.RunProcessAsync(info.FullName,"",1);
-            
-            
-            // Debug.Log(androidBuild.Result.Output);
-            // Debug.Log(androidBuild.Result.Error);
-            // //await Task.Run(System.Diagnostics.Process.Start(info.FullName));
-
-            // Debug.Log(path+" has finished");
+            return tcs.Task;            
         }
-        // private  void SortOutputHandler(object sendingProcess, systemDebug.DataReceivedEventArgs outLine)
-        // {
-        //     bundleBuildLog = string.Join(System.Environment.NewLine,outLine.Data);
-        //     Debug.Log(bundleBuildLog);
-        //     // Collect the sort command output.
-        //     // if (outLine.Data != null || outLine.Data == "")
-        //     // {              
-        //     //     // Add the text to the collected output.
-        //     //     bundleBuildLog = string.Join(System.Environment.NewLine,outLine.Data);
-        //     //     Debug.Log($"\nError stream: {bundleBuildLog}");
-        //     // }
-        // }
         
-        public List<string> CreateAndroidBatchFile(bool autoGitYesNo)
+        
+        public List<string> CreateAndroidBatchFile(bool autoGitYesNo, string cdnLocalLoc)
         {
             List<string> commands = new List<string>();
-            foreach (var command in RoboCopyDependenciesFiles("Android"))
+            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("Android",userSettings.projectWinLoc))
             {
                 commands.Add(command);
             }           
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
-            
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
-            if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
+            if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
             {
-                commands.Add("robocopy "+"\""+userSettings.projectAndroidLoc+"/AssetBundles/Android"+"\""+" "+"\""+userSettings.cdnAndroidLoc+"\"");
+                commands.Add("robocopy "+"\""+userSettings.projectAndroidLoc+"/AssetBundles/Android"+"\""+" "+"\""+cdnLocalLoc+"\"");
             }
-            
-            // if (autoGitYesNo && userSettings.CTMode())
-            // {
-            //     //Start of git bit
-            //     //string listOfBundles = string.Join(" ", bundlesBuiltAndroid);
-            //     //commands = new string[8]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+gitCommitM};
-            //     commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\""); 
-            //     commands.Add("git stash");
-            //     commands.Add("git pull");
-            //     commands.Add("git stash pop");
-            //     foreach (var item in bundlesBuiltAndroid)
-            //     {
-            //         commands.Add("git add "+"\""+item+"\"");
-            //     }
-            //     commands.Add("git commit -m "+"\""+gitCommitM+"_Android"+"\"");
-            //     commands.Add("git push");
-            // }
             return commands;
             
         }
-        public List<string> CreateiOSBatchFile(bool autoGitYesNo,List<string> commandsIN = null)
+        public List<string> CreateiOSBatchFile(bool autoGitYesNo, string cdnLocalLoc)
         {
-            // string iOSBuildPath = Application.dataPath + "/Editor/IFX Tools/BundleTool/iOSBuild.bat";
-            // //Write some text to the test.txt file
-            // StreamWriter writer = new StreamWriter(iOSBuildPath, false);
-            List<string> commands = new List<string>();
-            
-            foreach (var command in RoboCopyDependenciesFiles("iOS"))
+            List<string> commands = new List<string>();            
+            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("iOS",userSettings.projectWinLoc))
             {
                 commands.Add(command);
-            }
-            
-            
-            //commands.Add("robocopy "+userSettings.projectWinLoc+"/Assets "+userSettings.projectiOSLoc+"/Assets /MIR");
+            }                      
             commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
-            
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\"");
-            if (userSettings.cdnAndroidLoc != "" && userSettings.CTMode())
-            {
-                commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+userSettings.cdniOSLoc+"\"");
-            }
-            
-            // if (autoGitYesNo && userSettings.CTMode())
-            // {
-            //     //Start of git bit
-            //     //string listOfBundles = string.Join(" ", bundlesBuiltiOS);
-            //     //commands = new string[8]{ "cd "+userSettings.cdnWinLoc, "cd ..", "cd ..", "cd ..", "cd ..","cd ..", "git add "+listOfBundles,"git commit -m "+gitCommitM};                
-            //     commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\""); 
-            //     commands.Add("git stash");
-            //     commands.Add("git pull");
-            //     commands.Add("git stash pop");
-            //     foreach (var item in bundlesBuiltiOS)
-            //     {
-            //         commands.Add("git add "+"\""+item+"\"");
-            //     }
-                
-            //     commands.Add("git commit -m "+"\""+gitCommitM+"_iOS"+"\"");
-            //     commands.Add("git push");
-            // }
-            return commands;
-            
-        }
-        void CopyFolderContents(string source,string destination)
-        {
-            
-            if (Directory.Exists(source))
-            {
-                
-                //Copy all files found in source folder to destination folder
-                System.IO.DirectoryInfo sourceFolder = new DirectoryInfo(source);
-                foreach (FileInfo file in sourceFolder.GetFiles())
-                {
-                    string destFile = System.IO.Path.Combine(destination, file.Name);
-                    Debug.Log(destFile);
-                    System.IO.File.Copy(file.FullName, destFile, true);
-                }
-            }
-            else
-            {
-                Debug.Log("Could not copy folder contents, Folder doesn't exist: "+ source);
-            }
-            
-        }
 
-        void DeleteFolderContents(string Folder)
-        {   
-            if (Directory.Exists(Folder))
+            if (userSettings.cdnAndroidIFXLoc != "" && userSettings.CTMode())
             {
-                System.IO.DirectoryInfo dir = new DirectoryInfo(Folder);
-                foreach (FileInfo file in dir.GetFiles())
-                {
-                    file.Delete(); 
-                }
+                commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+cdnLocalLoc+"\"");
             }
-            else
-            {
-                Debug.Log("DeleteFolderContents: Can't delete contents as no folder exists at path");
-            }
-            
-        }
-        
-        public static void ClearAllAssetLabelsInProject()
-        {
-            var names = AssetDatabase.GetAllAssetBundleNames();
-            foreach (var name in names)
-            {
-                AssetDatabase.RemoveAssetBundleName(name,true);
-            }
-        }
-        
-        void GitPushBundlesToCDN()
-        {
-            
-            List<string> commands= new List<string>();
-            //string listOfBundles = string.Join(" ", bundlesBuiltWin);
-            
-            commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\"");            
-
-            foreach (var item in bundlesBuiltWin)
-            {
-                commands.Add("git add "+"\""+item+"\"");
-            }
-            foreach (var item in bundlesBuiltAndroid)
-            {
-                commands.Add("git add "+"\""+item+"\"");
-            }
-            foreach (var item in bundlesBuiltiOS)
-            {
-                commands.Add("git add "+"\""+item+"\"");
-            }
-            commands.Add("git commit -m "+"\""+gitCommitM+"\"");
-            commands.Add("git push");
-            
-            RunCMD(commands);
-        }
-        public void GitPull()
-        {
-            // Declaration of the array
-            List<string> commands= new List<string>();
-
-            // Initialization of array
-            commands.Add("cd /D "+"\""+userSettings.cdnProjectPath+"\"");          
-
-            //commands.Add("git stash");
-            commands.Add("git pull");
-            //commands.Add("git stash pop");
-            
-            RunCMD(commands);
-            
-        }
-        public List<string> SyncUnityProjects(string buildType)
-        {
-            //userSettings.SettingsAutoSetup();
-            //needs to set user settings android project location at some point
-            List<string> commands = new List<string>();            
-            
-            commands.Add("mkdir "+"\""+userSettings.projectWinLoc.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType+"\"");
-            commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/Assets/ENGAGE_CreatorSDK"+"\""+ " " +"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+"\""+" "+" /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\"");
-            commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/ProjectSettings"+"\""+" "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+"\""+ " /MIR /XD "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects"+"\""); 
-            
-                       
-            // if (buildType == "Android")
-            // {
-            //     userSettings.projectAndroidLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
-            //     userSettings.SaveUserSettings();
-            // }
-            // if (buildType == "iOS")
-            // {
-            //     userSettings.projectiOSLoc = userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType;
-            //     userSettings.SaveUserSettings();
-            // }
-
             return commands;
             
         }
         async public Task GitCommitChangesToRepo(List<Object> selectedBundleIN,string gitCommitM)
         {
+
+            AssetDatabase.SaveAssets();//saves assets so all meta files show up
             List<string> commands = new List<string>();
             List<string> filesToAdd = new List<string>();
-            filesToAdd.AddRange(GetFolderDependencies(selectedBundleIN));
+            filesToAdd.AddRange(IFXToolSM.GetFolderDependencies(selectedBundleIN));
 
             commands.Add("cd /D "+"\""+userSettings.projectWinLoc+"\"");
             commands.Add("git stash");
@@ -751,222 +562,12 @@ using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
             {
                 Debug.Log(item);
             }
-            string gitCommitBatch = CreateBatchCMDSFile("GitCommitToRepo",commands);
+            string gitCommitBatch = IFXToolSM.CreateBatchCMDSFile("GitCommitToRepo",commands);
             var gitAddResults=RunBatchFileAsync(gitCommitBatch);
             var results = await Task.WhenAll(gitAddResults);
             System.IO.File.WriteAllText(userSettings.projectWinLoc+"/Git changes push Debug Log.txt", results[0]);
 
         }
-        public string CreateBatchCMDSFile(string fileNameforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
-        {
-
-            List<string> commandsList = input;
-            if (input2 != null)
-            {
-                commandsList.AddRange(input2);
-            }
-            if (input3 != null)
-            {
-                commandsList.AddRange(input3);
-            }
-
-            string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
-            //Write some text to the test.txt file
-            StreamWriter writer = new StreamWriter(TempCMDBatchPath, false);
-            foreach (string cmd in commandsList)
-            {
-                //string cmdIN = cmd.Replace("/","\\");
-                writer.WriteLine(cmd);
-            }
-            writer.WriteLine("TIMEOUT 1");
-            if (userSettings.debugMode)
-            {
-                writer.WriteLine("PAUSE");
-            }
-            writer.Close();
-            return TempCMDBatchPath;
-        }
-        void RunCMD(List<string> arguments)
-        {
-            
-            
-            Process cmd = new Process();
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.FileName = "cmd.exe";
-            if (!userSettings.debugMode)
-            {
-                info.WindowStyle = systemDebug.ProcessWindowStyle.Hidden;
-                info.CreateNoWindow = true;
-            }
-            info.RedirectStandardInput = true;
-            info.RedirectStandardOutput = true;
-            info.UseShellExecute = false;
-            cmd.StartInfo = info;
-            cmd.Start();
-            using (StreamWriter sw = cmd.StandardInput)
-            {
-                if (sw.BaseStream.CanWrite)
-                {
-                    foreach (string arg in arguments)
-                    {
-                        
-                        //string argIN = arg.Replace("/","\\");
-                        sw.WriteLine(arg);
-                        Debug.Log("CMD LINE input command: "+arg);
-                    }
-                }
-                
-            }
-            // Synchronously read the standard output of the process.
-            string output = cmd.StandardOutput.ReadToEnd(); 
-            bundleBuildLogGIT = bundleBuildLogGIT+"----------------------------------------"+System.Environment.NewLine+output;
-            
-            cmd.StandardInput.Close();
-            cmd.WaitForExit();
-        }
-        public  bool DirectoryBool(UnityEngine.Object selectedObject) //fix
-        {
-            var path = "";
-            bool dirFound=false;
-            if (selectedObject == null)
-            {
-                    path = "Assets";
-            }
-            else
-            {
-                    path = AssetDatabase.GetAssetPath(selectedObject.GetInstanceID());
-            }
-            if (path.Length > 0)
-            {
-                if (Directory.Exists(path))
-                {
-                    dirFound= true;
-                    //Debug.Log("Folder");
-                }
-                else
-                {
-                    dirFound= false;
-                }
-            }
-            return dirFound;
-        }
-
-        public bool DirectoryBoolMulti(UnityEngine.Object[] selectedObject) //fix
-        {
-            bool dirFound=true;
-            bool dir=false;
-            foreach (UnityEngine.Object item in selectedObject)
-            {
-                dir=DirectoryBool(item);
-                if (dir==false)
-                {
-                    
-                    dirFound=false;
-                    break;
-                }
-            }
-            return dirFound;
-        }
-        public List<UnityEngine.Object> GetSelectedObjectsAsList()
-        {
-            List<UnityEngine.Object> selection =new List<UnityEngine.Object>();
-            foreach (var item in Selection.objects)
-            {
-                selection.Add(item);
-            }
-            return selection;
-        }
-        public List<string> RoboCopyDependenciesFiles(string buildType)
-        {
-            
-            List<string> dependencies =  GetFolderDependencies(GetSelectedObjectsAsList());
-            List<string> commands = new List<string>();
-            foreach (var itemPath in dependencies)
-            {
-                var itemDirectory = Path.GetDirectoryName(itemPath);
-                commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/"+itemDirectory+"\""+" "+"\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/"+itemDirectory+"\""+" /MIR");
-
-                
-            }
-            foreach (var item in Selection.objects)
-            {
-                var directoryName = Path.GetDirectoryName(AssetDatabase.GetAssetPath(item));
-                Debug.Log(directoryName);
-                //var bundlesParentFolder = System.IO.Directory.GetParent(directoryName);
-                //Debug.Log(bundlesParentFolder.Name);
-                commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/"+directoryName +"\""+" "+ "\""+userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/" +directoryName +"\""+"  *.meta /MIR");
-                //commands.Add("robocopy "+userSettings.projectWinLoc+"/"+bundlesParentFolder +" "+ userSettings.projectWinLoc+"/IFXBuildToolProjects/"+buildType+"/" +bundlesParentFolder +"  *.meta /MIR");
-            }
-            
-            return commands;
-        }
-
-        private List<string> GetFolderDependencies(List<UnityEngine.Object> goIN) // this is a test of the export package idea can probobly delete
-        {
-            List<string> result = new List<string>();
-            foreach (var go in goIN)
-            {
-                string assetPath =AssetDatabase.GetAssetPath(go);
-                
-                AssetImporter assetImporter = AssetImporter.GetAtPath(assetPath);
-                if (assetImporter.assetBundleName != go.name)
-                {
-                    assetImporter.assetBundleName = go.name;
-                }
-                
-
-                
-                string[] assetsInCurBundle = AssetDatabase.GetAssetPathsFromAssetBundle(assetImporter.assetBundleName);
-                foreach (string item in assetsInCurBundle)
-                {
-                    string[] dpeendencies = AssetDatabase.GetDependencies(item,true);
-                    foreach (var item2 in dpeendencies)
-                    {
-                        result.Add(item2);
-                        //Debug.Log(item2);
-                    }
-                    
-                    
-                    
-                }
-                
-            }
-            return result;
-        }
-
-        public void ClearDependenciesCache(bool hardReset)
-        {
-            if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/"))
-            {
-                if (hardReset)
-                {
-                    Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/",true);
-                    EditorUtility.DisplayDialog("Cache Cleared",
-                    "Cache Fully cleared", "OK");
-                }
-                else
-                {
-                    if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/Assets"))
-                    {
-                        Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/Android/Assets",true);
-                    }
-                    if (Directory.Exists(userSettings.projectWinLoc+"/IFXBuildToolProjects/iOS/Assets"))
-                    {
-                        Directory.Delete(userSettings.projectWinLoc+"/IFXBuildToolProjects/iOS/Assets",true);
-                    }
-                    
-                    
-                    EditorUtility.DisplayDialog("Cache Cleared",
-                    "Cache cleared", "OK");
-                }
-                
-                
-            }
-            else
-            {
-                Debug.Log("Cache Directory not found");
-            }
-            
-        }
+        
     }
  }

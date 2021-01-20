@@ -18,9 +18,13 @@ namespace IFXTools
 
         //Editable variables
         public string cdnProjectPath;
-        public string cdnWinLoc;
-        public string cdnAndroidLoc;
-        public string cdniOSLoc;
+        public string cdnWinIFXLoc;
+        public string cdnAndroidIFXLoc;
+        public string cdniOSIFXLoc;
+
+        public string cdnWinSceneLoc;
+        public string cdnAndroidSceneLoc;
+        public string cdniOSSceneLoc;
         public string projectWinLoc; 
         public string projectAndroidLoc;
         public string projectiOSLoc;
@@ -30,7 +34,7 @@ namespace IFXTools
         public string prefabAfix;
         public string currentIFXNum;
         public string thumbnailSavePath;
-        public bool debugMode;
+        //public bool debugMode;
         public string cTCode;
         
         string settingsFilePath = Application.dataPath.Replace("/Assets", "") + "/UserSettings.json";
@@ -43,9 +47,14 @@ namespace IFXTools
                 if (result !=null)
                 {
                     cdnProjectPath= result.cdnProjectPath;
-                    cdnWinLoc = result.cdnWinLoc;
-                    cdnAndroidLoc = result.cdnAndroidLoc;
-                    cdniOSLoc = result.cdniOSLoc;
+
+                    cdnWinIFXLoc = result.cdnWinIFXLoc;
+                    cdnAndroidIFXLoc = result.cdnAndroidIFXLoc;
+                    cdniOSIFXLoc = result.cdniOSIFXLoc;
+
+                    cdnWinSceneLoc = result.cdnWinSceneLoc;
+                    cdnAndroidSceneLoc = result.cdnAndroidSceneLoc;
+                    cdniOSSceneLoc = result.cdniOSSceneLoc;
 
                     projectWinLoc = result.projectWinLoc;
                     projectAndroidLoc = result.projectAndroidLoc;
@@ -58,7 +67,7 @@ namespace IFXTools
 
                     thumbnailSavePath = result.thumbnailSavePath;
 
-                    debugMode = result.debugMode;
+                    //debugMode = result.debugMode;
 
                     cTCode = result.cTCode;
                     
@@ -93,14 +102,21 @@ namespace IFXTools
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
             this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";           
             
-            this.cdnWinLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
-            this.cdnAndroidLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
-            this.cdniOSLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
+            this.cdnWinIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
+            this.cdnAndroidIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
+            this.cdniOSIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
+
+            this.cdnWinSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Windows";
+            this.cdnAndroidSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Android";
+            this.cdniOSSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/iOS";
 
             Debug.Log("Unity Path: "+unityEXELoc);
-            Debug.Log("CDN Project Path - Windows: "+cdnWinLoc);
-            Debug.Log("CDN Project Path - Android: "+cdnAndroidLoc);
-            Debug.Log("CDN Project Path - iOS: "+cdniOSLoc);
+            Debug.Log("IFX CDN Project Path - Windows: "+cdnWinIFXLoc);
+            Debug.Log("IFX CDN Project Path - Android: "+cdnAndroidIFXLoc);
+            Debug.Log("IFX CDN Project Path - iOS: "+cdniOSIFXLoc);
+            Debug.Log("Scene CDN Project Path - Windows: "+cdnWinSceneLoc);
+            Debug.Log("Scene CDN Project Path - Android: "+cdnAndroidSceneLoc);
+            Debug.Log("Scene CDN Project Path - iOS: "+cdniOSSceneLoc);
             Debug.Log("Project Path: "+projectWinLoc);
             Debug.Log("Android Project Path: "+projectAndroidLoc);
             Debug.Log("iOS Project Path: "+projectiOSLoc);
