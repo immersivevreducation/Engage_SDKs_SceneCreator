@@ -6,8 +6,10 @@ public class DestroyAfterSecondsIfNoParent : MonoBehaviour {
     /// If this object has no parent, destroy it after
     /// secondsUntilDestroy has passed.
     /// </summary>
-	float secondsUntilDestroy = 8f;
+    [MinAttribute(0)]
+	public float secondsUntilDestroy = 8f;
 	bool destroySet = false;
+	
 	// Update is called once per frame
 	void Update () {
 		if (transform.parent == null && !destroySet) {
