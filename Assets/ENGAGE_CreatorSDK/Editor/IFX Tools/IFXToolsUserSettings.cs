@@ -100,15 +100,29 @@ namespace IFXTools
             this.projectWinLoc = this.projectWinLoc.Replace("/Assets", "");
 
             this.projectAndroidLoc = this.projectWinLoc+"/IFXBuildToolProjects/Android";
-            this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";           
-            
-            this.cdnWinIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
-            this.cdnAndroidIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
-            this.cdniOSIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
+            this.projectiOSLoc = this.projectWinLoc+"/IFXBuildToolProjects/iOS";
+            if (!string.IsNullOrEmpty(cdnProjectPath))
+            {
+                this.cdnWinIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Windows";
+                this.cdnAndroidIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/Android";
+                this.cdniOSIFXLoc = cdnProjectPath+"/engage_online_root/asset_bundles/effects/unity_2019_2/iOS";
 
-            this.cdnWinSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Windows";
-            this.cdnAndroidSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Android";
-            this.cdniOSSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/iOS";
+                this.cdnWinSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Windows";
+                this.cdnAndroidSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/Android";
+                this.cdniOSSceneLoc = cdnProjectPath+"/engage_online_root/asset_bundles/scenes/unity_2019_2/iOS";
+            }
+            else
+            {
+                this.cdnWinIFXLoc = null;
+                this.cdnAndroidIFXLoc = null;
+                this.cdniOSIFXLoc = null;
+
+                this.cdnWinSceneLoc = null;
+                this.cdnAndroidSceneLoc = null;
+                this.cdniOSSceneLoc = null;
+            }           
+            
+            
 
             Debug.Log("Unity Path: "+unityEXELoc);
             Debug.Log("IFX CDN Project Path - Windows: "+cdnWinIFXLoc);
