@@ -226,6 +226,8 @@ namespace IFXTools{
             }
             return dirFound;
         }
+
+        
         public static List<UnityEngine.Object> GetSelectedObjectsAsList()
         {
             List<UnityEngine.Object> selection =new List<UnityEngine.Object>();
@@ -235,26 +237,30 @@ namespace IFXTools{
             }
             return selection;
         }
-        public static List<string> RoboCopyDependenciesFiles(string buildType,string projectLocationPath)
+        public static List<string> RoboCopyDependenciesFiles(string buildType,string projectLocationPath,List<UnityEngine.Object> Selections)
         {
             List<string> commands = new List<string>();
+            commands.Add("REM -Script Transfers-");//these REM commands are just comments in the batch file
             foreach (string file in GetAllScriptsInProject())
             {
                 var folder = Path.GetDirectoryName(file).Replace("\\","/");
                 string folderLocalPath = folder.Replace(projectLocationPath,"");
                 
-                commands.Add("robocopy "+"\""+folder+"\""+" "+"\""+projectLocationPath+"/IFXBuildToolProjects/"+buildType+folderLocalPath+"\""+" /MIR");
-                   
-
+                commands.Add("robocopy "+"\""+folder+"\""+" "+"\""+projectLocationPath+"/IFXBuildToolProjects/"+buildType+folderLocalPath+"\""+" /MIR");    
             }
+            commands.Add("REM -Folder Dependencies-");
             
-            List<string> dependencies =  GetFolderDependencies(GetSelectedObjectsAsList());
+            List<string> dependencies =  GetFolderDependencies(Selections);
+            
             foreach (var itemPath in dependencies)
             {
+                Debug.Log("Dependencies: "+itemPath);
+                
                 var itemDirectory = Path.GetDirectoryName(itemPath);
                 commands.Add("robocopy "+"\""+projectLocationPath+"/"+itemDirectory+"\""+" "+"\""+projectLocationPath+"/IFXBuildToolProjects/"+buildType+"/"+itemDirectory+"\""+" /MIR");   
             }
-            foreach (var item in Selection.objects) //fix this could break if they change selection when building
+            commands.Add("REM -Selected Folders-");
+            foreach (var item in Selections) //fix this could break if they change selection when building
             {
                 var directoryName = Path.GetDirectoryName(AssetDatabase.GetAssetPath(item));
                 commands.Add("robocopy "+"\""+projectLocationPath+"/"+directoryName +"\""+" "+ "\""+projectLocationPath+"/IFXBuildToolProjects/"+buildType+"/" +directoryName +"\""+"  *.meta /MIR");

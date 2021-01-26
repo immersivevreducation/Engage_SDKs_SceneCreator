@@ -233,24 +233,21 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 
                 SetUpGitPathsForCreatedFiles();
 
-                 // if true build windows 
+                // if true build windows 
                 if (buildSettings.windowsBuildYesNo)
                 {
                     
-                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles                                                                       //Build the bundle
-                    AssetBundles.BuildScript.BuildAssetBundles();
-                    
+                    IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows"); //clears out old bundles                
+                    //Build the bundle
+                    AssetBundles.BuildScript.BuildAssetBundles();       
                     //Copy bundles to cdn
-                    if (cdnLocalWinLoc !=null)
-                    {
-                        if (cdnLocalWinLoc != "" && userSettings.CTMode())
-                        {
-                            IFXToolSM.CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", cdnLocalWinLoc);
-                        }
-                    }
-                    
-                    
+                    if (!string.IsNullOrEmpty(cdnLocalWinLoc) && userSettings.CTMode())
+                    {                        
+                        IFXToolSM.CopyFolderContents(userSettings.projectWinLoc + "/AssetBundles/Windows", cdnLocalWinLoc);                        
+                    }                          
                 }
+                
+                
                 
                 List<Task<string>> BundleBuildTasks = new List<Task<string>>();
                 // if true build android 
@@ -258,7 +255,7 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 {
                     IFXToolSM.DeleteFolderContents(userSettings.projectAndroidLoc + "/AssetBundles/Android"); //clears out old bundles
                     IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/Android"); //clears out old bundles
-                    string androidBuildPath = IFXToolSM.CreateBatchCMDSFile("Android", IFXToolSM.SyncUnityProjects("Android",userSettings.projectWinLoc), CreateAndroidBatchFile(buildSettings.autoGitYesNo, cdnLocalAndroidLoc));
+                    string androidBuildPath = IFXToolSM.CreateBatchCMDSFile("Android", IFXToolSM.SyncUnityProjects("Android",userSettings.projectWinLoc), CreateAndroidBatchFile(buildSettings, cdnLocalAndroidLoc));
                     //RunBuildFileAsync(androidBuildPath, "Android");
                     BundleBuildTasks.Add(Task.Run(() => RunBatchFileAsync(androidBuildPath)));
                     //Debug.Log(androidBuild.Output);
@@ -270,7 +267,7 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 {
                     IFXToolSM.DeleteFolderContents(userSettings.projectiOSLoc + "/AssetBundles/iOS"); //clears out old bundles
                     IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc + "/AssetBundles/iOS"); //clears out old bundles
-                    string iOSBuildPath = IFXToolSM.CreateBatchCMDSFile("iOS", IFXToolSM.SyncUnityProjects("iOS",userSettings.projectWinLoc), CreateiOSBatchFile(buildSettings.autoGitYesNo, cdnLocaliOSLoc));
+                    string iOSBuildPath = IFXToolSM.CreateBatchCMDSFile("iOS", IFXToolSM.SyncUnityProjects("iOS",userSettings.projectWinLoc), CreateiOSBatchFile(buildSettings, cdnLocaliOSLoc));
                     //RunBuildFileAsync(iOSBuildPath, "iOS");
                     BundleBuildTasks.Add(Task.Run(() => RunBatchFileAsync(iOSBuildPath)));
                     // Git stuff handled in batch file!
@@ -468,20 +465,7 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 }
             }
         }
-        bool FolderContainsSceneFile(UnityEngine.Object selection)//selectedBundles
-        {
-            bool sceneFound = false;
-            string path = AssetDatabase.GetAssetPath(selection.GetInstanceID());
-            string[] folderContents = Directory.GetFiles(path);
-            foreach (var item in folderContents)
-            {
-                if (Path.GetExtension(item) ==".unity")
-                {
-                    sceneFound = true;
-                }
-            }
-            return sceneFound;
-        }
+        
         Task<string> RunBatchFileAsync(string path)
         {
             
@@ -515,10 +499,10 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
         }
         
         
-        public List<string> CreateAndroidBatchFile(bool autoGitYesNo, string cdnLocalLoc)
+        public List<string> CreateAndroidBatchFile(BundleBuildSettings buildSettings, string cdnLocalLoc)
         {
             List<string> commands = new List<string>();
-            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("Android",userSettings.projectWinLoc))
+            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("Android",userSettings.projectWinLoc, buildSettings.selectedBundles))
             {
                 commands.Add(command);
             }           
@@ -538,10 +522,10 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             return commands;
             
         }
-        public List<string> CreateiOSBatchFile(bool autoGitYesNo, string cdnLocalLoc)
+        public List<string> CreateiOSBatchFile(BundleBuildSettings buildSettings, string cdnLocalLoc)
         {
             List<string> commands = new List<string>();            
-            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("iOS",userSettings.projectWinLoc))
+            foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("iOS",userSettings.projectWinLoc, buildSettings.selectedBundles))
             {
                 commands.Add(command);
             }                      
