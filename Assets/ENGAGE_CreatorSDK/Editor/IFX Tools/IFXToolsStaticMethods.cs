@@ -67,6 +67,11 @@ namespace IFXTools{
 
        public static void CopyFolderContents(string source,string destination)
         {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(destination))
+            {
+                Debug.Log("Could not copy folder contents, source or destination is null ");
+                return;
+            }
             if (Directory.Exists(source))
             {                
                 //Copy all files found in source folder to destination folder
@@ -339,7 +344,7 @@ namespace IFXTools{
             return objectIsCentered;
         }
 
-        static Vector3 MeshCenter(GameObject inputGO)
+        public static Vector3 MeshCenter(GameObject inputGO)
         {
             MeshFilter meshFilter = inputGO.GetComponent<MeshFilter>();
             if (meshFilter != null)

@@ -2,8 +2,123 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEditor.SceneManagement;
 
 namespace IFXTools{
+    public class IFXThumbnailToolThumbnailPreviewWindow : EditorWindow
+    {
+        
+        IFXThumbnailTool _thumbnailToolInstance;
+        
+        public IFXThumbnailToolThumbnailPreviewWindow(IFXThumbnailTool thumbnailToolInstance)
+        {
+            _thumbnailToolInstance = thumbnailToolInstance;
+        }
+        void OnGUI()
+        {
+            EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
+            //the thumbnail preview
+            if (_thumbnailToolInstance.ifxObject!=null)
+            {
+                GUILayout.Label(_thumbnailToolInstance.previewImage, GUILayout.Width(this.position.width), GUILayout.Height(this.position.height));
+                var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
+                //_thumbnailToolInstance.UpdatePreviewImage();
+                this.Repaint();
+            }                        
+        }
+    }
+    public class IFXThumbnailToolWindow : EditorWindow
+    {   
+        IFXThumbnailTool thumbnailToolInstance;
+        IFXToolsUserSettings userSettings;
+        IFXThumbnailToolThumbnailPreviewWindow thumbnailPreview;
+        void OnEnable()
+        {
+            thumbnailToolInstance = new IFXThumbnailTool();
+            thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);   
+            userSettings = IFXToolsUserSettings.GetUserSettings();
+            userSettings.LoadUserSettings();
+
+            
+            if (thumbnailPreview == null)
+            {
+                thumbnailPreview = new IFXThumbnailToolThumbnailPreviewWindow(thumbnailToolInstance);
+                //thumbnailPreview = GetWindow<IFXThumbnailToolThumbnailPreviewWindow>();
+
+            }           
+            thumbnailPreview.position.Set(0,0,thumbnailToolInstance.imageResolutionWidth,thumbnailToolInstance.imageResolutionHeight);
+            
+            //editorWindow.End();
+            thumbnailPreview.Show();
+            
+            
+        }
+        void OnGUI()
+        {
+            ThumbnailToolWindowUI();
+            if (thumbnailToolInstance!=null)
+            {
+                thumbnailToolInstance.ThumbnailToolControlsUI(); 
+            }
+                       
+        }
+        
+
+        private void ThumbnailToolWindowUI()
+        {
+            // EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
+            // //the thumbnail preview
+            // GUILayout.Label(thumbnailToolInstance.previewImage, GUILayout.Width(500), GUILayout.Height(281));
+            // var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
+
+            if (GUILayout.Button("Load Thumbnail Scene"))
+                {
+                    if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
+                    {
+                        EditorSceneManager.OpenScene("Assets/ENGAGE_CreatorSDK/Editor/IFX Tools/ThumbnailToolAssets/IFX_Thumbnail_Scene.unity");
+                    }
+                
+                }
+            
+            if (GUILayout.Button("Load Object for camera"))
+            {
+                if (thumbnailToolInstance.ifxObject != Selection.activeGameObject)
+                {
+                    DestroyImmediate(thumbnailToolInstance.ifxObject, true);
+                }
+                if (Selection.activeObject is GameObject)
+                {                    
+                    GameObject obj = Selection.activeObject as GameObject;
+                    thumbnailToolInstance.ifxObject = (GameObject)Instantiate(obj, new Vector3(0, 0, 0), Quaternion.identity);
+                    thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);                    
+                }
+                else
+                {
+                    Debug.Log("Select a GameObject object first");
+                }
+            }         
+            if (GUILayout.Button("Reset Camera"))
+            {
+                thumbnailToolInstance.ResetCameraSettings();
+            }
+            // if (GUILayout.Button("Auto Camera - This is a WIP"))
+            // {
+            //     thumbnailToolInstance.AutoCamera(thumbnailToolInstance.ifxObject, thumbnailToolInstance.cameraObject);
+            // }
+            EditorGUILayout.LabelField(" ");
+            if (GUILayout.Button("Save Thumbnail"))
+            {
+                thumbnailToolInstance.SaveThumbnail(userSettings.thumbnailSavePath);
+            }
+            //if the camera still exists, Update the preview
+            if (thumbnailToolInstance.cameraObject)
+            {
+                //thumbnailToolInstance.ThumbnailToolControlsUI();
+                thumbnailToolInstance.UpdatePreviewImage();
+            }            
+        }
+    }
+
     public class IFXThumbnailTool
     {
         public float lightBrightness { get; set; } = 1.5f;
@@ -18,20 +133,43 @@ namespace IFXTools{
         public float objPosX { get; set; } = 0;
         public float objScale { get; set; } = 1;
         public Texture2D thumbnailImage { get; set; }
+        public int imageResolutionWidth =750;
+        public int imageResolutionHeight = 500;
+        public int imageResolutionbitDepth  = 8;
         public Texture2D previewImage {get; set;}
         public Light[] lights { get; set; }
 
         public Camera camera {get; set;}
         public Transform lightMover {get; set;}
         public GameObject ifxThumbnailRig {get; set;}
-        public GameObject cameraObject {get; set;}
+        public Camera cameraObject {get; set;}
         public Rect thumbnailPreviewRect {get; set;}
         ///////////////////////Internal/////////////////////////
-        RenderTexture activeRenderTexture = RenderTexture.active;         
+        RenderTexture activeRenderTexture = RenderTexture.active;       
         
         
         public void ThumbnailToolControlsUI()
         {
+            if (this.ifxObject==null)
+            {
+                return;
+            }
+
+            // Constrain all drawing to be within a 800x600 pixel area centered on the screen.
+             // Starts an area to draw elements
+             
+                //GUI.BeginGroup(new Rect(Screen.width / 2 - 400, Screen.height / 2 - 300, 800, 600));
+                GUI.BeginGroup(new Rect(50, 10, 50, 50));
+                    if (GUI.Button(new Rect(50, 10, 50, 50),"^up^"))
+                    {
+                        Debug.Log("Clicked the button with an image");
+                    }
+                    if (GUI.Button(new Rect(50, 70, 50, 50),"Down"))
+                    {
+                        Debug.Log("Clicked the button with an image");
+                    }
+                GUI.EndGroup();
+
             
             
             //Lights Comtrols
@@ -70,6 +208,12 @@ namespace IFXTools{
         }
         public void ResetCameraSettings()
         {
+            
+            if (cameraObject!=null)
+            {
+                cameraObject.transform.position = new Vector3(0,0,-5);
+                cameraObject.transform.localEulerAngles =new Vector3(0,0,0);
+            }
             cameraZoom = 50;
             objScale = 1;
             objRotationX = 0;
@@ -85,7 +229,7 @@ namespace IFXTools{
             try
             {
                 ifxThumbnailRig = GameObject.Find("IFX_Thumbnail_Rig");
-                cameraObject = GameObject.Find("IFX_Thumbnail_Camera");
+                cameraObject = GameObject.Find("IFX_Thumbnail_Camera").GetComponent(typeof(Camera)) as Camera;
                 lightMover = ifxThumbnailRig.transform.Find("Light_Mover") ;
             }
             catch (FileNotFoundException e)
@@ -94,10 +238,10 @@ namespace IFXTools{
             }
             
 
-            lights = ifxThumbnailRig.GetComponentsInChildren<Light>();
+            lights = lightMover.GetComponentsInChildren<Light>();
 
             camera = cameraObject.GetComponent(typeof(Camera)) as Camera;
-            RenderTexture rt = new RenderTexture(750, 500, 8, RenderTextureFormat.ARGB32);
+            RenderTexture rt = new RenderTexture(imageResolutionWidth,imageResolutionHeight,imageResolutionbitDepth, RenderTextureFormat.ARGB32);
             camera.targetTexture = rt;
             RenderTexture activeRenderTexture = RenderTexture.active;          
             previewImage = new Texture2D(camera.targetTexture.width, camera.targetTexture.height);
@@ -128,28 +272,68 @@ namespace IFXTools{
             
         }
 
-        public void AutoCamera(GameObject obj, Transform transform )//obj is the asset, and transform in this case was the camera itself. not working 100%
-        {
-            Camera camera = transform.GetComponent(typeof(Camera)) as Camera;
-            //auto adjust camera
-            Mesh mesh = obj.GetComponentInChildren<MeshFilter>().sharedMesh;
-            Bounds bounds = mesh.bounds;
-            float adjac = Vector3.Distance(transform.TransformPoint(bounds.center), transform.TransformPoint(bounds.extents));
-            float theta = 90 - (camera.fieldOfView/2);
-            float hypot = adjac/Mathf.Cos(theta);
-            if(hypot < 0)
-                hypot *= -1;
-                Debug.Log(hypot);
-            float distance = hypot*1.2f;
-            transform.position = transform.rotation * new Vector3(0, 0, -distance) + obj.transform.position;
+        public void AutoCamera(GameObject obj, Camera camera )//obj is the asset, and transform in this case was the camera itself. not working 100%
+            { //this needs more work and dosn't work currently
+        //     Camera camera = transform.GetComponent(typeof(Camera)) as Camera;
+        //     //auto adjust camera
+        //     Mesh mesh = obj.GetComponentInChildren<MeshFilter>().sharedMesh;
+        //     Bounds bounds = mesh.bounds;
+        //     float adjac = Vector3.Distance(transform.TransformPoint(bounds.center), transform.TransformPoint(bounds.extents));
+        //     float theta = 90 - (camera.fieldOfView/2);
+        //     float hypot = adjac/Mathf.Cos(theta);
+        //     if(hypot < 0)
+        //         hypot *= -1;
+        //         Debug.Log(hypot);
+        //     float distance = hypot*1.2f;
+        //     transform.position = transform.rotation * new Vector3(0, 0, -distance) + obj.transform.position;
+
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////Seporate idea
+                // MeshFilter[] mFInChildren = obj.GetComponentsInChildren<MeshFilter>();
+                // Bounds tempBounds;
+                // Vector3 combinedScale;
+                
+                // if (mFInChildren.Length >0)
+                // {                   
+                //     tempBounds =  new Bounds(IFXTools.IFXToolsStaticMethods.MeshCenter(mFInChildren[0].gameObject),mFInChildren[0].sharedMesh.bounds.size);
+                //     for (var i = 0; i < mFInChildren.Length; i++)
+                //     {
+                //         GameObject child = mFInChildren[i].gameObject;
+                //         Debug.Log("children: "+child.name);
+
+                //         Vector3 meshCenter=IFXTools.IFXToolsStaticMethods.MeshCenter(child.gameObject);
+                        
+                //         tempBounds.Encapsulate(meshCenter);
+                //     }
+                //     combinedScale = tempBounds.size;
+                //     Debug.Log("combined cale: "+combinedScale);
+                //     float distance = Mathf.Max(combinedScale.x, combinedScale.y, combinedScale.z);
+                //     //distance /= (2.0f * Mathf.Tan(0.5f * camera.fieldOfView * Mathf.Deg2Rad));
+                //     // Move camera in -z-direction; change '2.0f' to your needs
+                //     this.objScale = distance;
+                // }              
+                
+                
+
         }
-    //this needs more work and dosn't work currently
+    
         public void RotateLights(Vector3 rotateIN)
         {
+            if (lightMover == null)
+            {
+                Debug.Log("ThumbnailTool: LightMover not Found");
+                return;
+            }
             lightMover.localRotation = Quaternion.Euler(rotateIN);
         }
         public void LightsBrightness(float BrightnessIN)
         {
+            if (lights == null)
+            {
+                Debug.Log("ThumbnailTool: Lights not Found");
+                return;
+            }
             foreach (Light light in lights)
             {
                 light.intensity = BrightnessIN;

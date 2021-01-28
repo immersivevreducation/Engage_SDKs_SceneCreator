@@ -209,7 +209,12 @@ namespace IFXTools{
                 //thumbnail tool
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(buttonGroupRect.width * 3 - 10));
                 scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-                ThumbnailToolUI();
+                if (GUILayout.Button("Thumbnail Tool"))
+                {
+                    EditorWindow window = GetWindow(typeof(IFXThumbnailToolWindow));
+                    window.Show();
+                }
+                //ThumbnailToolUI();
                 EditorGUILayout.EndScrollView();  
 
                 EditorGUILayout.EndVertical();
@@ -403,59 +408,7 @@ namespace IFXTools{
         }
 
         
-        private void ThumbnailToolUI()
-        {
-            EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
-            //the thumbnail preview
-            GUILayout.Label(thumbnailToolInstance.previewImage, GUILayout.Width(500), GUILayout.Height(281));
-            var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
-
-            if (GUILayout.Button("Load Thumbnail Scene"))
-                {
-                    if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
-                    {
-                        EditorSceneManager.OpenScene("Assets/ENGAGE_CreatorSDK/Editor/IFX Tools/ThumbnailToolAssets/IFX_Thumbnail_Scene.unity");
-                    }
-                
-                }
-            
-            if (GUILayout.Button("Load Object for camera"))
-            {
-                if (thumbnailToolInstance.ifxObject != Selection.activeGameObject)
-                {
-                    DestroyImmediate(thumbnailToolInstance.ifxObject, true);
-                }
-                if (Selection.activeObject is GameObject)
-                {                    
-                    GameObject obj = Selection.activeObject as GameObject;
-                    thumbnailToolInstance.ifxObject = (GameObject)Instantiate(obj, new Vector3(0, 0, 0), Quaternion.identity);
-                    thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);                    
-                }
-                else
-                {
-                    Debug.Log("Select a GameObject object first");
-                }
-            }         
-            if (GUILayout.Button("Reset Camera"))
-            {
-                thumbnailToolInstance.ResetCameraSettings();
-            }
-            if (GUILayout.Button("Auto Camera - This is a WIP"))
-            {
-                thumbnailToolInstance.AutoCamera(Selection.activeGameObject, thumbnailToolInstance.cameraObject.transform);
-            }
-            EditorGUILayout.LabelField(" ");
-            if (GUILayout.Button("Save Thumbnail"))
-            {
-                thumbnailToolInstance.SaveThumbnail(userSettings.thumbnailSavePath);
-            }
-            //if the camera still exists, Update the preview
-            if (thumbnailToolInstance.cameraObject)
-            {
-                thumbnailToolInstance.ThumbnailToolControlsUI();
-                thumbnailToolInstance.UpdatePreviewImage();
-            }            
-        }
+        
 
         
         void NewDependenciesWindowUI()
