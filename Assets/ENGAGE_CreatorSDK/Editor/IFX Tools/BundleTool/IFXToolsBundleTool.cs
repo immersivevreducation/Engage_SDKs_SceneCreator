@@ -112,9 +112,7 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 for (int i = 0; i < buildSettings.selectedBundles.Count; i++)
                 {
                     //re add asset labels based on folders names to selected folders
-                    SetAssetLabelToFolderName(buildSettings.selectedBundles[i]);
-                    
-                    
+                    SetAssetLabelToFolderName(buildSettings.selectedBundles[i]);                   
                 }                  
                 
                 //Checks for bad components
@@ -134,13 +132,13 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                 if (passedQualityCheck | buildSettings.buildQACheckOverride)
                 {
                     buildSettings.buildQACheckOverride = false;                   
-                    buildingStatus = "Building Bundles";
+                    
                     buildBundlesAsync();
                 }
             }
             else
             {
-                Debug.Log("Nothing Selected - Select the folder you want build first");
+                Debug.Log("Nothing Selected - Select the folder you want built first");
             }
 
 
@@ -232,6 +230,7 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             {
                 
                 SetUpGitPathsForCreatedFiles();
+                buildingStatus = "Building Bundles";
 
                 // if true build windows 
                 if (buildSettings.windowsBuildYesNo)
@@ -505,8 +504,14 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("Android",userSettings.projectWinLoc, buildSettings.selectedBundles))
             {
                 commands.Add(command);
-            }           
-            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
+            }
+            string batchmode="-batchmode";
+            if (userSettings.debugMode ==true)
+            {
+               batchmode = "";
+            }
+
+            commands.Add("\""+userSettings.unityEXELoc+"\" -quit "+batchmode+" -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
             if (cdnLocalLoc !=null)
             {
@@ -528,8 +533,13 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             foreach (var command in IFXToolSM.RoboCopyDependenciesFiles("iOS",userSettings.projectWinLoc, buildSettings.selectedBundles))
             {
                 commands.Add(command);
+            }
+            string batchmode="-batchmode";
+            if (userSettings.debugMode ==true)
+            {
+               batchmode = "";
             }                      
-            commands.Add("\""+userSettings.unityEXELoc+"\" -quit -batchmode -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
+            commands.Add("\""+userSettings.unityEXELoc+"\" -quit "+batchmode+" -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\"");
             if (cdnLocalLoc !=null)
             {
