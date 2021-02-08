@@ -1,17 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace AssetUsageFinder
-{
+namespace AssetUsageFinder {
     [Serializable]
-    internal class ResultRow
-    {
+    class ResultRow {
         [Serializable]
-        public class PropertyData
-        {
+        public class PropertyData {
             public SerializedProperty Property;
             public GUIContent Content;
         }

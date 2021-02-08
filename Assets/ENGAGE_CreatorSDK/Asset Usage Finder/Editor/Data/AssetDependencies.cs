@@ -2,28 +2,23 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace AssetUsageFinder
-{
+namespace AssetUsageFinder {
     [Serializable]
-    internal class AssetDependencies
-    {
+    public class AssetDependencies {
         public string[] DependencyGuids;
         public string HashString;
 
-        [NonSerialized] private Hash128 _hashCache;
+        [NonSerialized] Hash128 _hashCache;
 
-        public Hash128 DependencyHash
-        {
+        public Hash128 DependencyHash {
             get { return _hashCache.Equals(default(Hash128)) ? Hash128.Parse(HashString) : _hashCache; }
-            set
-            {
+            set {
                 _hashCache = value;
                 HashString = value.ToString();
             }
         }
 
-        public bool Contains(string guid)
-        {
+        public bool Contains(string guid) {
             return DependencyGuids.Any(d => StringComparer.InvariantCultureIgnoreCase.Equals(guid, d));
         }
     }
