@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
 
-namespace AssetUsageFinder.Styles {
+namespace AssetUsageFinder.Styles
+{
     [Serializable]
-    class ContentStylePair {
+    internal class ContentStylePair
+    {
         public GUIContent Content = new GUIContent();
         public GUIStyle Style = new GUIStyle();
     }
