@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Engage.Avatars.Poses;
 
 [CustomEditor(typeof(LVR_SitTrigger)), CanEditMultipleObjects]
 public class SitTriggerInspector : Editor
@@ -11,12 +12,16 @@ public class SitTriggerInspector : Editor
     private bool hndlMeshesCreated;
 
     private LVR_SitTrigger tgt;
+    private PoseTrigger pose;
 
     public Transform lfHandle, rfHandle, sHandle;
 
     private void OnEnable()
     {
         tgt = (LVR_SitTrigger)target;
+
+        if (tgt.HasAdvancedPose)
+            pose = tgt.AdvancedPose;
     }
     private void OnDisable()
     {
@@ -27,6 +32,14 @@ public class SitTriggerInspector : Editor
     {
         base.OnInspectorGUI();
         editMode = EditorGUILayout.Toggle("Edit Mode", editMode);
+
+        if (pose == null)
+        {
+            if (GUILayout.Button("Add Advanced Pose"))
+            {
+                pose = tgt.CreateAdvancedPose();
+            }
+        }
     }
     protected virtual void OnSceneGUI()
     {
