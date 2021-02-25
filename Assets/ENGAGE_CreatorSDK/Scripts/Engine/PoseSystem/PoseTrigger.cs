@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Engage.Avatars.Poses
 {
-    [RequireComponent(typeof(LVR_SitTrigger))]
     public class PoseTrigger : MonoBehaviour
     {
         [SerializeField]
@@ -79,7 +78,10 @@ namespace Engage.Avatars.Poses
             if (!m_drawEditor)
                 return;
 
-            DrawConstraintData();
+            RefreshConstraintData();
+
+            DrawLines();
+            DrawMeshes();
         }
 
         private float m_avatarHeight = 1.88f;
@@ -87,7 +89,7 @@ namespace Engage.Avatars.Poses
         private Dictionary<PoseBodyPart, PoseMapping> m_constraintDictionary;
         public Dictionary<PoseBodyPart, PoseMapping> ConstraintDictionary { get { return m_constraintDictionary; } }
 
-        private void DrawConstraintData()
+        public void RefreshConstraintData()
         {
             //DrawFrustrum(m_centerTransform);
 
@@ -125,25 +127,26 @@ namespace Engage.Avatars.Poses
             ApplyBodyPartAI(PoseBodyPart.RIGHT_ELBOW);
 
             //DrawHandles();
-            DrawLines();
-            DrawMeshes();
+           
         }
+
+        private Vector3 m_rotOffsetFoot = new Vector3(0, -32f, 0);
 
         private void DrawMeshes()
         {
-            DrawCube(ConstraintDictionary[PoseBodyPart.PELVIS].Position, ConstraintDictionary[PoseBodyPart.PELVIS].Rotation, Color.blue);
-            DrawCube(ConstraintDictionary[PoseBodyPart.HEAD].Position, ConstraintDictionary[PoseBodyPart.HEAD].Rotation, Color.blue);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.CHEST].Position, Color.green);
+            DrawCube(ConstraintDictionary[PoseBodyPart.PELVIS].Position, ConstraintDictionary[PoseBodyPart.PELVIS].Rotation, ConstraintDictionary[PoseBodyPart.PELVIS].FromPoseData ? Color.blue : Color.red);
+            DrawCube(ConstraintDictionary[PoseBodyPart.HEAD].Position, ConstraintDictionary[PoseBodyPart.HEAD].Rotation, ConstraintDictionary[PoseBodyPart.HEAD].FromPoseData ? Color.blue : Color.red);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.CHEST].Position, ConstraintDictionary[PoseBodyPart.CHEST].FromPoseData ? Color.green : Color.yellow);
 
-            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Position, ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Rotation, Color.blue);
-            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Position, ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Rotation, Color.blue);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].Position, Color.green);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_KNEE].Position, Color.green);
+            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Position, ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Rotation, ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].FromPoseData ? Color.blue : Color.red, m_rotOffsetFoot);
+            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Position, ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Rotation, ConstraintDictionary[PoseBodyPart.LEFT_FOOT].FromPoseData ? Color.blue : Color.red, m_rotOffsetFoot);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].Position, ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].FromPoseData ? Color.green : Color.yellow);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_KNEE].Position, ConstraintDictionary[PoseBodyPart.LEFT_KNEE].FromPoseData ? Color.green : Color.yellow);
 
-            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Position, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Rotation, Color.blue);
-            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_HAND].Position, ConstraintDictionary[PoseBodyPart.LEFT_HAND].Rotation, Color.blue);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].Position, Color.green);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_ELBOW].Position, Color.green);
+            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Position, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].FromPoseData ? Color.blue : Color.red);
+            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_HAND].Position, ConstraintDictionary[PoseBodyPart.LEFT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.LEFT_HAND].FromPoseData ? Color.blue : Color.red);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].Position, ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].FromPoseData ? Color.green : Color.yellow);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_ELBOW].Position, ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].FromPoseData ? Color.green : Color.yellow);
         }
 
         private void AddConstraint(PoseConstraintData constraint)
@@ -187,10 +190,13 @@ namespace Engage.Avatars.Poses
                 position = SnapToGround(position);
             }
 
-            DrawSphere(position, Color.red, .02f);
+            //DrawSphere(position, Color.red, .02f);
 
             m_constraintDictionary.Add(bodyPart, new PoseMapping(position, rotation, true));
         }
+
+        private float m_snapDistUp = .4f;
+        private float m_snapDistDown = .3f;
 
         public Vector3 SnapToGround(Vector3 pos)
         {
@@ -198,10 +204,13 @@ namespace Engage.Avatars.Poses
                 m_groundLayers = LayerMask.GetMask("TeleportCollider");
 
             RaycastHit hit;
-            if (!Physics.Raycast(pos, Vector3.down, out hit, m_groundLayers))
-                return pos;
+            if (!Physics.Raycast(pos, Vector3.down, out hit, m_snapDistDown, m_groundLayers))
+            {
+                if (!Physics.Raycast(pos, Vector3.up, out hit, m_snapDistUp, m_groundLayers))
+                    return pos;
+            }
 
-            pos.y = hit.point.y;
+            pos.y = hit.point.y + .1f;
             return pos;
         }
 
@@ -211,8 +220,13 @@ namespace Engage.Avatars.Poses
             m_angle = Vector3.SignedAngle(Vector3.forward, Transform.forward, Vector3.up);
         }
 
-        private void DrawCube(Vector3 pos, Quaternion rot, Color colour)
+        private void DrawCube(Vector3 pos, Quaternion rot, Color colour, Vector3? rotOffset = null)
         {
+            if (rotOffset != null)
+            {
+                rot *= Quaternion.Euler(rotOffset.Value);
+            }
+
             Matrix4x4 rotationMatrix = Matrix4x4.TRS(pos, rot, Vector3.one);
             Gizmos.matrix = rotationMatrix;
 

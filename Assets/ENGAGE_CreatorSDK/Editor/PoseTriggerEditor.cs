@@ -15,10 +15,10 @@ public class PoseTriggerEditor : Editor
 
     private bool m_editPoseData = false;
 
-    //public override bool RequiresConstantRepaint()
-    //{
-    //    return true;
-    //}
+    public override bool RequiresConstantRepaint()
+    {
+        return true;
+    }
 
     public void OnEnable()
     {
@@ -30,6 +30,11 @@ public class PoseTriggerEditor : Editor
     {
         base.OnInspectorGUI();
 
+        if (GUILayout.Button("Refresh Pose Data"))
+        {
+            RefreshView();
+        }
+
         if (!Trigger.EditPoseData)
             return;
 
@@ -37,6 +42,13 @@ public class PoseTriggerEditor : Editor
 
         //if (GUILayout.Button("Instantiate Dummy"))
         //    Trigger.DropDummy(PoseContainer.Instance.Dummy);
+    }
+
+    private void RefreshView()
+    {
+        Trigger.TestPoseData.ResetPoseData();
+        m_trigger.RefreshConstraintData();
+        SceneView.RepaintAll();
     }
 
     private void DrawOptions()

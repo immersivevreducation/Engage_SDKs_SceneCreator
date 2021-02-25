@@ -17,7 +17,7 @@ MonoBehaviour:
   m_headHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: -0.16204233, y: 0.34469414, z: 0}
+    Position: {x: -0.16204233, y: 0.34469414, z: 0.0033182034}
     Rotation: {x: -0, y: 0, z: 0}
     SnapToGround: 0
     Parent: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
   m_rightFootHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: 0.17441832, y: -0.24112882, z: 0.06772604}
+    Position: {x: 0.17441835, y: -0.34454703, z: 0.076427065}
     Rotation: {x: -0, y: 0, z: 0}
     SnapToGround: 1
     Parent: 0
