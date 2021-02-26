@@ -29,6 +29,7 @@ public class LVR_SitTrigger : MonoBehaviour {
         }
     }
 
+    [SerializeField]
     private PoseTrigger m_advancedPose;
     public PoseTrigger AdvancedPose { get { return m_advancedPose; } }
     public bool HasAdvancedPose { get { return m_advancedPose != null; } }
