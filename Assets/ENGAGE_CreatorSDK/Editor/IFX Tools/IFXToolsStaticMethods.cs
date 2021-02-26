@@ -130,21 +130,33 @@ namespace IFXTools{
             
         }
 
-         public static List<string> SyncUnityProjects(string buildType,string WinProjectPath)
+         public static List<string> SyncUnityProjects(string buildType,string WinProjectPath,bool fullSync)
         {
-            List<string> commands = new List<string>();            
-            
-            commands.Add("mkdir "+"\""+WinProjectPath.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType+"\"");
-            commands.Add("robocopy "+"\""+WinProjectPath+"/Assets/ENGAGE_CreatorSDK"+"\""+ " " +"\""+WinProjectPath+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+"\""+" "+" /MIR /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects"+"\"");
-            commands.Add("robocopy "+"\""+WinProjectPath+"/ProjectSettings"+"\""+" "+"\""+WinProjectPath+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+"\""+ " /MIR /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects"+"\""); 
-            
+            List<string> commands = new List<string>();
+            commands.Add("mkdir "+"\""+WinProjectPath.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType+"\"");            
+            if (fullSync)
+            {
+                commands.Add("robocopy "+"\""+WinProjectPath+"\" "+WinProjectPath+"/IFXBuildToolProjects/"+buildType+" /MIR  /XD \"IFXBuildToolProjects\" \"Library\" \".git\"");
+                //commands.Add("robocopy "+"\""+WinProjectPath+"\" "+WinProjectPath+"/IFXBuildToolProjects/"+buildType+" /MIR  /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects/"+"\"");      
+            }
+            else
+            {
+                commands.Add("robocopy "+"\""+WinProjectPath+"/Assets/ENGAGE_CreatorSDK"+"\""+ " " +"\""+WinProjectPath+"/IFXBuildToolProjects/"+buildType+"/Assets/ENGAGE_CreatorSDK"+"\""+" "+" /MIR /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects"+"\"");
+                commands.Add("robocopy "+"\""+WinProjectPath+"/ProjectSettings"+"\""+" "+"\""+WinProjectPath+"/IFXBuildToolProjects/"+buildType+"/ProjectSettings"+"\""+ " /MIR /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects"+"\""); 
+            }
             return commands;            
         }
 
-        public static string CreateBatchCMDSFile(string fileNameforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
+        public static string CreateBatchCMDSFile(string pathforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
 
-            List<string> commandsList = input;
+            List<string> commandsList = new List<string>();
+            //commandsList.Add("@echo on");
+            //commandsList.Add(">> Bundle_Output_Log.txt 0>&1 2>&1 ("); // container to output to log
+            if (input != null)
+            {
+                commandsList.AddRange(input);
+            }
             if (input2 != null)
             {
                 commandsList.AddRange(input2);
@@ -153,18 +165,20 @@ namespace IFXTools{
             {
                 commandsList.AddRange(input3);
             }
-
-            string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
-            //Write some text to the test.txt file
-            StreamWriter writer = new StreamWriter(TempCMDBatchPath, false);
+            //commandsList.Add(")");//End of container
+            
+            //string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
+            
+            StreamWriter writer = new StreamWriter(pathforBatch, false);
             foreach (string cmd in commandsList)
             {
+
                 //string cmdIN = cmd.Replace("/","\\");
                 writer.WriteLine(cmd);
             }
             writer.WriteLine("TIMEOUT 1");
             writer.Close();
-            return TempCMDBatchPath;
+            return pathforBatch;
         }
         public static string RunCMD(List<string> arguments)
         {
