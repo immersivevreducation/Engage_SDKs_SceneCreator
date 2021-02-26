@@ -80,6 +80,9 @@ namespace Engage.Avatars.Poses
 
             RefreshConstraintData();
 
+            if (m_testPoseData == null)
+                return;
+
             DrawLines();
             DrawMeshes();
         }

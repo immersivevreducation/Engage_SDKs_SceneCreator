@@ -20,8 +20,8 @@ public class LVR_SitTrigger : MonoBehaviour {
         {
             if (_pelvisTarget == null)
             {
-                _pelvisTarget = new GameObject("PelvisTarget").transform;
-                _pelvisTarget.SetParent(floorCollider.transform); _pelvisTarget.localRotation = Quaternion.Euler(Vector3.up * -90f);
+                _pelvisTarget = new GameObject("Root").transform;
+                _pelvisTarget.SetParent(floorCollider.transform); _pelvisTarget.localRotation = Quaternion.identity;
             }
             //Many seats are oddly scaled, so we use transformDirection to ensure real values are used.
             _pelvisTarget.position = floorCollider.position + floorCollider.TransformDirection(m_seatPosition);

@@ -10,6 +10,9 @@ namespace Engage.Avatars.Poses
         private Dictionary<PoseBodyPart, PoseDataHandle> m_handleDictionary;
 
         [SerializeField]
+        private string m_uniqueName = "Unique Name";
+
+        [SerializeField]
         private PoseType m_type;
         public PoseType Type { get { return m_type; } }
 
