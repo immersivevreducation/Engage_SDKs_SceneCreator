@@ -32,12 +32,21 @@ namespace IFXTools{
         IFXThumbnailTool thumbnailToolInstance;
         IFXToolsUserSettings userSettings;
         IFXThumbnailToolThumbnailPreviewWindow thumbnailPreview;
+        public string saveLocation;
         void OnEnable()
         {
             thumbnailToolInstance = new IFXThumbnailTool();
-            thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);   
+            thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);
+
             userSettings = IFXToolsUserSettings.GetUserSettings();
-            userSettings.LoadUserSettings();
+
+            if (userSettings != null)
+            {
+                
+                userSettings.LoadUserSettings();
+                saveLocation = userSettings.thumbnailSavePath;
+            }   
+            
 
             
             if (thumbnailPreview == null)
@@ -108,7 +117,9 @@ namespace IFXTools{
             EditorGUILayout.LabelField(" ");
             if (GUILayout.Button("Save Thumbnail"))
             {
-                thumbnailToolInstance.SaveThumbnail(userSettings.thumbnailSavePath);
+                saveLocation = ValidatePathAndSaveThumbnail(saveLocation);
+                
+                
             }
             //if the camera still exists, Update the preview
             if (thumbnailToolInstance.cameraObject)
@@ -117,7 +128,37 @@ namespace IFXTools{
                 thumbnailToolInstance.UpdatePreviewImage();
             }            
         }
+        string ValidatePathAndSaveThumbnail(string saveLocationPath )
+        {
+            if (!string.IsNullOrEmpty(saveLocationPath) && Directory.Exists(saveLocationPath))
+            {
+                thumbnailToolInstance.SaveThumbnail(saveLocationPath);
+                return saveLocationPath;
+            }
+            else
+            {
+                if (EditorUtility.DisplayDialog("WARNING!", "Thumbnail Save location Not Set, please pick a save directory", "Browse", "Cancel"))
+                {
+                    saveLocationPath = EditorUtility.OpenFolderPanel("Select thumbnail save location", "", "");
+                    if (!string.IsNullOrEmpty(saveLocationPath) && Directory.Exists(saveLocationPath))
+                    {
+                        thumbnailToolInstance.SaveThumbnail(saveLocationPath);
+                        return saveLocationPath;
+                    }
+                    else
+                    {
+                        if (EditorUtility.DisplayDialog("WARNING!", "This is not a valid save directory", "Ok", ""))
+                        {
+                            return saveLocationPath;
+                        }
+                    }
+                }
+                return saveLocationPath;
+            }
+        }
     }
+    
+
 
     public class IFXThumbnailTool
     {
@@ -258,7 +299,7 @@ namespace IFXTools{
         }
         public void SaveThumbnail(string path)
         {
-            if (path !="" && Directory.Exists(path))
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             {
                 //Save Image to file
                 byte[] bytes = thumbnailImage.EncodeToPNG();
@@ -269,6 +310,8 @@ namespace IFXTools{
                  EditorUtility.DisplayDialog("No Folder Found at: "+path,
                  "Please Choose a thumbnail save location in the settings menu of this tool", "OK");
             }
+
+            
             
         }
 
