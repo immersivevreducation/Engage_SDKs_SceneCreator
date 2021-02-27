@@ -30,7 +30,11 @@ namespace Engage.Avatars.Poses
         public Transform Transform { get { return m_centerTransform ?? (m_centerTransform = transform); } }
         public Vector3 Position { get { return Transform.position; } }
         public Quaternion Rotation { get { return Transform.rotation; } }
-        public PoseConstraintData[] ConstraintData { get { return m_constraintData; } }
+        public PoseConstraintData[] ConstraintData
+        {
+            get { return m_constraintData; }
+            set { m_constraintData = value; }
+        }
         public IKDefaults IKOverride { get { return m_ikOverride; } }
         public PoseData[] AdditionalPoses { get { return m_additionalPoses; } }
 

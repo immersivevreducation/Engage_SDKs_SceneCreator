@@ -43,7 +43,7 @@ public class SitTriggerInspector : Editor
     }
     protected virtual void OnSceneGUI()
     {
-        if (editMode)
+        if (editMode && pose == null)
         {
             if (hndlMeshesCreated == false)
             {

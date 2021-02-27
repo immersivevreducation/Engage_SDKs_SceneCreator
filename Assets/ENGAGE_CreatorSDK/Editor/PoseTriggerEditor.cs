@@ -35,10 +35,12 @@ public class PoseTriggerEditor : Editor
             RefreshView();
         }
 
+        DrawOverrideOptions();
+
         if (!Trigger.EditPoseData)
             return;
 
-        DrawOptions();
+        DrawPoseEditOptions();
 
         //if (GUILayout.Button("Instantiate Dummy"))
         //    Trigger.DropDummy(PoseContainer.Instance.Dummy);
@@ -51,7 +53,7 @@ public class PoseTriggerEditor : Editor
         SceneView.RepaintAll();
     }
 
-    private void DrawOptions()
+    private void DrawPoseEditOptions()
     {
         GUILayout.BeginVertical("Edit PoseData Positions", GUI.skin.box);
 
@@ -151,6 +153,116 @@ public class PoseTriggerEditor : Editor
             Trigger.TestPoseData.ResetPoseData();
     }
 
+    #region Overrides
+
+    private void DrawOverrideOptions()
+    {
+        GUILayout.BeginVertical("Pose Override Positions", GUI.skin.box);
+
+        GUILayout.Space(20);
+
+        DrawOverride(PoseBodyPart.PELVIS);
+        DrawOverride(PoseBodyPart.HEAD);
+        DrawOverride(PoseBodyPart.CHEST);
+
+        DrawOverride(PoseBodyPart.RIGHT_HAND);
+        DrawOverride(PoseBodyPart.LEFT_HAND);
+        DrawOverride(PoseBodyPart.RIGHT_ELBOW);
+        DrawOverride(PoseBodyPart.LEFT_ELBOW);
+
+        DrawOverride(PoseBodyPart.RIGHT_FOOT);
+        DrawOverride(PoseBodyPart.LEFT_FOOT);
+        DrawOverride(PoseBodyPart.RIGHT_KNEE);
+        DrawOverride(PoseBodyPart.LEFT_KNEE);
+
+        GUILayout.EndVertical();
+    }
+
+    private void DrawOverride(PoseBodyPart bodyPart)
+    {
+        if (Trigger.ConstraintData == null)
+            return;
+
+        for (int i = 0; i < Trigger.ConstraintData.Length; i++)
+        {
+            if (Trigger.ConstraintData[i].BodyPart != bodyPart)
+                continue;
+
+            if (Trigger.ConstraintData[i].Anchor == null)
+            {
+                GUI.color = Color.red;
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.Label(bodyPart.ToString(), GUILayout.Width(100));
+                GUILayout.Label("Transform Missing!");
+
+                if (GUILayout.Button("Clear"))
+                {
+                    RemoveConstraint(i);
+                    return;
+                }
+            }
+            else
+            {
+                GUI.color = Color.green;
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.Label(bodyPart.ToString(), GUILayout.Width(100));
+
+                if (GUILayout.Button("Select Anchor"))
+                {
+                    Selection.objects = new Object[] { Trigger.ConstraintData[i].Anchor.gameObject };
+                    EditorGUIUtility.PingObject(Trigger.ConstraintData[i].Anchor.gameObject);
+                }
+                else if (GUILayout.Button("Clear"))
+                {
+                    RemoveConstraint(i, Trigger.ConstraintData[i].Anchor);
+                    return;
+                }
+            }
+
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
+            return;
+        }
+
+        GUILayout.BeginHorizontal(GUI.skin.box);
+
+        GUILayout.Label(bodyPart.ToString(), GUILayout.Width(100));
+        if (GUILayout.Button("Create Constraint"))
+            AddConstraint(bodyPart);
+
+        GUILayout.EndHorizontal();
+    }
+
+    private void AddConstraint(PoseBodyPart bodyPart)
+    {
+        Undo.RecordObject(target, "Created " + bodyPart);
+
+        Transform anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
+        anchor.parent = Trigger.transform;
+        if (Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+            anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
+
+        PoseConstraintData data = new PoseConstraintData(anchor, bodyPart);
+
+        PoseConstraintData[] constraints = Trigger.ConstraintData;
+        ArrayUtility.Add<PoseConstraintData>(ref constraints, data);
+        Trigger.ConstraintData = constraints;
+    }
+
+    private void RemoveConstraint(int id, Transform anchor = null)
+    {
+        Undo.RecordObject(target, "Removed Body Part");
+
+        PoseConstraintData[] constraints = Trigger.ConstraintData;
+        ArrayUtility.RemoveAt<PoseConstraintData>(ref constraints, id);
+        Trigger.ConstraintData = constraints;
+
+        if (anchor != null)
+            GameObject.DestroyImmediate(anchor.gameObject);
+    }
+
+    #endregion
+
     private void DrawHandle(PoseBodyPart bodyPart)
     {
         if (!Trigger.ConstraintDictionary.ContainsKey(bodyPart))
@@ -168,6 +280,8 @@ public class PoseTriggerEditor : Editor
 
         if (pos == Trigger.ConstraintDictionary[bodyPart].Position && rot == Trigger.ConstraintDictionary[bodyPart].Rotation)
             return;
+
+        Undo.RecordObject(Trigger.TestPoseData, "Moved " + bodyPart);
 
         pos -= Trigger.Position;
         pos /= m_avatarHeight;
