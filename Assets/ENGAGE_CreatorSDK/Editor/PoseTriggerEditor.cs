@@ -36,6 +36,7 @@ public class PoseTriggerEditor : Editor
         }
 
         DrawOverrideOptions();
+        DrawCopyPose();
 
         if (!Trigger.EditPoseData)
             return;
@@ -48,6 +49,12 @@ public class PoseTriggerEditor : Editor
 
     private void RefreshView()
     {
+        if (Trigger == null)
+            return;
+
+        if (Trigger.TestPoseData == null)
+            return;
+
         Trigger.TestPoseData.ResetPoseData();
         m_trigger.RefreshConstraintData();
         SceneView.RepaintAll();
@@ -295,6 +302,82 @@ public class PoseTriggerEditor : Editor
         Trigger.TestPoseData.UpdateRotation(bodyPart, rot.eulerAngles);
 
         m_requiresRefresh = true;
+    }
+
+    #endregion
+
+    #region Copying
+
+    public void DrawCopyPose()
+    {
+        Undo.RecordObject(target, "CopiedConstraints");
+
+        Event evt = Event.current;
+        Rect drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
+        GUI.Box(drop_area, "Drop PoseTrigger to Copy Constraints");
+
+        switch (evt.type)
+        {
+            case EventType.DragUpdated:
+            case EventType.DragPerform:
+                if (!drop_area.Contains(evt.mousePosition))
+                    return;
+
+                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+                if (evt.type == EventType.DragPerform)
+                {
+                    DragAndDrop.AcceptDrag();
+
+                    foreach (Object dragged_object in DragAndDrop.objectReferences)
+                    {
+                        GameObject dummy = dragged_object as GameObject;
+
+                        if (dummy == null)
+                            continue;
+
+                        if (CopyConstraints(dummy.GetComponentInChildren<PoseTrigger>(true)))
+                            return;
+                    }
+                }
+                break;
+        }
+    }
+
+    public bool CopyConstraints(PoseTrigger pose)
+    {
+        if (pose == null)
+            return false;
+
+        if (pose.ConstraintData == null || pose.ConstraintData.Length == 0)
+        {
+            Debug.Log("Tring to Copy Empty Constraints, just clear instead.");
+            return false;
+        }
+
+        PoseConstraintData[] constraints = new PoseConstraintData[pose.ConstraintData.Length];
+
+        for(int i = 0; i < pose.ConstraintData.Length; i++)
+            constraints[i] = new PoseConstraintData(CopyTransformToLocal(pose.ConstraintData[i].Anchor), pose.ConstraintData[i].BodyPart);
+
+        Trigger.ConstraintData = constraints;
+
+        return true;
+    }
+
+    private Transform CopyTransformToLocal(Transform anchor)
+    {
+        if (anchor == null)
+            return null;
+
+        Transform newAnchor = new GameObject(anchor.name).transform;
+        newAnchor.SetParent(Trigger.transform);
+        newAnchor.rotation = anchor.rotation;
+        newAnchor.localPosition = anchor.localPosition;
+
+        Debug.Log("Copied Anchor " + newAnchor.name);
+
+        return newAnchor;
     }
 
     #endregion
