@@ -13,6 +13,7 @@ namespace IFXTools{
         public IFXThumbnailToolThumbnailPreviewWindow(IFXThumbnailTool thumbnailToolInstance)
         {
             _thumbnailToolInstance = thumbnailToolInstance;
+            this.minSize = new Vector2(750,500);
         }
         void OnGUI()
         {
@@ -26,41 +27,32 @@ namespace IFXTools{
                 this.Repaint();
             }                        
         }
+        void OnDestroy()
+        {
+            DestroyImmediate(_thumbnailToolInstance.ifxObject, true);
+        }
     }
     public class IFXThumbnailToolWindow : EditorWindow
     {   
+        // IFXThumbnailToolWindow(string saveLocationPath = "")
+        // {
+        //     saveLocation = saveLocationPath;
+        // }
         IFXThumbnailTool thumbnailToolInstance;
-        IFXToolsUserSettings userSettings;
+        
         IFXThumbnailToolThumbnailPreviewWindow thumbnailPreview;
         public string saveLocation;
         void OnEnable()
         {
             thumbnailToolInstance = new IFXThumbnailTool();
             thumbnailToolInstance.ThumbnailSetup(thumbnailToolInstance.ifxObject);
-
-            userSettings = IFXToolsUserSettings.GetUserSettings();
-
-            if (userSettings != null)
-            {
-                
-                userSettings.LoadUserSettings();
-                saveLocation = userSettings.thumbnailSavePath;
-            }   
+            this.minSize = new Vector2(300,450);
             
-
-            
-            if (thumbnailPreview == null)
-            {
-                thumbnailPreview = new IFXThumbnailToolThumbnailPreviewWindow(thumbnailToolInstance);
-                //thumbnailPreview = GetWindow<IFXThumbnailToolThumbnailPreviewWindow>();
-
-            }           
-            thumbnailPreview.position.Set(0,0,thumbnailToolInstance.imageResolutionWidth,thumbnailToolInstance.imageResolutionHeight);
-            
-            //editorWindow.End();
-            thumbnailPreview.Show();
-            
-            
+        }
+        void OnDestroy()
+        {
+            thumbnailPreview.Close();
+            //DestroyImmediate(thumbnailPreview, true);
         }
         void OnGUI()
         {
@@ -91,6 +83,19 @@ namespace IFXTools{
             
             if (GUILayout.Button("Load Object for camera"))
             {
+                if (thumbnailPreview == null)
+                {
+                    thumbnailPreview = new IFXThumbnailToolThumbnailPreviewWindow(thumbnailToolInstance);
+                    //thumbnailPreview = GetWindow<IFXThumbnailToolThumbnailPreviewWindow>();
+                    thumbnailPreview.position.Set(0,0,thumbnailToolInstance.imageResolutionWidth,thumbnailToolInstance.imageResolutionHeight);
+                
+                    //editorWindow.End();
+                    thumbnailPreview.Show();
+
+                }           
+                
+
+
                 if (thumbnailToolInstance.ifxObject != Selection.activeGameObject)
                 {
                     DestroyImmediate(thumbnailToolInstance.ifxObject, true);
