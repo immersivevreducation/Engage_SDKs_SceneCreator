@@ -96,18 +96,22 @@ public class SitTriggerInspector : Editor
         lfHandle.hideFlags = HideFlags.HideAndDontSave;
         lfHandle.position = tgt.floorCollider.position + tgt.floorCollider.TransformDirection(tgt.m_leftFootPos);
         lfHandle.gameObject.AddComponent<MeshFilter>().mesh = Resources.Load<GameObject>("Prefab_Mesh_FootL").GetComponent<MeshFilter>().sharedMesh;
+
         rfHandle = new GameObject("Right Foot Handle").transform;
         rfHandle.hideFlags = HideFlags.HideAndDontSave;
         rfHandle.position = tgt.floorCollider.position + tgt.floorCollider.TransformDirection(tgt.m_rightFootPos);
         rfHandle.gameObject.AddComponent<MeshFilter>().mesh = Resources.Load<GameObject>("Prefab_Mesh_FootR").GetComponent<MeshFilter>().sharedMesh;
+
         sHandle = new GameObject("Seat Handle").transform;
         sHandle.hideFlags = HideFlags.HideAndDontSave;
         sHandle.position = tgt.floorCollider.position + tgt.floorCollider.TransformDirection(tgt.m_seatPosition);
         sHandle.gameObject.AddComponent<MeshFilter>().mesh = Resources.Load<GameObject>("Prefab_Mesh_Seat").GetComponent<MeshFilter>().sharedMesh;
+
         lfHandle.eulerAngles = rfHandle.transform.eulerAngles = sHandle.transform.eulerAngles = tgt.floorCollider.eulerAngles;
         lfHandle.SetParent(tgt.floorCollider);
         rfHandle.SetParent(tgt.floorCollider);
         sHandle.SetParent(tgt.floorCollider);
+
         lfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
             rfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
             sHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =

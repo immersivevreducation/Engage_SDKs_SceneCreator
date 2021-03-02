@@ -247,7 +247,10 @@ public class PoseTriggerEditor : Editor
         Transform anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
         anchor.parent = Trigger.transform;
         if (Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+        {
             anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
+            anchor.rotation = Trigger.ConstraintDictionary[bodyPart].Rotation;
+        }
 
         PoseConstraintData data = new PoseConstraintData(anchor, bodyPart);
 

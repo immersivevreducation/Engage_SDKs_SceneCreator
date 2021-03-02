@@ -39,14 +39,14 @@ MonoBehaviour:
   m_rightFootHandle:
     Enabled: 1
     OverrideTracking: 0
-    Position: {x: 0.07777797, y: -0.2289871, z: 0.2406397}
-    Rotation: {x: 58.09622, y: 193.4364, z: 91.66814}
+    Position: {x: 0.09605733, y: -0.2363164, z: 0.1646651}
+    Rotation: {x: 58.09622, y: 193.4364, z: 91.66813}
     SnapToGround: 1
     Parent: 0
   m_leftFootHandle:
     Enabled: 1
     OverrideTracking: 0
-    Position: {x: -0.1037228, y: -0.2320848, z: 0.2300756}
+    Position: {x: -0.09209653, y: -0.2349854, z: 0.1705088}
     Rotation: {x: 60.34111, y: 171.1108, z: 90.37538}
     SnapToGround: 1
     Parent: 0
@@ -67,28 +67,28 @@ MonoBehaviour:
   m_rightHandHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: 0.1583911, y: 0.1459491, z: 0.1344412}
-    Rotation: {x: 0, y: 0, z: 0}
+    Position: {x: 0.1131606, y: 0.03397411, z: 0.2446652}
+    Rotation: {x: 0, y: 0, z: 32.48011}
     SnapToGround: 0
     Parent: 0
   m_leftHandHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: -0.1614418, y: 0.1176582, z: 0.08983561}
-    Rotation: {x: 0, y: 0, z: 0}
+    Position: {x: -0.1250349, y: 0.03268551, z: 0.2354083}
+    Rotation: {x: 358.4815, y: 357.2627, z: 329.2392}
     SnapToGround: 0
     Parent: 0
   m_rightElbowHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: 0.1590726, y: 0.1245802, z: -0.08976485}
+    Position: {x: 0.147689, y: 0.04743166, z: 0.003877118}
     Rotation: {x: 0, y: 0, z: 0}
     SnapToGround: 0
     Parent: 0
   m_leftElbowHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: -0.1819377, y: 0.1215034, z: -0.1101758}
+    Position: {x: -0.15374, y: 0.1037359, z: 0.02050998}
     Rotation: {x: 0, y: 0, z: 0}
     SnapToGround: 0
     Parent: 0

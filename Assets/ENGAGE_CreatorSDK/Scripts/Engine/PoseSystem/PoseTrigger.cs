@@ -23,7 +23,7 @@ namespace Engage.Avatars.Poses
         private IKDefaults m_ikOverride = null;
         [SerializeField]
         private PoseData[] m_additionalPoses = null;
-        
+
         #region Accessors
 
         public PoseType Type { get { return m_type; } }
@@ -134,26 +134,72 @@ namespace Engage.Avatars.Poses
             ApplyBodyPartAI(PoseBodyPart.RIGHT_ELBOW);
 
             //DrawHandles();
-           
+
         }
 
         private Vector3 m_rotOffsetFoot = new Vector3(0, -32f, 0);
 
         private void DrawMeshes()
         {
-            DrawCube(ConstraintDictionary[PoseBodyPart.PELVIS].Position, ConstraintDictionary[PoseBodyPart.PELVIS].Rotation, ConstraintDictionary[PoseBodyPart.PELVIS].FromPoseData ? Color.blue : Color.red);
+            DrawPelvis();
+
             DrawCube(ConstraintDictionary[PoseBodyPart.HEAD].Position, ConstraintDictionary[PoseBodyPart.HEAD].Rotation, ConstraintDictionary[PoseBodyPart.HEAD].FromPoseData ? Color.blue : Color.red);
             DrawSphere(ConstraintDictionary[PoseBodyPart.CHEST].Position, ConstraintDictionary[PoseBodyPart.CHEST].FromPoseData ? Color.green : Color.yellow);
 
-            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Position, ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].Rotation, ConstraintDictionary[PoseBodyPart.RIGHT_FOOT].FromPoseData ? Color.blue : Color.red, m_rotOffsetFoot);
-            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Position, ConstraintDictionary[PoseBodyPart.LEFT_FOOT].Rotation, ConstraintDictionary[PoseBodyPart.LEFT_FOOT].FromPoseData ? Color.blue : Color.red, m_rotOffsetFoot);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].Position, ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].FromPoseData ? Color.green : Color.yellow);
-            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_KNEE].Position, ConstraintDictionary[PoseBodyPart.LEFT_KNEE].FromPoseData ? Color.green : Color.yellow);
-
-            DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Position, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].FromPoseData ? Color.blue : Color.red);
-            DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_HAND].Position, ConstraintDictionary[PoseBodyPart.LEFT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.LEFT_HAND].FromPoseData ? Color.blue : Color.red);
+            DrawLegMeshes();
+            DrawArmMeshes();
+            
             DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].Position, ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].FromPoseData ? Color.green : Color.yellow);
             DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_ELBOW].Position, ConstraintDictionary[PoseBodyPart.RIGHT_ELBOW].FromPoseData ? Color.green : Color.yellow);
+        }
+
+        private void DrawLegMeshes()
+        {
+            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.05f, .15f, .05f));
+            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.05f, .15f, .05f));
+
+            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.1f, .15f, .075f));
+            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.1f, .15f, .075f));
+
+            DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].Position, ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].FromPoseData ? Color.green : Color.yellow);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_KNEE].Position, ConstraintDictionary[PoseBodyPart.LEFT_KNEE].FromPoseData ? Color.green : Color.yellow);
+        }
+
+        private void DrawPelvis()
+        {
+            DrawCube(PoseBodyPart.PELVIS, size: new Vector3(.2f, .10f, .05f));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(0f, .1f, 0f), size: new Vector3(.05f, .1f, .05f));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(-.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f));
+        }
+
+        private void DrawArmMeshes()
+        {
+            //DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Position, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].FromPoseData ? Color.blue : Color.red);
+            //DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_HAND].Position, ConstraintDictionary[PoseBodyPart.LEFT_HAND].FromPoseData ? Color.blue : Color.red);
+
+            //DrawCube(ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Position, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.RIGHT_HAND].FromPoseData ? Color.blue : Color.red);
+            //DrawCube(ConstraintDictionary[PoseBodyPart.LEFT_HAND].Position, ConstraintDictionary[PoseBodyPart.LEFT_HAND].Rotation, ConstraintDictionary[PoseBodyPart.LEFT_HAND].FromPoseData ? Color.blue : Color.red);
+
+            DrawCube(PoseBodyPart.RIGHT_HAND, rotOffset: new Vector3(0, 0, -30), size: new Vector3(.15f, .05f, .1f));
+            //DrawCube(PoseBodyPart.LEFT_HAND, size: new Vector3(.05f, .1f, .1f));//0, 100, 0
+            DrawCube(PoseBodyPart.RIGHT_HAND, rotOffset: new Vector3(0, 0, -30), posOffset: new Vector3(-.03f, 0f, .06f), size: new Vector3(.05f, .04f, .06f));
+            //DrawCube(PoseBodyPart.LEFT_HAND, posOffset: new Vector3(0f, -.05f, .04f), size: new Vector3(.04f, .04f, .04f));//0, 100, 0
+
+            DrawCube(PoseBodyPart.LEFT_HAND, rotOffset: new Vector3(0, 0, 30), size: new Vector3(.15f, .05f, .1f));
+            DrawCube(PoseBodyPart.LEFT_HAND, rotOffset: new Vector3(0, 0, 30), posOffset: new Vector3(-.03f, 0f, -.06f), size: new Vector3(.05f, .04f, .06f));
+
+            // -18.34f, -100f, -204.52f
+            //DrawCube(PoseBodyPart.RIGHT_HAND, rotOffset: new Vector3(0, 0, 50), posOffset: new Vector3(0f, .06f, 0f), size: new Vector3(.02f, .15f, .02f));
+            //DrawCube(PoseBodyPart.LEFT_HAND, rotOffset: new Vector3(0, 0, 100), posOffset: new Vector3(0f, .06f, 0f), size: new Vector3(.02f, .15f, .02f));//0, 100, 0
+        }
+
+        private void DrawCube(PoseBodyPart bodyPart, Vector3? rotOffset = null, Vector3? posOffset = null, Vector3? size = null)
+        {
+            DrawCube(ConstraintDictionary[bodyPart].Position,// + (posOffset == null ? Vector3.zero : posOffset.Value),
+                ConstraintDictionary[bodyPart].Rotation,
+                ConstraintDictionary[bodyPart].FromPoseData ? Color.blue : Color.red,
+                rotOffset, posOffset, size);
         }
 
         private void AddConstraint(PoseConstraintData constraint)
@@ -202,13 +248,13 @@ namespace Engage.Avatars.Poses
             m_constraintDictionary.Add(bodyPart, new PoseMapping(position, rotation, true));
         }
 
-        private float m_snapDistUp = .4f;
-        private float m_snapDistDown = .3f;
+        private float m_snapDistUp = .8f;
+        private float m_snapDistDown = .7f;
 
         public Vector3 SnapToGround(Vector3 pos)
         {
             if (m_groundLayers.value == 0)
-                m_groundLayers = LayerMask.GetMask("TeleportCollider");
+                m_groundLayers = LayerMask.GetMask("TeleportCollider", "Default");
 
             RaycastHit hit;
             if (!Physics.Raycast(pos, Vector3.down, out hit, m_snapDistDown, m_groundLayers))
@@ -227,23 +273,37 @@ namespace Engage.Avatars.Poses
             m_angle = Vector3.SignedAngle(Vector3.forward, Transform.forward, Vector3.up);
         }
 
-        private void DrawCube(Vector3 pos, Quaternion rot, Color colour, Vector3? rotOffset = null)
+        private void DrawCube(Vector3 pos, Quaternion rot, Color colour, Vector3? rotOffset = null, Vector3? posOffset = null, Vector3? size = null)
         {
             if (rotOffset != null)
             {
                 rot *= Quaternion.Euler(rotOffset.Value);
             }
 
-            Matrix4x4 rotationMatrix = Matrix4x4.TRS(pos, rot, Vector3.one);
-            Gizmos.matrix = rotationMatrix;
+            //if (mesh == null)
+            //{
+                Matrix4x4 rotationMatrix = Matrix4x4.TRS(pos, rot, Vector3.one);
+                Gizmos.matrix = rotationMatrix;
 
-            Gizmos.color = colour;
+                colour.a = .75f;
+                Gizmos.color = colour;
 
-            Gizmos.DrawCube(Vector3.zero, m_footCubeSize);
+                Gizmos.DrawCube(posOffset == null ? Vector3.zero : posOffset.Value, size == null ? m_footCubeSize : size.Value);
 
-            Gizmos.matrix = Matrix4x4.identity;
-            Gizmos.color = Color.white;
+                Gizmos.matrix = Matrix4x4.identity;
+                Gizmos.color = Color.white;
+            //}
+            //else
+            //{
+            //    Debug.Log("Drawingmesh");
+            //    Graphics.DrawMeshNow(mesh,
+            //                Matrix4x4.TRS(pos, rot, new Vector3(5, 5, 5)));
+            //}
         }
+
+        //mat.SetPass(0);
+        //    Graphics.DrawMeshNow(footMesh,
+        //            Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale));
 
         private void DrawSphere(Vector3 pos, Color colour, float size = .06f)
         {
@@ -286,8 +346,18 @@ namespace Engage.Avatars.Poses
             Gizmos.color = Color.white;
         }
 
+        public Mesh footMesh; // set in Inspector or via script
+        //public Material mat; // set in Inspector or via script
+
+        private void LoadMeshes()
+        {
+            footMesh = Resources.Load<GameObject>("PoseFootMesh").GetComponent<Mesh>();
+            Debug.Log("Filling mesh " + (footMesh == null));
+        }
+
+
 #endif
 
-#endregion
+        #endregion
     }
 }
