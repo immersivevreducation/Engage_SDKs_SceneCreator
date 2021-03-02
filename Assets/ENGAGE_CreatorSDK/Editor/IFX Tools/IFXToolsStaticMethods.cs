@@ -136,7 +136,7 @@ namespace IFXTools{
             commands.Add("mkdir "+"\""+WinProjectPath.Replace("/","\\")+"\\IFXBuildToolProjects\\"+buildType+"\\AssetBundles\\"+buildType+"\"");            
             if (fullSync)
             {
-                commands.Add("robocopy "+"\""+WinProjectPath+"\" "+WinProjectPath+"/IFXBuildToolProjects/"+buildType+" /MIR  /XD \"IFXBuildToolProjects\" \"Library\" \".git\"");
+                commands.Add("robocopy "+"\""+WinProjectPath+"\" "+WinProjectPath+"/IFXBuildToolProjects/"+buildType+" /MIR  /XD \"IFXBuildToolProjects\" \"Library\" \".git\" \"Temp\"");
                 //commands.Add("robocopy "+"\""+WinProjectPath+"\" "+WinProjectPath+"/IFXBuildToolProjects/"+buildType+" /MIR  /XD "+"\""+WinProjectPath+"/IFXBuildToolProjects/"+"\"");      
             }
             else
