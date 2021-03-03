@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 namespace IFXTools{
     public class IFXThumbnailToolThumbnailPreviewWindow : EditorWindow
@@ -34,10 +35,7 @@ namespace IFXTools{
     }
     public class IFXThumbnailToolWindow : EditorWindow
     {   
-        // IFXThumbnailToolWindow(string saveLocationPath = "")
-        // {
-        //     saveLocation = saveLocationPath;
-        // }
+       
         IFXThumbnailTool thumbnailToolInstance;
         
         IFXThumbnailToolThumbnailPreviewWindow thumbnailPreview;
@@ -67,11 +65,6 @@ namespace IFXTools{
 
         private void ThumbnailToolWindowUI()
         {
-            // EditorGUILayout.LabelField("IFX Thumbnail Creation Tool");
-            // //the thumbnail preview
-            // GUILayout.Label(thumbnailToolInstance.previewImage, GUILayout.Width(500), GUILayout.Height(281));
-            // var thumbnailPreviewRect = GUILayoutUtility.GetLastRect();
-
             if (GUILayout.Button("Load Thumbnail Scene"))
                 {
                     if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Load IFX Thumbnail Scene", "Cancel"))
@@ -83,6 +76,23 @@ namespace IFXTools{
             
             if (GUILayout.Button("Load Object for camera"))
             {
+                 // Create a temporary reference to the current scene.
+                    Scene currentScene = SceneManager.GetActiveScene ();
+            
+                    // Retrieve the name of this scene.
+                    string sceneName = currentScene.name;
+                    if (sceneName != "IFX_Thumbnail_Scene")
+                    {
+                        if (EditorUtility.DisplayDialog("WARNING!", "You must be in the IFX Thumbnail Scene for this tool to function", "Load IFX Thumbnail Scene", "Cancel"))
+                        {
+                            if (EditorUtility.DisplayDialog("WARNING!", "Unsaved work in  the current scene will be lost", "Ok", "Cancel"))
+                            {
+                                EditorSceneManager.OpenScene("Assets/ENGAGE_CreatorSDK/Editor/IFX Tools/ThumbnailToolAssets/IFX_Thumbnail_Scene.unity");
+                            }
+                        }
+                        
+                    }
+
                 if (thumbnailPreview == null)
                 {
                     thumbnailPreview = new IFXThumbnailToolThumbnailPreviewWindow(thumbnailToolInstance);
@@ -122,9 +132,23 @@ namespace IFXTools{
             EditorGUILayout.LabelField(" ");
             if (GUILayout.Button("Save Thumbnail"))
             {
+                if (thumbnailToolInstance.ifxObject == null)
+                {
+                    EditorUtility.DisplayDialog("WARNING!", "Please load an object, before trying to save","Ok");
+                    return;
+                }
+                
+                if(!string.IsNullOrEmpty(PlayerPrefs.GetString("IFXThumbnailLocation")))
+                {
+                    saveLocation = ValidatePathAndSaveThumbnail(PlayerPrefs.GetString("IFXThumbnailLocation"));
+                }
                 saveLocation = ValidatePathAndSaveThumbnail(saveLocation);
-                
-                
+                PlayerPrefs.SetString("IFXThumbnailLocation", saveLocation);
+            }
+            if (GUILayout.Button("Change Save Location"))
+            {
+                saveLocation = EditorUtility.OpenFolderPanel("Select thumbnail save location", "", "");
+                PlayerPrefs.SetString("IFXThumbnailLocation", saveLocation);
             }
             //if the camera still exists, Update the preview
             if (thumbnailToolInstance.cameraObject)
