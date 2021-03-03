@@ -152,11 +152,11 @@ namespace Engage.Avatars.Poses
 
         private void DrawLegMeshes()
         {
-            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.05f, .15f, .05f));
-            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, .06f, 0), new Vector3(.05f, .15f, .05f));
+            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, 0f, 0f), new Vector3(.05f, .1f, .05f));
+            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(-90, 0, 0), new Vector3(-.04f, 0f, 0f), new Vector3(.05f, .1f, .05f));
 
-            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.085f, 0f, 0f), new Vector3(.15f, .1f, .05f));
-            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.085f, 0f, 0f), new Vector3(.15f, .1f, .05f));
+            DrawCube(PoseBodyPart.RIGHT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.1f, 0f, .075f), new Vector3(.2f, .1f, .08f));
+            DrawCube(PoseBodyPart.LEFT_FOOT, m_rotOffsetFoot + new Vector3(0, 0, 0), new Vector3(-.1f, 0f, .075f), new Vector3(.2f, .1f, .08f));
 
             DrawSphere(ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].Position, ConstraintDictionary[PoseBodyPart.RIGHT_KNEE].FromPoseData ? Color.green : Color.yellow);
             DrawSphere(ConstraintDictionary[PoseBodyPart.LEFT_KNEE].Position, ConstraintDictionary[PoseBodyPart.LEFT_KNEE].FromPoseData ? Color.green : Color.yellow);
