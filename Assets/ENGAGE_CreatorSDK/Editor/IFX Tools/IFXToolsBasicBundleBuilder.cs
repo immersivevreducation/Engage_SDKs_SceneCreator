@@ -108,7 +108,7 @@ public class IFXToolsBasicBundleBuilder : EditorWindow {
             window.Show();
         }
     }
-        IFXToolsUserSettings userSettings;
+        
         List<Object> selectedBundles {get; set;}        
         
        
