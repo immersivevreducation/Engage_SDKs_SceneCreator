@@ -109,8 +109,9 @@ public class PoseTriggerEditor : Editor
     {
         if (Trigger.TestPoseData == null)
             return;
-        
+
         DrawHandles();
+        //UpdateMeshes();
     }
 
     #region EditorStuff
@@ -182,6 +183,15 @@ public class PoseTriggerEditor : Editor
         DrawOverride(PoseBodyPart.RIGHT_KNEE);
         DrawOverride(PoseBodyPart.LEFT_KNEE);
 
+        GUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("Fill All"))
+            PopulateConstraints();
+        if (GUILayout.Button("Clear All"))
+            ClearConstraints();
+
+        GUILayout.EndHorizontal();
+
         GUILayout.EndVertical();
     }
 
@@ -240,6 +250,51 @@ public class PoseTriggerEditor : Editor
         GUILayout.EndHorizontal();
     }
 
+    private bool HasConstraint(PoseBodyPart bodyPart)
+    {
+        for (int i = 0; i < Trigger.ConstraintData.Length; i++)
+            if (bodyPart == Trigger.ConstraintData[i].BodyPart)
+                return true;
+
+        return false;
+    }
+
+    private void PopulateConstraints()
+    {
+        if (!HasConstraint(PoseBodyPart.HEAD))
+            AddConstraint(PoseBodyPart.HEAD);
+        if (!HasConstraint(PoseBodyPart.PELVIS))
+            AddConstraint(PoseBodyPart.PELVIS);
+        if (!HasConstraint(PoseBodyPart.CHEST))
+            AddConstraint(PoseBodyPart.CHEST);
+
+        if (!HasConstraint(PoseBodyPart.RIGHT_HAND))
+            AddConstraint(PoseBodyPart.RIGHT_HAND);
+        if (!HasConstraint(PoseBodyPart.LEFT_HAND))
+            AddConstraint(PoseBodyPart.LEFT_HAND);
+        if (!HasConstraint(PoseBodyPart.RIGHT_ELBOW))
+            AddConstraint(PoseBodyPart.RIGHT_ELBOW);
+        if (!HasConstraint(PoseBodyPart.LEFT_ELBOW))
+            AddConstraint(PoseBodyPart.LEFT_ELBOW);
+
+        if (!HasConstraint(PoseBodyPart.RIGHT_FOOT))
+            AddConstraint(PoseBodyPart.RIGHT_FOOT);
+        if (!HasConstraint(PoseBodyPart.LEFT_FOOT))
+            AddConstraint(PoseBodyPart.LEFT_FOOT);
+        if (!HasConstraint(PoseBodyPart.RIGHT_KNEE))
+            AddConstraint(PoseBodyPart.RIGHT_KNEE);
+        if (!HasConstraint(PoseBodyPart.LEFT_KNEE))
+            AddConstraint(PoseBodyPart.LEFT_KNEE);
+    }
+
+    private void ClearConstraints()
+    {
+        for (int i = Trigger.ConstraintData.Length - 1; i >= 0; i--)
+        {
+            RemoveConstraint(i, Trigger.ConstraintData[i].Anchor);
+        }
+    }
+
     private void AddConstraint(PoseBodyPart bodyPart)
     {
         Undo.RecordObject(target, "Created " + bodyPart);
@@ -247,7 +302,18 @@ public class PoseTriggerEditor : Editor
         Transform anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
         anchor.parent = Trigger.transform;
         if (Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+        {
             anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
+
+            float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
+
+            Debug.Log("Adding constraint " + Trigger.transform.localEulerAngles);
+            Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up) * Trigger.ConstraintDictionary[bodyPart].Rotation;
+            //Quaternion rot = Trigger.ConstraintDictionary[bodyPart].Rotation;
+            anchor.rotation = rot;
+        }
+
+        Undo.RecordObject(target, "Constrained " + bodyPart);
 
         PoseConstraintData data = new PoseConstraintData(anchor, bodyPart);
 
@@ -357,7 +423,7 @@ public class PoseTriggerEditor : Editor
 
         PoseConstraintData[] constraints = new PoseConstraintData[pose.ConstraintData.Length];
 
-        for(int i = 0; i < pose.ConstraintData.Length; i++)
+        for (int i = 0; i < pose.ConstraintData.Length; i++)
             constraints[i] = new PoseConstraintData(CopyTransformToLocal(pose.ConstraintData[i].Anchor), pose.ConstraintData[i].BodyPart);
 
         Trigger.ConstraintData = constraints;
@@ -378,6 +444,91 @@ public class PoseTriggerEditor : Editor
         Debug.Log("Copied Anchor " + newAnchor.name);
 
         return newAnchor;
+    }
+
+    #endregion
+
+    #region Meshes
+
+    private bool hndlMeshesCreated = false;
+    public Transform lfHandle, rfHandle, sHandle;
+
+    private Vector3 m_footRotOffset = new Vector3(0, 90, 0);
+    private Vector3 m_pelvisRotOffset = new Vector3(0, 90, 0);
+
+    //private void OnDisable()
+    //{
+    //    if (hndlMeshesCreated)
+    //        DestroyHandleMeshes();
+    //}
+
+    void CreateHandleMeshes()
+    {
+        if (hndlMeshesCreated)
+            return;
+
+        SetupMesh(PoseBodyPart.RIGHT_FOOT, "Prefab_Mesh_FootR", ref rfHandle);
+        SetupMesh(PoseBodyPart.LEFT_FOOT, "Prefab_Mesh_FootL", ref lfHandle);
+        SetupMesh(PoseBodyPart.PELVIS, "Prefab_Mesh_Seat", ref sHandle);
+
+        lfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
+            rfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
+            sHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
+            Resources.Load<Material>("SeatPrevis");
+
+        hndlMeshesCreated = true;
+    }
+
+    private void UpdateMeshes()
+    {
+        CreateHandleMeshes();
+
+        UpdateMesh(PoseBodyPart.RIGHT_FOOT, rfHandle, m_footRotOffset);
+        UpdateMesh(PoseBodyPart.LEFT_FOOT, lfHandle, m_footRotOffset);
+        UpdateMesh(PoseBodyPart.PELVIS, sHandle, m_pelvisRotOffset);
+    }
+
+    private void SetupMesh(PoseBodyPart bodyPart, string resourceName, ref Transform anchor)
+    {
+        anchor = new GameObject(bodyPart.ToString() + "_MESH").transform;
+        anchor.hideFlags = HideFlags.HideAndDontSave;
+
+        if (Trigger.ConstraintDictionary != null && Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+        {
+            anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
+            anchor.rotation = Trigger.ConstraintDictionary[bodyPart].Rotation;
+        }
+
+        anchor.gameObject.AddComponent<MeshFilter>().mesh = Resources.Load<GameObject>(resourceName).GetComponent<MeshFilter>().sharedMesh;
+        anchor.SetParent(Trigger.Transform);
+    }
+
+    private void UpdateMesh(PoseBodyPart bodyPart, Transform anchor, Vector3? rotOffset = null)
+    {
+        if (Trigger.ConstraintDictionary == null || !Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+            return;
+
+        Quaternion rot = Trigger.ConstraintDictionary[bodyPart].Rotation;
+
+        if (rotOffset != null)
+            rot = Quaternion.Euler(rotOffset.Value) * rot;
+
+        if (Trigger.ConstraintDictionary[bodyPart].FromPoseData)
+        {
+            float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
+            rot *= Quaternion.AngleAxis(angle, Vector3.up);
+        }
+
+        anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
+        anchor.rotation = rot;
+    }
+
+    void DestroyHandleMeshes()
+    {
+        DestroyImmediate(lfHandle.gameObject);
+        DestroyImmediate(rfHandle.gameObject);
+        DestroyImmediate(sHandle.gameObject);
+        hndlMeshesCreated = false;
     }
 
     #endregion
