@@ -162,7 +162,8 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                     
                     IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc+ "/AssetBundles/Windows"); //clears out old bundles                
                     //Build the bundle
-                    AssetBundles.BuildScript.BuildAssetBundles();            
+                    AssetBundles.BuildScript.BuildAssetBundles();
+                    IFXToolSM.CopyFolderContents(userSettings.projectWinLoc+ "/AssetBundles/Windows", cdnLocalWinLoc);            
                 }
                 
                 // if true build android 
