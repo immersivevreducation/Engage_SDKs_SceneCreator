@@ -192,6 +192,7 @@ namespace AssetBundles
                 {
                     CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
                     Debug.Log("Updating");
+                    packageUpToDate=true;
                     UpdateManager updatewindow = GetWindow<UpdateManager>(false, "Update manager", true);
                     updatewindow.Close();
                 }
@@ -264,7 +265,11 @@ namespace AssetBundles
                         }
                         // File.Move(path2, path1);
                     }
-                    Debug.Log(NewSDKVersion);
+                    else
+                    {
+                        packageUpToDate=true;
+                    }
+                    //Debug.Log(NewSDKVersion);
                 }
                 else
                 {

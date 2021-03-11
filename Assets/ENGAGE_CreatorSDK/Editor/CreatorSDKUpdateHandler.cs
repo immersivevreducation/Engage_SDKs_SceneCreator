@@ -116,10 +116,6 @@ public class CreatorSDKUpdateHandler : EditorWindow
 
         // Take a snapshot of the file system.  
         FileInfo[] SDKUpdateList = SDKUpdate.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
-        foreach (var item in SDKUpdateList)
-        {
-            Debug.Log("SDK Update LISt: "+item.Name);
-        }  
         FileInfo[] SDKOldList = SDKOld.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
 
         //Filter out items that paths have engage sdk in them, since we will be overwriting the sdk anyway.
@@ -131,14 +127,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
                 filteredSDKOldList.Add(item);
             }
             //Debug.Log("SDK Old LISt: "+item.Name); 
-        } 
-        foreach (var item in filteredSDKOldList)
-        {
-            Debug.Log("filtered Old LISt: "+item.FullName); 
         }   
-
-        
-        
         foreach (var itemUpdateLsit in SDKUpdateList)
         {
             foreach (var itemOldList in filteredSDKOldList)
@@ -148,14 +137,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
                     duplicatefileNames.Add(itemOldList);
                 } 
             }
-
-            
         }    
-        
-        foreach (var item in duplicatefileNames)
-        {
-            Debug.Log("Duplicates: "+item.Name);
-        } 
        return duplicatefileNames;
     }
     public static bool IdenticalFileName(FileInfo f1, FileInfo f2)  
@@ -166,7 +148,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
     {
         FileInfo info = new FileInfo(path);
         ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);       
-    
+    startInfo.CreateNoWindow =true;
         
         var process = new Process();           
         process.EnableRaisingEvents=true;           
