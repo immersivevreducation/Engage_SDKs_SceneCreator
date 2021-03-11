@@ -11,6 +11,7 @@ namespace AssetBundles
     [InitializeOnLoad]
     public class UpdateManager : EditorWindow
     {
+        CreatorSDKUpdateHandler updateHandler;
         static bool isBatchMode;
         static bool updateInProgress = false;
         static bool automaticUpdatesEnabled = false;
@@ -23,12 +24,18 @@ namespace AssetBundles
         float defaultLabelWidth;
         readonly float guiLabelWidth = 160f;
         static string packageStatus = "";
-        static readonly string _filepath = "CreatorSDK.unitypackage";
+        static readonly string _filepath = "CreatorSDKUpdate.zip";
         static readonly string _localManifestPath = "manifest.xml";
         static readonly string _xpathConfig = "packageData/autoupdate";
         static readonly string _xpathVersion = "packageData/checksum";
-        static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/internal_Sdk/CreatorSDK.unitypackage?raw=true";
-        static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/internal_Sdk/manifest.xml?raw=true";
+        static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/Update_Prototype/CreatorSDKUpdate.zip?raw=true";
+        static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/Update_Prototype/SDKUpdateVersion.txt?raw=true";
+        
+
+        private void OnEnable() 
+        {
+            updateHandler = new CreatorSDKUpdateHandler();
+        }
 
         [MenuItem("Creator SDK/Check for updates")]
         public static void ShowUpdateWindow()
@@ -36,8 +43,10 @@ namespace AssetBundles
             //packageStatus = "Checking for update";
             //checkOnly = true;
             //ImportPackage();
-            GetWindow<UpdateManager>(false, "Update manager", true);
+           UpdateManager updatewindow = GetWindow<UpdateManager>(false, "Update manager", true);
+           updatewindow.minSize = new Vector2(200,400);
         }
+        
 
         static UpdateManager()
         {
@@ -62,20 +71,24 @@ namespace AssetBundles
                     }
                 }
 
-                oldAutoUpdate = autoupdate;
+                // oldAutoUpdate = autoupdate;
 
-                if (autoupdate)
-                {
-                    packageStatus = "Checking for update";
-                    checkOnly = true;
-                    ImportPackage();
-                }
+                // if (autoupdate)
+                // {
+                //     packageStatus = "Checking for update";
+                //     checkOnly = true;
+                //     ImportPackage();
+                // }
             }
         }
 
         
         private void OnGUI()
         {
+            if (GUILayout.Button("Test button"))
+            {
+                CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
+            }
             GUILayout.Label("ENGAGE Creator SDK");
             EditorGUILayout.Space();
 
@@ -92,10 +105,10 @@ namespace AssetBundles
             EditorGUILayout.Space();
             if (GUILayout.Button("Check for Update") && !updateInProgress)
             {
-                CheckXMLExists();
+                
                 packageStatus = "Checking for update";
                 checkOnly = true;
-                ImportPackage();
+                CheckUpdateVersion();
             }
 
             EditorGUILayout.Space();
@@ -106,7 +119,7 @@ namespace AssetBundles
                 {
                     packageStatus = "Updating to latest version";
                     checkOnly = false;
-                    ImportPackage();
+                    DownloadUpdate();
                 }
             }
 
@@ -118,16 +131,16 @@ namespace AssetBundles
             GUILayout.Label(packageStatus);
         }
 
-        static void CheckXMLExists()
-        {
-            if (!File.Exists(_localManifestPath))
-            {
-                string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
-                File.WriteAllText(_localManifestPath, xmlFile);
-            }
-        }
+        // static void CheckXMLExists()
+        // {
+        //     if (!File.Exists(_localManifestPath))
+        //     {
+        //         string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
+        //         File.WriteAllText(_localManifestPath, xmlFile);
+        //     }
+        // }
 
-        private static void ImportPackage()
+        private static void DownloadUpdate()
         {
             WebClient wc = new WebClient();
             Uri _uri = new Uri(_packageUrl);
@@ -135,7 +148,22 @@ namespace AssetBundles
             try
             {
                 updateInProgress = true;
-                wc.DownloadFileAsync(_uri, "CreatorSDK");
+                wc.DownloadFileAsync(_uri, Application.dataPath.Replace("/Assets", "")+"/"+_filepath);
+            }
+            catch
+            {
+                throw new FileNotFoundException();
+            }
+        }
+        private static void CheckUpdateVersion()
+        {
+            WebClient version_WC = new WebClient();
+            Uri _uri = new Uri(_manifestURL);
+            version_WC.DownloadFileCompleted += version_WC_DownloadFileCompleted;
+            try
+            {
+                updateInProgress = true;
+                version_WC.DownloadFileAsync(_uri, Application.dataPath.Replace("/Assets", "")+"/SDKUpdateVersion.txt");
             }
             catch
             {
@@ -143,17 +171,17 @@ namespace AssetBundles
             }
         }
 
-        private static bool PackageIsUpToDate(string _path)
-        {
-            if (File.Exists(_localManifestPath))
-            {
-                return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        // private static bool PackageIsUpToDate(string _path)
+        // {
+        //     if (File.Exists(_localManifestPath))
+        //     {
+        //         return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
+        //     }
+        //     else
+        //     {
+        //         return false;
+        //     }
+        // }
 
         private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
@@ -161,42 +189,89 @@ namespace AssetBundles
             try
             {
                 if (File.Exists(_filepath))
-                    FileUtil.DeleteFileOrDirectory(_filepath);
-                FileUtil.MoveFileOrDirectory("CreatorSDK", _filepath);
-
-                if (File.Exists(_filepath))
                 {
-                    if (PackageIsUpToDate(_filepath))
+                    CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
+                    Debug.Log("Updating");
+                    UpdateManager updatewindow = GetWindow<UpdateManager>(false, "Update manager", true);
+                    updatewindow.Close();
+                }
+                    
+
+                // if (File.Exists(_filepath))
+                // {
+                //     if (PackageIsUpToDate(_filepath))
+                //     {
+                //         packageStatus = "Creator SDK Package is up to date";
+                //         packageUpToDate = true;
+                //         initialPackageChecked = true;
+                //         return;
+                //     }
+                //     else
+                //     {
+                //         if (!checkOnly)
+                //         {
+                //             AssetDatabase.ImportPackage(_filepath, false);
+                //             WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
+                //             packageStatus = "Creator SDK Package is up to date";
+                //             packageUpToDate = true;
+                //             initialPackageChecked = true;
+                //         }
+                //         else
+                //         {
+                //             packageUpToDate = false;
+                //             packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
+                //             ShowUpdateWindow();
+                //             initialPackageChecked = true;
+                //         }
+                //     }
+                // }
+                // else
+                // {
+                //     packageStatus = "Error Updating to latest version";
+                //     throw new FileNotFoundException();
+                // }
+            }
+            catch
+            {
+                packageStatus = "Error Updating to latest version";
+                throw e.Error;
+            }
+        }
+        private static void version_WC_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            updateInProgress = false;
+            try
+            {
+                string path1 = Application.dataPath+"/ENGAGE Creator SDK"+"/SDKUpdateVersion.txt";
+                string path2 = Application.dataPath.Replace("/Assets", "")+"/SDKUpdateVersion.txt";
+                // if (!File.Exists(path1))
+                // {
+                //     File.Copy(path2, path1);
+                // }
+                
+                if (File.Exists(path1))
+                {
+                    string currentSDKVersion = System.IO.File.ReadAllText(path1);
+                    string NewSDKVersion = System.IO.File.ReadAllText(path2);
+
+                    if (currentSDKVersion !=NewSDKVersion)
                     {
-                        packageStatus = "Creator SDK Package is up to date";
-                        packageUpToDate = true;
-                        initialPackageChecked = true;
-                        return;
-                    }
-                    else
-                    {
-                        if (!checkOnly)
+                        packageUpToDate=false;
+                        packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
+                        if (File.Exists(path2))
                         {
-                            AssetDatabase.ImportPackage(_filepath, false);
-                            WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
-                            packageStatus = "Creator SDK Package is up to date";
-                            packageUpToDate = true;
-                            initialPackageChecked = true;
+                            File.Delete(path2);
                         }
-                        else
-                        {
-                            packageUpToDate = false;
-                            packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
-                            ShowUpdateWindow();
-                            initialPackageChecked = true;
-                        }
+                        // File.Move(path2, path1);
                     }
+                    Debug.Log(NewSDKVersion);
                 }
                 else
                 {
-                    packageStatus = "Error Updating to latest version";
-                    throw new FileNotFoundException();
+                    packageUpToDate=false;
+                    packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                 }
+                
             }
             catch
             {
@@ -205,56 +280,56 @@ namespace AssetBundles
             }
         }
 
-        private static string GetValueFromXML(string _xml, string _xpath)
-        {
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_xml);
-            string xpath = _xpath;
-            var node = xDoc.SelectSingleNode(xpath);
+        // private static string GetValueFromXML(string _xml, string _xpath)
+        // {
+        //     XmlDocument xDoc = new XmlDocument();
+        //     xDoc.LoadXml(_xml);
+        //     string xpath = _xpath;
+        //     var node = xDoc.SelectSingleNode(xpath);
 
-            return node.InnerXml;
-        }
+        //     return node.InnerXml;
+        // }
 
-        private static void WriteDataToXML(string _xml, string _xpath, string _value)
-        {
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_xml);
-            string xpath = _xpath;
-            var node = xDoc.SelectSingleNode(xpath);
-            node.InnerXml = _value;
-            xDoc.Save(_localManifestPath);
-        }
+        // private static void WriteDataToXML(string _xml, string _xpath, string _value)
+        // {
+        //     XmlDocument xDoc = new XmlDocument();
+        //     xDoc.LoadXml(_xml);
+        //     string xpath = _xpath;
+        //     var node = xDoc.SelectSingleNode(xpath);
+        //     node.InnerXml = _value;
+        //     xDoc.Save(_localManifestPath);
+        // }
 
-        private static void WriteDataToXML(string _xml, string _xpath, int _value)
-        {
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_xml);
-            string xpath = _xpath;
-            var node = xDoc.SelectSingleNode(xpath);
-            node.InnerXml = _value.ToString();
-            xDoc.Save(_localManifestPath);
-        }
+        // private static void WriteDataToXML(string _xml, string _xpath, int _value)
+        // {
+        //     XmlDocument xDoc = new XmlDocument();
+        //     xDoc.LoadXml(_xml);
+        //     string xpath = _xpath;
+        //     var node = xDoc.SelectSingleNode(xpath);
+        //     node.InnerXml = _value.ToString();
+        //     xDoc.Save(_localManifestPath);
+        // }
 
-        private static void WriteDataToXML(string _xml, string _xpath, bool _value)
-        {
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.LoadXml(_xml);
-            string xpath = _xpath;
-            var node = xDoc.SelectSingleNode(xpath);
-            node.InnerXml = _value.ToString();
-            xDoc.Save(_localManifestPath);
-        }
+        // private static void WriteDataToXML(string _xml, string _xpath, bool _value)
+        // {
+        //     XmlDocument xDoc = new XmlDocument();
+        //     xDoc.LoadXml(_xml);
+        //     string xpath = _xpath;
+        //     var node = xDoc.SelectSingleNode(xpath);
+        //     node.InnerXml = _value.ToString();
+        //     xDoc.Save(_localManifestPath);
+        // }
 
-        private static string GetMD5Checksum(string _path)
-        {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(_path))
-                {
-                    var hash = md5.ComputeHash(stream);
-                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                }
-            }
-        }
+        // private static string GetMD5Checksum(string _path)
+        // {
+        //     using (var md5 = MD5.Create())
+        //     {
+        //         using (var stream = File.OpenRead(_path))
+        //         {
+        //             var hash = md5.ComputeHash(stream);
+        //             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        //         }
+        //     }
+        // }
     }
 }
