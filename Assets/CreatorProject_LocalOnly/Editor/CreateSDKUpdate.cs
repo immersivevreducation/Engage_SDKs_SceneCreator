@@ -34,8 +34,8 @@ public class CreateSDKUpdate : EditorWindow
         }
             
         
-        lzip.compressDir(Application.dataPath+"\\ENGAGE_CreatorSDK",1,Application.dataPath.Replace("/Assets", "")+"/CreatorSDKUpdate.zip");
-        Debug.Log("Update Created");
+        lzip.compressDir(Application.dataPath+"\\ENGAGE_CreatorSDK",9,Application.dataPath.Replace("/Assets", "")+"/CreatorSDKUpdate.zip");
+        Debug.Log("Update Created. Version Count:"+versionNumber);
     }
 }
 

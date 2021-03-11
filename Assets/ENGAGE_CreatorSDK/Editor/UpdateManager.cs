@@ -71,14 +71,14 @@ namespace AssetBundles
                     }
                 }
 
-                // oldAutoUpdate = autoupdate;
+                oldAutoUpdate = autoupdate;
 
-                // if (autoupdate)
-                // {
-                //     packageStatus = "Checking for update";
-                //     checkOnly = true;
-                //     ImportPackage();
-                // }
+                if (autoupdate)
+                {
+                    packageStatus = "Checking for update";
+                    checkOnly = true;
+                    CheckUpdateVersion();
+                }
             }
         }
 
