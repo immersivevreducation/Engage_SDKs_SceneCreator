@@ -131,14 +131,6 @@ namespace AssetBundles
             GUILayout.Label(packageStatus);
         }
 
-        // static void CheckXMLExists()
-        // {
-        //     if (!File.Exists(_localManifestPath))
-        //     {
-        //         string xmlFile = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<packageData>\n  <checksum>af0200e7837cc</checksum>\n  <autoupdate>False</autoupdate>\n</packageData>";
-        //         File.WriteAllText(_localManifestPath, xmlFile);
-        //     }
-        // }
 
         private static void DownloadUpdate()
         {
@@ -171,18 +163,6 @@ namespace AssetBundles
             }
         }
 
-        // private static bool PackageIsUpToDate(string _path)
-        // {
-        //     if (File.Exists(_localManifestPath))
-        //     {
-        //         return GetMD5Checksum(_path) == GetValueFromXML(File.ReadAllText(_localManifestPath), _xpathVersion);
-        //     }
-        //     else
-        //     {
-        //         return false;
-        //     }
-        // }
-
         private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             updateInProgress = false;
@@ -193,44 +173,9 @@ namespace AssetBundles
                     CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
                     Debug.Log("Updating");
                     packageUpToDate=true;
-                    UpdateManager updatewindow = GetWindow<UpdateManager>(false, "Update manager", true);
-                    updatewindow.Close();
+                    // UpdateManager updatewindow = GetWindow<UpdateManager>(false, "Update manager", true);
+                    // updatewindow.Close();
                 }
-                    
-
-                // if (File.Exists(_filepath))
-                // {
-                //     if (PackageIsUpToDate(_filepath))
-                //     {
-                //         packageStatus = "Creator SDK Package is up to date";
-                //         packageUpToDate = true;
-                //         initialPackageChecked = true;
-                //         return;
-                //     }
-                //     else
-                //     {
-                //         if (!checkOnly)
-                //         {
-                //             AssetDatabase.ImportPackage(_filepath, false);
-                //             WriteDataToXML(File.ReadAllText(_localManifestPath), "packageData/checksum", GetMD5Checksum(_filepath));
-                //             packageStatus = "Creator SDK Package is up to date";
-                //             packageUpToDate = true;
-                //             initialPackageChecked = true;
-                //         }
-                //         else
-                //         {
-                //             packageUpToDate = false;
-                //             packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
-                //             ShowUpdateWindow();
-                //             initialPackageChecked = true;
-                //         }
-                //     }
-                // }
-                // else
-                // {
-                //     packageStatus = "Error Updating to latest version";
-                //     throw new FileNotFoundException();
-                // }
             }
             catch
             {
@@ -249,8 +194,8 @@ namespace AssetBundles
                 if (File.Exists(path1))
                 {
                     Debug.Log("Comparing SDK Versions...");
-                    string currentSDKVersion = System.IO.File.ReadAllText(path1);
-                    string NewSDKVersion = System.IO.File.ReadAllText(path2);
+                    int currentSDKVersion =  Int32.Parse(System.IO.File.ReadAllText(path1));
+                    int NewSDKVersion =  Int32.Parse(System.IO.File.ReadAllText(path2));
 
                     if (currentSDKVersion != NewSDKVersion)
                     {
@@ -261,14 +206,12 @@ namespace AssetBundles
                         {
                             File.Delete(path2);
                         }
-                        // File.Move(path2, path1);
                     }
                     else
                     {
                         packageUpToDate=true;
                         Debug.Log("No Update Found");
                     }
-                    
                 }
                 else
                 {

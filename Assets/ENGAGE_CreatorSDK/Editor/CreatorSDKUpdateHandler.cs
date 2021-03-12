@@ -142,6 +142,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
         FileInfo info = new FileInfo(path);
         ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);       
         startInfo.CreateNoWindow = true;
+        startInfo.UseShellExecute = false;
         
         var process = new Process();           
         process.EnableRaisingEvents=true;           
