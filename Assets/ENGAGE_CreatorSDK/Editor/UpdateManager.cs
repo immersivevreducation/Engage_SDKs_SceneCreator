@@ -29,7 +29,7 @@ namespace AssetBundles
         static readonly string _xpathConfig = "packageData/autoupdate";
         static readonly string _xpathVersion = "packageData/checksum";
         static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/Update_Prototype/CreatorSDKUpdate.zip?raw=true";
-        static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/Update_Prototype/SDKUpdateVersion.txt?raw=true";
+        static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/Update_Prototype/Assets/ENGAGE_CreatorSDK/SDKUpdateVersion.txt?raw=true";
         
 
         private void OnEnable() 
@@ -210,6 +210,7 @@ namespace AssetBundles
                     else
                     {
                         packageUpToDate=true;
+                        packageStatus ="The SDK is up to date";
                         Debug.Log("No Update Found");
                     }
                 }

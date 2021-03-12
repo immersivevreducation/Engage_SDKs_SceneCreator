@@ -52,14 +52,9 @@ public class CreatorSDKUpdateHandler : EditorWindow
         else
         {
             PerformUpdateOverwriteToLocalSDK(updateSDkPath);
-            
         }
-        if (Directory.Exists(updateSDkPath))
-        {
-            DirectoryInfo UpdateDir = new DirectoryInfo(updateSDkPath);
-            UpdateDir.Delete();
-        }
-         EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
+        
+         
         
     }
     public static void PerformUpdateOverwriteToLocalSDK(string updatePath)
@@ -73,8 +68,22 @@ public class CreatorSDKUpdateHandler : EditorWindow
 
         commands.Add("robocopy "+"\""+pathToNewSDKFolder+"\" "+Application.dataPath+"/ENGAGE_CreatorSDK /MIR");
         commands.Add("DEL /Q /S "+"\""+pathToNewSDKFolder+"\" ");
+
+        commands.Add("\""+EditorApplication.applicationPath+"\"  -projectPath \""+Application.dataPath.Replace("/Assets", "")+"\" -executeMethod CreatorSDKUpdateHandler.UpdateComplete");
+
         Debug.Log("BatchFile created at: "+pathToNewSDKFolder);
         return commands;
+    }
+    public static void UpdateComplete()
+    {
+        Debug.Log("Update Complete");
+        string updateSDkPath = Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate";
+        if (Directory.Exists(updateSDkPath))
+        {
+            DirectoryInfo UpdateDir = new DirectoryInfo(updateSDkPath);
+            UpdateDir.Delete();
+        }
+        EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
     }
     public static string CreateBatchCMDSFile(string pathforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
