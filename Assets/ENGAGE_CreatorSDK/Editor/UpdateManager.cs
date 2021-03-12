@@ -243,7 +243,7 @@ namespace AssetBundles
             updateInProgress = false;
             try
             {
-                string path1 = Application.dataPath+"/ENGAGE Creator SDK"+"/SDKUpdateVersion.txt";
+                string path1 = Application.dataPath+"/ENGAGE_CreatorSDK"+"/SDKUpdateVersion.txt";
                 string path2 = Application.dataPath.Replace("/Assets", "")+"/SDKUpdateVersion.txt";
                 Debug.Log("Checking for update");                
                 if (File.Exists(path1))
