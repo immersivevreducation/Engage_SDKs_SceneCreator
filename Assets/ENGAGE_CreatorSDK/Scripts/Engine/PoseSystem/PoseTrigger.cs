@@ -228,14 +228,19 @@ namespace Engage.Avatars.Poses
                 return;
 
             overrides[m_currentID] = new PoseOverrides(m_constraintData);
+
+#if UNITY_EDITOR
             RefreshConstraintData();
+#endif
 
             m_needsSave = false;
         }
 
         private Transform GetOrCreateTransform(PoseBodyPart bodyPart)
         {
+#if UNITY_EDITOR
             Undo.RecordObject(this, "Created " + bodyPart);
+#endif
 
             Transform anchor = GetBodyTransform(bodyPart);
 
