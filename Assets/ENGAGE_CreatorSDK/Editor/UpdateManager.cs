@@ -168,7 +168,7 @@ namespace AssetBundles
             updateInProgress = false;
             try
             {
-                if (File.Exists(_filepath))
+                if (File.Exists(Application.dataPath.Replace("/Assets", "")+"/"+_filepath))
                 {
                     CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
                     Debug.Log("Updating");
@@ -199,7 +199,7 @@ namespace AssetBundles
 
                     if (currentSDKVersion != NewSDKVersion)
                     {
-                        Debug.Log("Update Found");
+                        Debug.Log("Update Found: Current = "+currentSDKVersion +"New: "+NewSDKVersion);
                         packageUpToDate=false;
                         packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                         if (File.Exists(path2))
