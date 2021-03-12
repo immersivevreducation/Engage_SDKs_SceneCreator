@@ -10,7 +10,8 @@ public class CreatorSDKUpdateHandler : EditorWindow
 {
     string  projectFolder; 
     public string updateSDkPath; // if changing value change in the duplicates window too!
-    private void OnEnable() {
+    private void OnEnable() 
+    {
         projectFolder = Application.dataPath.Replace("/Assets", "");
         updateSDkPath = Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate"; // if changing value change in the duplicates window too!
     }
@@ -71,7 +72,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
         
 
         commands.Add("robocopy "+"\""+pathToNewSDKFolder+"\" "+Application.dataPath+"/ENGAGE_CreatorSDK /MIR");
-        //commands.Add("DEL /Q /S "+"\""+pathToNewSDKFolder+"\" ");
+        commands.Add("DEL /Q /S "+"\""+pathToNewSDKFolder+"\" ");
         Debug.Log("BatchFile created at: "+pathToNewSDKFolder);
         return commands;
     }
@@ -79,8 +80,6 @@ public class CreatorSDKUpdateHandler : EditorWindow
         {
 
             List<string> commandsList = new List<string>();
-            //commandsList.Add("@echo on");
-            //commandsList.Add(">> Bundle_Output_Log.txt 0>&1 2>&1 ("); // container to output to log
             if (input != null)
             {
                 commandsList.AddRange(input);
@@ -92,16 +91,10 @@ public class CreatorSDKUpdateHandler : EditorWindow
             if (input3 != null)
             {
                 commandsList.AddRange(input3);
-            }
-            //commandsList.Add(")");//End of container
-            
-            //string TempCMDBatchPath = Application.dataPath + "/ENGAGE_CreatorSDK/Editor/IFX Tools/BundleTool/"+fileNameforBatch+"_Temp.bat";
-            
+            }            
             StreamWriter writer = new StreamWriter(pathforBatch, false);
             foreach (string cmd in commandsList)
             {
-
-                //string cmdIN = cmd.Replace("/","\\");
                 writer.WriteLine(cmd);
             }
             writer.WriteLine("TIMEOUT 1");
@@ -148,7 +141,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
     {
         FileInfo info = new FileInfo(path);
         ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);       
-    startInfo.CreateNoWindow =true;
+        startInfo.CreateNoWindow = true;
         
         var process = new Process();           
         process.EnableRaisingEvents=true;           
