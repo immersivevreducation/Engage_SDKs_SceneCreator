@@ -245,18 +245,16 @@ namespace AssetBundles
             {
                 string path1 = Application.dataPath+"/ENGAGE Creator SDK"+"/SDKUpdateVersion.txt";
                 string path2 = Application.dataPath.Replace("/Assets", "")+"/SDKUpdateVersion.txt";
-                // if (!File.Exists(path1))
-                // {
-                //     File.Copy(path2, path1);
-                // }
-                
+                Debug.Log("Checking for update");                
                 if (File.Exists(path1))
                 {
+                    Debug.Log("Comparing SDK Versions...");
                     string currentSDKVersion = System.IO.File.ReadAllText(path1);
                     string NewSDKVersion = System.IO.File.ReadAllText(path2);
 
-                    if (currentSDKVersion !=NewSDKVersion)
+                    if (currentSDKVersion != NewSDKVersion)
                     {
+                        Debug.Log("Update Found");
                         packageUpToDate=false;
                         packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                         if (File.Exists(path2))
@@ -268,15 +266,16 @@ namespace AssetBundles
                     else
                     {
                         packageUpToDate=true;
+                        Debug.Log("No Update Found");
                     }
-                    //Debug.Log(NewSDKVersion);
+                    
                 }
                 else
                 {
+                    Debug.Log("Local SDK version file not found");
                     packageUpToDate=false;
                     packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                 }
-                
             }
             catch
             {
@@ -284,57 +283,5 @@ namespace AssetBundles
                 throw e.Error;
             }
         }
-
-        // private static string GetValueFromXML(string _xml, string _xpath)
-        // {
-        //     XmlDocument xDoc = new XmlDocument();
-        //     xDoc.LoadXml(_xml);
-        //     string xpath = _xpath;
-        //     var node = xDoc.SelectSingleNode(xpath);
-
-        //     return node.InnerXml;
-        // }
-
-        // private static void WriteDataToXML(string _xml, string _xpath, string _value)
-        // {
-        //     XmlDocument xDoc = new XmlDocument();
-        //     xDoc.LoadXml(_xml);
-        //     string xpath = _xpath;
-        //     var node = xDoc.SelectSingleNode(xpath);
-        //     node.InnerXml = _value;
-        //     xDoc.Save(_localManifestPath);
-        // }
-
-        // private static void WriteDataToXML(string _xml, string _xpath, int _value)
-        // {
-        //     XmlDocument xDoc = new XmlDocument();
-        //     xDoc.LoadXml(_xml);
-        //     string xpath = _xpath;
-        //     var node = xDoc.SelectSingleNode(xpath);
-        //     node.InnerXml = _value.ToString();
-        //     xDoc.Save(_localManifestPath);
-        // }
-
-        // private static void WriteDataToXML(string _xml, string _xpath, bool _value)
-        // {
-        //     XmlDocument xDoc = new XmlDocument();
-        //     xDoc.LoadXml(_xml);
-        //     string xpath = _xpath;
-        //     var node = xDoc.SelectSingleNode(xpath);
-        //     node.InnerXml = _value.ToString();
-        //     xDoc.Save(_localManifestPath);
-        // }
-
-        // private static string GetMD5Checksum(string _path)
-        // {
-        //     using (var md5 = MD5.Create())
-        //     {
-        //         using (var stream = File.OpenRead(_path))
-        //         {
-        //             var hash = md5.ComputeHash(stream);
-        //             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-        //         }
-        //     }
-        // }
     }
 }
