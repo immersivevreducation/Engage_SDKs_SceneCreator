@@ -66,7 +66,6 @@ namespace Engage.Avatars.Poses
 
         public void ResetPoseData()
         {
-            Debug.Log("Setting Pose Data");
             if (m_handleDictionary == null)
                 m_handleDictionary = new Dictionary<PoseBodyPart, PoseDataHandle>(6);
             else
@@ -116,10 +115,7 @@ namespace Engage.Avatars.Poses
             if (m_handleDictionary == null || m_handleDictionary.Count == 0 || !m_handleDictionary.ContainsKey(part))
                 ResetPoseData();
 
-            Debug.Log("m_handleDictionary size = " + m_handleDictionary.Count);
-
             return m_handleDictionary[part];
-
         }
 
         public bool HasBodyPart(PoseBodyPart part)
@@ -220,6 +216,135 @@ namespace Engage.Avatars.Poses
                     m_leftKneeHandle.Rotation = rot;
                     break;
             }
+        }
+
+        public void SetSnapToGround(PoseBodyPart bodyPart, bool snap)
+        {
+            switch (bodyPart)
+            {
+                case PoseBodyPart.PELVIS:
+                    m_pelvisHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.HEAD:
+                    m_headHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.CHEST:
+                    m_chestHandle.SnapToGround = snap;
+                    break;
+
+                case PoseBodyPart.RIGHT_HAND:
+                    m_rightHandHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.LEFT_HAND:
+                    m_leftHandHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.RIGHT_FOOT:
+                    m_rightFootHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.LEFT_FOOT:
+                    m_leftFootHandle.SnapToGround = snap;
+                    break;
+
+                case PoseBodyPart.RIGHT_ELBOW:
+                    m_rightElbowHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.LEFT_ELBOW:
+                    m_leftElbowHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.RIGHT_KNEE:
+                    m_rightKneeHandle.SnapToGround = snap;
+                    break;
+                case PoseBodyPart.LEFT_KNEE:
+                    m_leftKneeHandle.SnapToGround = snap;
+                    break;
+            }
+        }
+
+        public void SetEnabled(PoseBodyPart bodyPart, bool enabled)
+        {
+            switch (bodyPart)
+            {
+                case PoseBodyPart.PELVIS:
+                    m_pelvisHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.HEAD:
+                    m_headHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.CHEST:
+                    m_chestHandle.SnapToGround = enabled;
+                    break;
+
+                case PoseBodyPart.RIGHT_HAND:
+                    m_rightHandHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.LEFT_HAND:
+                    m_leftHandHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.RIGHT_FOOT:
+                    m_rightFootHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.LEFT_FOOT:
+                    m_leftFootHandle.SnapToGround = enabled;
+                    break;
+
+                case PoseBodyPart.RIGHT_ELBOW:
+                    m_rightElbowHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.LEFT_ELBOW:
+                    m_leftElbowHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.RIGHT_KNEE:
+                    m_rightKneeHandle.SnapToGround = enabled;
+                    break;
+                case PoseBodyPart.LEFT_KNEE:
+                    m_leftKneeHandle.SnapToGround = enabled;
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Copy Constraints
+
+        public void CopyConstraints(PoseConstraintData[] constraints, Transform center, float avatarHeight)
+        {
+            if (constraints == null)
+                return;
+
+            DisableAll();
+
+            for(int i = 0; i < constraints.Length; i++)
+            {
+                float angle = Vector3.SignedAngle(Vector3.forward, center.forward, Vector3.up);
+
+                Vector3 pos = constraints[i].Anchor.position;
+                pos = (pos - center.position) / avatarHeight;
+                pos = Quaternion.AngleAxis(-angle, Vector3.up) * pos;
+
+                Quaternion rot = Quaternion.AngleAxis(-angle, Vector3.up) * constraints[i].Anchor.rotation;
+
+                UpdatePosition(constraints[i].BodyPart, pos);
+                UpdateRotation(constraints[i].BodyPart, rot.eulerAngles);
+
+                SetEnabled(constraints[i].BodyPart, true);
+            }
+        }
+
+        private void DisableAll()
+        {
+            SetEnabled(PoseBodyPart.HEAD, false);
+            SetEnabled(PoseBodyPart.CHEST, false);
+            SetEnabled(PoseBodyPart.PELVIS, false);
+
+            SetEnabled(PoseBodyPart.RIGHT_HAND, false);
+            SetEnabled(PoseBodyPart.LEFT_HAND, false);
+            SetEnabled(PoseBodyPart.RIGHT_ELBOW, false);
+            SetEnabled(PoseBodyPart.LEFT_ELBOW, false);
+
+            SetEnabled(PoseBodyPart.RIGHT_FOOT, false);
+            SetEnabled(PoseBodyPart.LEFT_FOOT, false);
+            SetEnabled(PoseBodyPart.RIGHT_KNEE, false);
+            SetEnabled(PoseBodyPart.LEFT_KNEE, false);
         }
 
         #endregion

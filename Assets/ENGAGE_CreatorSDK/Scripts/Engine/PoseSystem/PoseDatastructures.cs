@@ -25,6 +25,22 @@ namespace Engage.Avatars.Poses
 
     }
 
+    public enum PoseArchetype
+    {
+        CUSTOM = 0,
+
+        SIT_CLOSED_LEG = 1,
+        SIT_OPEN_LEG,
+        SIT_CROSSED_LEG,
+        
+        LIE_RECUMBANT = 10,
+
+        LEAN_ONE_LEG,
+        LEAN_BOTH_LEGS,
+
+
+    }
+
     [System.Serializable]
     public struct PoseMapping
     {

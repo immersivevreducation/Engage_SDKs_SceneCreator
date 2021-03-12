@@ -12,17 +12,15 @@ namespace Engage.Avatars.Poses
         private PoseType m_type;
         [SerializeField]
         private Transform m_centerTransform;
-        [SerializeField]
+
+        [SerializeField, ReadOnly]
+        private LayerMask m_groundLayers = 0;
+
+        [SerializeField, HideInInspector]
         private PoseConstraintData[] m_constraintData;
+
         [SerializeField, ReadOnly]
         private LVR_SitTrigger m_sitTrigger;
-
-        [Header("Overrides (Leave Empty to use Defaults)")]
-
-        [SerializeField]
-        private IKDefaults m_ikOverride = null;
-        [SerializeField]
-        private PoseData[] m_additionalPoses = null;
 
         #region Accessors
 
@@ -35,8 +33,258 @@ namespace Engage.Avatars.Poses
             get { return m_constraintData; }
             set { m_constraintData = value; }
         }
-        public IKDefaults IKOverride { get { return m_ikOverride; } }
-        public PoseData[] AdditionalPoses { get { return m_additionalPoses; } }
+
+        [SerializeField, HideInInspector]
+        private Transform m_headTransform, m_chestTransform, m_pelvisTransform,
+            m_rightHandTransform, m_leftHandTransform, m_rightElbowTransform, m_leftElbowTransform,
+            m_rightFootTransform, m_leftFootTransform, m_rightKneeTransform, m_leftKneeTransform = null;
+
+        #endregion
+
+        #region Pose Data Overrides
+
+        [Header("Pose Overrides")]
+
+        [SerializeField]
+        private List<PoseOverridesGroup> m_overrides;
+
+        private PoseArchetype m_currentArchetype;
+        private int m_currentID = 0;
+
+        public PoseArchetype Archetype { get { return m_currentArchetype; } }
+        public int ArchetypeID { get { return m_currentID; } }
+
+        public bool HasOverrides(PoseArchetype archetype, bool notEmpty = false)
+        {
+            if (m_overrides == null || m_overrides.Count == 0)
+                InitialiseOverridesByType();
+
+            for (int i = 0; i < m_overrides.Count; i++)
+                if (m_overrides[i].Archetype == archetype && (!notEmpty || m_overrides[i].OverrideList.Count > 0))
+                    return true;
+
+            return false;
+            //return m_overrideDictionary != null && m_overrideDictionary.ContainsKey(archetype);
+        }
+
+        public bool GetOverrides(PoseArchetype archetype, out List<PoseOverrides> overrides) 
+        {
+            if (m_overrides == null || m_overrides.Count == 0)
+                InitialiseOverridesByType();
+
+            overrides = null;
+
+            for(int i = 0; i < m_overrides.Count; i++)
+            {
+                if (m_overrides[i].Archetype == archetype)
+                {
+                    overrides = m_overrides[i].OverrideList;
+                    break;
+                }
+            }
+
+            return overrides != null;
+        }
+
+        public bool IsOverrideSelected(PoseArchetype archetype, int id)
+        {
+            return m_currentArchetype == archetype && m_currentID == id;
+        }
+
+        //public bool PoseOverrides(PoseArchetype archetype, out List<PoseOverrides> poses)
+        //{
+        //    if (!HasOverrides(archetype))
+        //    {
+        //        poses = null;
+        //        return false;
+        //    }
+
+        //    poses = m_overrideDictionary[archetype];
+        //    return true;
+        //}
+
+        public void AddPoseOverride(PoseArchetype archetype, PoseOverrides data = null)
+        {
+            //if (!HasOverrides(archetype))
+            //    InitialisePoseType();
+
+            //m_overrideDictionary[archetype].Add(data);
+
+            if (m_overrides == null || m_overrides.Count == 0)
+                InitialiseOverridesByType();
+
+            for (int i = 0; i < m_overrides.Count; i++)
+            {
+                if (archetype == m_overrides[i].Archetype)
+                {
+                    m_overrides[i].AddOverrides(data);
+                    m_currentArchetype = archetype;
+                    m_currentID = i;
+                    return;
+                }
+            }
+        }
+
+        public void RemovePoseOverride(PoseArchetype archetype, int id)
+        {
+            //if (!HasOverrides(archetype))
+            //    return;
+
+            //m_overrideDictionary[archetype].RemoveAt(id);
+
+            if (m_overrides == null || m_overrides.Count == 0)
+                InitialiseOverridesByType();
+
+            for (int i = 0; i < m_overrides.Count; i++)
+            {
+                if (archetype == m_overrides[i].Archetype)
+                {
+                    m_overrides[i].RemoveOverridesAt(id);
+                    return;
+                }
+            }
+        }
+
+        public void SetPoseOverride(PoseArchetype archetype, int id, PoseOverrides data = null)
+        {
+            //if (!HasOverrides(archetype))
+            //    return;
+
+            //m_overrideDictionary[archetype][id] = data;
+
+            if (m_overrides == null)
+                InitialiseOverridesByType();
+
+            for (int i = 0; i < m_overrides.Count; i++)
+            {
+                if (archetype == m_overrides[i].Archetype)
+                {
+                    m_overrides[i].SetPoseOverrides(data, id);
+                    return;
+                }
+            }
+        }
+
+        public void InitialiseOverridesByType()
+        {
+            switch (Type)
+            {
+                case PoseType.SITTING:
+                    //m_overrideDictionary = new Dictionary<PoseArchetype, List<PoseOverrides>>(2);
+                    //m_overrideDictionary.Add(PoseArchetype.SIT_CLOSED_LEG, new List<PoseOverrides>(1));
+                    //m_overrideDictionary.Add(PoseArchetype.SIT_OPEN_LEG, new List<PoseOverrides>(1));
+
+                    m_overrides = new List<PoseOverridesGroup>(2);
+                    m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_CLOSED_LEG));
+                    m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_OPEN_LEG));
+                    break;
+            }
+        }
+
+        public void SelectOverride(PoseArchetype archetype, int id)
+        {
+            if (!HasOverrides(archetype))
+                return;
+
+            m_currentArchetype = archetype;
+            m_currentID = id;
+
+            ResetPoseConstraints();
+        }
+
+        public void ResetPoseConstraints()
+        {
+            //PoseOverrides overrides = m_overrideDictionary[m_currentArchetype][m_currentID];
+
+            List<PoseOverrides> overrides;
+            if (!GetOverrides(m_currentArchetype, out overrides))
+            {
+                Debug.LogError("CantGetOverrides for type " + m_currentArchetype);
+                return;
+            }
+
+            PoseConstraintData[] newOverrides = new PoseConstraintData[overrides[m_currentID].Overrides.Count];
+            int i = 0;
+
+            foreach(KeyValuePair<PoseBodyPart, PoseMapping> pair in overrides[m_currentID].Overrides)
+            {
+                Transform anchor = GetOrCreateTransform(pair.Key);
+                anchor.localPosition = pair.Value.Position;
+                anchor.localRotation = pair.Value.Rotation;
+
+                newOverrides[i] = new PoseConstraintData(anchor, pair.Key);
+                i++;
+            }
+
+            ConstraintData = newOverrides;
+            m_needsSave = false;
+        }
+
+        public void SavePoseConstraints()
+        {
+            List<PoseOverrides> overrides;
+
+            if (!GetOverrides(m_currentArchetype, out overrides))
+                return;
+
+            overrides[m_currentID] = new PoseOverrides(m_constraintData);
+            RefreshConstraintData();
+
+            m_needsSave = false;
+        }
+
+        private Transform GetOrCreateTransform(PoseBodyPart bodyPart)
+        {
+            Undo.RecordObject(this, "Created " + bodyPart);
+
+            Transform anchor = GetBodyTransform(bodyPart);
+
+            if (anchor == null)
+            {
+                anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
+                anchor.parent = transform;
+                SetBodyTransform(bodyPart, anchor);
+            }
+
+            return anchor;
+        }
+
+        public Transform GetBodyTransform(PoseBodyPart bodyPart)
+        {
+            switch(bodyPart)
+            {
+                case PoseBodyPart.HEAD: return m_headTransform;
+                case PoseBodyPart.CHEST: return m_chestTransform;
+                case PoseBodyPart.PELVIS: return m_pelvisTransform;
+                case PoseBodyPart.RIGHT_HAND: return m_rightHandTransform;
+                case PoseBodyPart.LEFT_HAND: return m_leftHandTransform;
+                case PoseBodyPart.RIGHT_ELBOW: return m_rightElbowTransform;
+                case PoseBodyPart.LEFT_ELBOW: return m_leftElbowTransform;
+                case PoseBodyPart.RIGHT_FOOT: return m_rightFootTransform;
+                case PoseBodyPart.LEFT_FOOT: return m_leftFootTransform;
+                case PoseBodyPart.RIGHT_KNEE: return m_rightKneeTransform;
+                case PoseBodyPart.LEFT_KNEE: return m_leftKneeTransform;
+                default: return null;
+            }
+        }
+
+        public void SetBodyTransform(PoseBodyPart bodyPart, Transform anchor)
+        {
+            switch (bodyPart)
+            {
+                case PoseBodyPart.HEAD: m_headTransform = anchor; return;
+                case PoseBodyPart.CHEST: m_chestTransform = anchor; return;
+                case PoseBodyPart.PELVIS: m_pelvisTransform = anchor; return;
+                case PoseBodyPart.RIGHT_HAND: m_rightHandTransform = anchor; return;
+                case PoseBodyPart.LEFT_HAND: m_leftHandTransform = anchor; return;
+                case PoseBodyPart.RIGHT_ELBOW: m_rightElbowTransform = anchor; return;
+                case PoseBodyPart.LEFT_ELBOW: m_leftElbowTransform = anchor; return;
+                case PoseBodyPart.RIGHT_FOOT: m_rightFootTransform = anchor; return;
+                case PoseBodyPart.LEFT_FOOT: m_leftFootTransform = anchor; return;
+                case PoseBodyPart.RIGHT_KNEE: m_rightKneeTransform = anchor; return;
+                case PoseBodyPart.LEFT_KNEE: m_leftKneeTransform = anchor; return;
+            }
+        }
 
         #endregion
 
@@ -55,19 +303,44 @@ namespace Engage.Avatars.Poses
 
         #region EditorStuff
 
-        [SerializeField, ReadOnly]
-        private LayerMask m_groundLayers = 0;
-
+        
         [SerializeField]
-        private PoseData m_testPoseData = null;
-        public PoseData TestPoseData { get { return m_testPoseData; } }
+        private PoseData m_closedLegDefault = null;
+        [SerializeField]
+        private PoseData m_openLegDefault = null;
+
+        public PoseData DefaultPoseData
+        { 
+            get 
+            {
+                switch (m_currentArchetype)
+                {
+                    case PoseArchetype.SIT_CLOSED_LEG:
+                        return m_closedLegDefault;
+                    case PoseArchetype.SIT_OPEN_LEG:
+                        return m_openLegDefault;
+                    default:
+                        return m_closedLegDefault;
+                }
+            }
+        }
+
+        [Header("Editing")]
+
         [SerializeField]
         private bool m_editPoseData = false;
         public bool EditPoseData { get { return m_editPoseData; } }
 
         [SerializeField]
-        private bool m_drawEditor = true;
+        private bool m_drawSkeleton = true;
         private Vector3 m_footCubeSize = new Vector3(.15f, .125f, .075f);
+
+        [SerializeField]
+        private bool m_autoSave = false;
+        public bool AutoSave { get { return m_autoSave; } }
+
+        private bool m_needsSave = false;
+        public bool NeedsSave { get { return m_needsSave; } set { m_needsSave = value; } }
 
         [HideInInspector]
         public bool EditPelvis, EditHead, EditChest,
@@ -79,12 +352,12 @@ namespace Engage.Avatars.Poses
 
         private void OnDrawGizmos()
         {
-            if (!m_drawEditor)
+            if (!m_drawSkeleton)
                 return;
 
             RefreshConstraintData();
 
-            if (m_testPoseData == null)
+            if (DefaultPoseData == null)
                 return;
 
             DrawLines();
@@ -114,7 +387,7 @@ namespace Engage.Avatars.Poses
                     AddConstraint(ConstraintData[i]);
             }
 
-            if (m_testPoseData == null)
+            if (DefaultPoseData == null)
                 return;
 
             SetupRotation();
@@ -191,6 +464,14 @@ namespace Engage.Avatars.Poses
                 ConstraintDictionary[bodyPart].FromPoseData);
         }
 
+        public void UpdateSave()
+        {
+            if (AutoSave)
+                SavePoseConstraints();
+            else
+                m_needsSave = true;
+        }
+
         private void AddConstraint(PoseConstraintData constraint)
         {
             if (m_constraintDictionary.ContainsKey(constraint.BodyPart))
@@ -199,7 +480,7 @@ namespace Engage.Avatars.Poses
             if (constraint.Anchor == null)
                 return;
 
-            m_constraintDictionary.Add(constraint.BodyPart, new PoseMapping(constraint));
+            m_constraintDictionary.Add(constraint.BodyPart, new PoseMapping(constraint));            
         }
 
         private void ApplyBodyPartAI(PoseBodyPart bodyPart)
@@ -207,14 +488,14 @@ namespace Engage.Avatars.Poses
             if (m_constraintDictionary.ContainsKey(bodyPart))
                 return;
 
-            if (m_testPoseData == null)
+            if (DefaultPoseData == null)
                 return;
 
-            if (!m_testPoseData.HasBodyPart(bodyPart))
+            if (!DefaultPoseData.HasBodyPart(bodyPart))
                 return;
 
             PoseMapping map;
-            if (!m_testPoseData.GetBodyPartMap(bodyPart, out map))
+            if (!DefaultPoseData.GetBodyPartMap(bodyPart, out map))
                 return;
 
             Vector3 position = map.Position;
@@ -224,7 +505,7 @@ namespace Engage.Avatars.Poses
 
             position = (position * m_avatarHeight) + Position;
 
-            if (m_testPoseData.SnapToGround(bodyPart))
+            if (DefaultPoseData.SnapToGround(bodyPart))
             {
                 position = SnapToGround(position);
             }

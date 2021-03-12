@@ -30,32 +30,38 @@ public class PoseTriggerEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Refresh Pose Data"))
+        DrawAllPoseOverrides();
+
+        if (Trigger.HasOverrides(Trigger.Archetype, true))
         {
-            RefreshView();
+            DrawOverrideOptions();
+            DrawCopyPose();
         }
 
-        DrawOverrideOptions();
-        DrawCopyPose();
-
-        if (!Trigger.EditPoseData)
-            return;
-
-        DrawPoseEditOptions();
+        if (Trigger.EditPoseData)
+        {
+            DrawPoseEditOptions();
+        }
 
         //if (GUILayout.Button("Instantiate Dummy"))
         //    Trigger.DropDummy(PoseContainer.Instance.Dummy);
+
+        if (GUILayout.Button("Refresh Pose Data", GUILayout.Height(40)))
+        {
+            RefreshView();
+        }
     }
 
+    [MenuItem("%&z")]
     private void RefreshView()
     {
         if (Trigger == null)
             return;
 
-        if (Trigger.TestPoseData == null)
+        if (Trigger.DefaultPoseData == null)
             return;
 
-        Trigger.TestPoseData.ResetPoseData();
+        Trigger.DefaultPoseData.ResetPoseData();
         m_trigger.RefreshConstraintData();
         SceneView.RepaintAll();
     }
@@ -107,7 +113,7 @@ public class PoseTriggerEditor : Editor
 
     public void OnSceneGUI()
     {
-        if (Trigger.TestPoseData == null)
+        if (Trigger.DefaultPoseData == null)
             return;
 
         DrawHandles();
@@ -158,14 +164,16 @@ public class PoseTriggerEditor : Editor
             DrawHandle(PoseBodyPart.LEFT_KNEE);
 
         if (m_requiresRefresh)
-            Trigger.TestPoseData.ResetPoseData();
+            Trigger.DefaultPoseData.ResetPoseData();
     }
 
     #region Overrides
 
     private void DrawOverrideOptions()
     {
-        GUILayout.BeginVertical("Pose Override Positions", GUI.skin.box);
+        GUILayout.Space(20);
+
+        GUILayout.BeginVertical(Trigger.Archetype + " Overrides " + Trigger.ArchetypeID, GUI.skin.box);
 
         GUILayout.Space(20);
 
@@ -192,6 +200,56 @@ public class PoseTriggerEditor : Editor
 
         GUILayout.EndHorizontal();
 
+        if (Trigger.AutoSave)
+            GUI.color = Color.red;
+        else if (Trigger.NeedsSave)
+            GUI.color = Color.yellow;
+
+        GUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("Save Constraints"))
+            Trigger.SavePoseConstraints();
+        if (GUILayout.Button("Revert Constraints"))
+            Trigger.ResetPoseConstraints();
+
+        GUILayout.EndHorizontal();
+        GUI.color = Color.white;
+
+        DrawExportOption();
+
+        GUILayout.EndVertical();
+    }
+
+    private string m_newPoseName = "newPose";
+
+    private const string PATH_POSEDATA = "Assets/ENGAGE_CreatorSDK/Scripts/Engine/PoseSystem/PoseData/";
+
+    private void DrawExportOption()
+    {
+        GUILayout.BeginVertical("Export Constraints as PoseData:", GUI.skin.box);
+
+        GUILayout.Space(20);
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("New Pose Name:", GUILayout.Width(150));
+        m_newPoseName = GUILayout.TextField(m_newPoseName, 30);
+        GUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Export Constraints"))
+        {
+            PoseData newPose = ScriptableObject.CreateInstance<PoseData>();
+
+            newPose.CopyConstraints(Trigger.ConstraintData, Trigger.Transform, m_avatarHeight);
+
+            AssetDatabase.CreateAsset(newPose, PATH_POSEDATA + m_newPoseName + ".asset");
+            AssetDatabase.SaveAssets();
+
+            EditorUtility.FocusProjectWindow();
+
+            Selection.activeObject = newPose;
+            EditorGUIUtility.PingObject(newPose);
+        }
+
         GUILayout.EndVertical();
     }
 
@@ -215,6 +273,7 @@ public class PoseTriggerEditor : Editor
                 if (GUILayout.Button("Clear"))
                 {
                     RemoveConstraint(i);
+                    Trigger.UpdateSave();
                     return;
                 }
             }
@@ -232,6 +291,7 @@ public class PoseTriggerEditor : Editor
                 else if (GUILayout.Button("Clear"))
                 {
                     RemoveConstraint(i, Trigger.ConstraintData[i].Anchor);
+                    Trigger.UpdateSave();
                     return;
                 }
             }
@@ -245,7 +305,10 @@ public class PoseTriggerEditor : Editor
 
         GUILayout.Label(bodyPart.ToString(), GUILayout.Width(100));
         if (GUILayout.Button("Create Constraint"))
+        {
             AddConstraint(bodyPart);
+            Trigger.UpdateSave();
+        }
 
         GUILayout.EndHorizontal();
     }
@@ -259,32 +322,34 @@ public class PoseTriggerEditor : Editor
         return false;
     }
 
-    private void PopulateConstraints()
+    private void PopulateConstraints(PoseData data = null)
     {
         if (!HasConstraint(PoseBodyPart.HEAD))
-            AddConstraint(PoseBodyPart.HEAD);
+            AddConstraint(PoseBodyPart.HEAD, data);
         if (!HasConstraint(PoseBodyPart.PELVIS))
-            AddConstraint(PoseBodyPart.PELVIS);
+            AddConstraint(PoseBodyPart.PELVIS, data);
         if (!HasConstraint(PoseBodyPart.CHEST))
-            AddConstraint(PoseBodyPart.CHEST);
+            AddConstraint(PoseBodyPart.CHEST, data);
 
         if (!HasConstraint(PoseBodyPart.RIGHT_HAND))
-            AddConstraint(PoseBodyPart.RIGHT_HAND);
+            AddConstraint(PoseBodyPart.RIGHT_HAND, data);
         if (!HasConstraint(PoseBodyPart.LEFT_HAND))
-            AddConstraint(PoseBodyPart.LEFT_HAND);
+            AddConstraint(PoseBodyPart.LEFT_HAND, data);
         if (!HasConstraint(PoseBodyPart.RIGHT_ELBOW))
-            AddConstraint(PoseBodyPart.RIGHT_ELBOW);
+            AddConstraint(PoseBodyPart.RIGHT_ELBOW, data);
         if (!HasConstraint(PoseBodyPart.LEFT_ELBOW))
-            AddConstraint(PoseBodyPart.LEFT_ELBOW);
+            AddConstraint(PoseBodyPart.LEFT_ELBOW, data);
 
         if (!HasConstraint(PoseBodyPart.RIGHT_FOOT))
-            AddConstraint(PoseBodyPart.RIGHT_FOOT);
+            AddConstraint(PoseBodyPart.RIGHT_FOOT, data);
         if (!HasConstraint(PoseBodyPart.LEFT_FOOT))
-            AddConstraint(PoseBodyPart.LEFT_FOOT);
+            AddConstraint(PoseBodyPart.LEFT_FOOT, data);
         if (!HasConstraint(PoseBodyPart.RIGHT_KNEE))
-            AddConstraint(PoseBodyPart.RIGHT_KNEE);
+            AddConstraint(PoseBodyPart.RIGHT_KNEE, data);
         if (!HasConstraint(PoseBodyPart.LEFT_KNEE))
-            AddConstraint(PoseBodyPart.LEFT_KNEE);
+            AddConstraint(PoseBodyPart.LEFT_KNEE, data);
+
+        Trigger.UpdateSave();
     }
 
     private void ClearConstraints()
@@ -293,21 +358,44 @@ public class PoseTriggerEditor : Editor
         {
             RemoveConstraint(i, Trigger.ConstraintData[i].Anchor);
         }
+
+        Trigger.UpdateSave();
     }
 
-    private void AddConstraint(PoseBodyPart bodyPart)
+    private void AddConstraint(PoseBodyPart bodyPart, PoseData pose = null)
     {
         Undo.RecordObject(target, "Created " + bodyPart);
 
-        Transform anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
-        anchor.parent = Trigger.transform;
-        if (Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+        Transform anchor = Trigger.GetBodyTransform(bodyPart);
+
+        if (anchor == null)
+        {
+            anchor = new GameObject(bodyPart.ToString() + "_Anchor").transform;
+            anchor.parent = Trigger.transform;
+            Trigger.SetBodyTransform(bodyPart, anchor);
+        }
+
+        if (pose != null)
+        {
+            float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
+
+            PoseDataHandle handle = pose.GetBodyPartHandle(bodyPart);
+            Vector3 pos = Quaternion.AngleAxis(angle, Vector3.up) * handle.Position;
+            pos = (pos * m_avatarHeight) + Trigger.Position;
+
+            //Debug.Log("Adding constraint " + Trigger.transform.localEulerAngles);
+            Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up) * Quaternion.Euler(handle.Rotation);
+            //Quaternion rot = Trigger.ConstraintDictionary[bodyPart].Rotation;
+            anchor.rotation = rot;
+            anchor.position = pos;
+        }
+        else if (Trigger.ConstraintDictionary.ContainsKey(bodyPart))
         {
             anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
 
             float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
 
-            Debug.Log("Adding constraint " + Trigger.transform.localEulerAngles);
+            //Debug.Log("Adding constraint " + Trigger.transform.localEulerAngles);
             Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up) * Trigger.ConstraintDictionary[bodyPart].Rotation;
             //Quaternion rot = Trigger.ConstraintDictionary[bodyPart].Rotation;
             anchor.rotation = rot;
@@ -320,6 +408,8 @@ public class PoseTriggerEditor : Editor
         PoseConstraintData[] constraints = Trigger.ConstraintData;
         ArrayUtility.Add<PoseConstraintData>(ref constraints, data);
         Trigger.ConstraintData = constraints;
+
+        //Trigger.SavePoseConstraints();
     }
 
     private void RemoveConstraint(int id, Transform anchor = null)
@@ -330,8 +420,8 @@ public class PoseTriggerEditor : Editor
         ArrayUtility.RemoveAt<PoseConstraintData>(ref constraints, id);
         Trigger.ConstraintData = constraints;
 
-        if (anchor != null)
-            GameObject.DestroyImmediate(anchor.gameObject);
+        //if (anchor != null)
+        //    GameObject.DestroyImmediate(anchor.gameObject);
     }
 
     #endregion
@@ -354,7 +444,7 @@ public class PoseTriggerEditor : Editor
         if (pos == Trigger.ConstraintDictionary[bodyPart].Position && rot == Trigger.ConstraintDictionary[bodyPart].Rotation)
             return;
 
-        Undo.RecordObject(Trigger.TestPoseData, "Moved " + bodyPart);
+        Undo.RecordObject(Trigger.DefaultPoseData, "Moved " + bodyPart);
 
         pos -= Trigger.Position;
         pos /= m_avatarHeight;
@@ -364,8 +454,8 @@ public class PoseTriggerEditor : Editor
 
         //Debug.Log("Updating " + bodyPart + " to POS : [" + pos + "] ROT : [" + rot + "]");
 
-        Trigger.TestPoseData.UpdatePosition(bodyPart, pos);
-        Trigger.TestPoseData.UpdateRotation(bodyPart, rot.eulerAngles);
+        Trigger.DefaultPoseData.UpdatePosition(bodyPart, pos);
+        Trigger.DefaultPoseData.UpdateRotation(bodyPart, rot.eulerAngles);
 
         m_requiresRefresh = true;
     }
@@ -380,7 +470,7 @@ public class PoseTriggerEditor : Editor
 
         Event evt = Event.current;
         Rect drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
-        GUI.Box(drop_area, "Drop PoseTrigger to Copy Constraints");
+        GUI.Box(drop_area, "Drop PoseTrigger or PoseData to Copy Constraints");
 
         switch (evt.type)
         {
@@ -397,6 +487,9 @@ public class PoseTriggerEditor : Editor
 
                     foreach (Object dragged_object in DragAndDrop.objectReferences)
                     {
+                        if (CopyConstraints(dragged_object as PoseData))
+                            return;
+
                         GameObject dummy = dragged_object as GameObject;
 
                         if (dummy == null)
@@ -431,6 +524,19 @@ public class PoseTriggerEditor : Editor
         return true;
     }
 
+    public bool CopyConstraints(PoseData pose)
+    {
+        if (pose == null)
+            return false;
+
+        Debug.Log("CopyingConstraints from pose");
+
+        ClearConstraints();
+        PopulateConstraints(pose);
+
+        return true;
+    }
+
     private Transform CopyTransformToLocal(Transform anchor)
     {
         if (anchor == null)
@@ -441,94 +547,94 @@ public class PoseTriggerEditor : Editor
         newAnchor.rotation = anchor.rotation;
         newAnchor.localPosition = anchor.localPosition;
 
-        Debug.Log("Copied Anchor " + newAnchor.name);
-
         return newAnchor;
     }
 
+
+
     #endregion
 
-    #region Meshes
+    #region Pose Data Overrides
 
-    private bool hndlMeshesCreated = false;
-    public Transform lfHandle, rfHandle, sHandle;
-
-    private Vector3 m_footRotOffset = new Vector3(0, 90, 0);
-    private Vector3 m_pelvisRotOffset = new Vector3(0, 90, 0);
-
-    //private void OnDisable()
-    //{
-    //    if (hndlMeshesCreated)
-    //        DestroyHandleMeshes();
-    //}
-
-    void CreateHandleMeshes()
+    private void DrawAllPoseOverrides()
     {
-        if (hndlMeshesCreated)
-            return;
+        GUILayout.BeginVertical("Edit PoseData Positions", GUI.skin.box);
 
-        SetupMesh(PoseBodyPart.RIGHT_FOOT, "Prefab_Mesh_FootR", ref rfHandle);
-        SetupMesh(PoseBodyPart.LEFT_FOOT, "Prefab_Mesh_FootL", ref lfHandle);
-        SetupMesh(PoseBodyPart.PELVIS, "Prefab_Mesh_Seat", ref sHandle);
+        GUILayout.Space(20);
 
-        lfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
-            rfHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
-            sHandle.gameObject.AddComponent<MeshRenderer>().sharedMaterial =
-            Resources.Load<Material>("SeatPrevis");
+        DrawPoseOverride(PoseArchetype.SIT_CLOSED_LEG);
+        DrawPoseOverride(PoseArchetype.SIT_OPEN_LEG);
 
-        hndlMeshesCreated = true;
+        GUILayout.EndVertical();
     }
 
-    private void UpdateMeshes()
+    private void DrawPoseOverride(PoseArchetype archetype)
     {
-        CreateHandleMeshes();
+        GUILayout.BeginHorizontal(archetype.ToString(), GUI.skin.box);
+        
+        GUILayout.Space(20);
 
-        UpdateMesh(PoseBodyPart.RIGHT_FOOT, rfHandle, m_footRotOffset);
-        UpdateMesh(PoseBodyPart.LEFT_FOOT, lfHandle, m_footRotOffset);
-        UpdateMesh(PoseBodyPart.PELVIS, sHandle, m_pelvisRotOffset);
-    }
+        List<PoseOverrides> poses;
 
-    private void SetupMesh(PoseBodyPart bodyPart, string resourceName, ref Transform anchor)
-    {
-        anchor = new GameObject(bodyPart.ToString() + "_MESH").transform;
-        anchor.hideFlags = HideFlags.HideAndDontSave;
-
-        if (Trigger.ConstraintDictionary != null && Trigger.ConstraintDictionary.ContainsKey(bodyPart))
+        if (!Trigger.GetOverrides(archetype, out poses))
         {
-            anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
-            anchor.rotation = Trigger.ConstraintDictionary[bodyPart].Rotation;
+            GUILayout.Label("Using Default");
+            if (GUILayout.Button("Override"))
+            {
+                Trigger.AddPoseOverride(archetype, new PoseOverrides());
+                //PopulateConstraints();
+                //Trigger.SavePoseConstraints();
+                //Trigger.SelectOverride(archetype, 0);
+                return;
+            }
+
+            GUILayout.EndHorizontal();
+            return;
         }
 
-        anchor.gameObject.AddComponent<MeshFilter>().mesh = Resources.Load<GameObject>(resourceName).GetComponent<MeshFilter>().sharedMesh;
-        anchor.SetParent(Trigger.Transform);
-    }
+        GUILayout.BeginVertical(GUI.skin.box);
+        //GUILayout.Space(20);
 
-    private void UpdateMesh(PoseBodyPart bodyPart, Transform anchor, Vector3? rotOffset = null)
-    {
-        if (Trigger.ConstraintDictionary == null || !Trigger.ConstraintDictionary.ContainsKey(bodyPart))
-            return;
-
-        Quaternion rot = Trigger.ConstraintDictionary[bodyPart].Rotation;
-
-        if (rotOffset != null)
-            rot = Quaternion.Euler(rotOffset.Value) * rot;
-
-        if (Trigger.ConstraintDictionary[bodyPart].FromPoseData)
+        GUILayout.BeginHorizontal();
+        GUILayout.Label(archetype.ToString());
+        if (GUILayout.Button("+", GUILayout.Width(25)))
         {
-            float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
-            rot *= Quaternion.AngleAxis(angle, Vector3.up);
+            Trigger.AddPoseOverride(archetype, new PoseOverrides());
+            //PopulateConstraints(); 
+            //Trigger.SavePoseConstraints();
+        }
+        GUILayout.EndHorizontal();
+
+        for (int i = 0; i < poses.Count; i++)
+        {
+            GUILayout.Space(10);
+
+            if (Trigger.IsOverrideSelected(archetype, i))
+                GUI.color = Color.green;
+
+            GUILayout.BeginHorizontal(archetype.ToString(), GUI.skin.box);
+
+            if (GUILayout.Button(archetype.ToString() + " Override " + i))
+            {
+                Trigger.SelectOverride(archetype, i);
+                RefreshView();
+                GUILayout.EndHorizontal();
+                break;
+            }
+
+            if (GUILayout.Button("-", GUILayout.Width(25)))
+            {
+                Trigger.RemovePoseOverride(archetype, i);
+                GUILayout.EndHorizontal();
+                break;
+            }
+
+            GUI.color = Color.white;
+            GUILayout.EndHorizontal();
         }
 
-        anchor.position = Trigger.ConstraintDictionary[bodyPart].Position;
-        anchor.rotation = rot;
-    }
-
-    void DestroyHandleMeshes()
-    {
-        DestroyImmediate(lfHandle.gameObject);
-        DestroyImmediate(rfHandle.gameObject);
-        DestroyImmediate(sHandle.gameObject);
-        hndlMeshesCreated = false;
+        GUILayout.EndVertical();
+        GUILayout.EndHorizontal();
     }
 
     #endregion
