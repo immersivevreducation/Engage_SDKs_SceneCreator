@@ -111,6 +111,7 @@ namespace Engage.Avatars.Poses
         [SerializeField]
         private PoseMapping m_leftKneeOverride;
 
+        [SerializeField]
         private bool m_overrideHead, m_overrideChest, m_overridePelvis,
             m_overrideRightHand, m_overrideLeftHand, m_overrideRightElbow, m_overrideLeftElbow,
             m_overrideRightFoot, m_overrideLeftFoot, m_overrideRightKnee, m_overrideLeftKnee;

@@ -398,8 +398,8 @@ namespace Engage.Avatars.Poses
             SetupRotation();
 
             ApplyBodyPartAI(PoseBodyPart.PELVIS);
-            ApplyBodyPartAI(PoseBodyPart.HEAD);
-            ApplyBodyPartAI(PoseBodyPart.CHEST);
+            //ApplyBodyPartAI(PoseBodyPart.HEAD);
+            //ApplyBodyPartAI(PoseBodyPart.CHEST);
 
             ApplyBodyPartAI(PoseBodyPart.LEFT_FOOT);
             ApplyBodyPartAI(PoseBodyPart.LEFT_KNEE);
@@ -411,11 +411,45 @@ namespace Engage.Avatars.Poses
             ApplyBodyPartAI(PoseBodyPart.LEFT_ELBOW);
             ApplyBodyPartAI(PoseBodyPart.RIGHT_ELBOW);
 
+            if (m_constraintDictionary.ContainsKey(PoseBodyPart.HEAD))
+                m_constraintDictionary.Remove(PoseBodyPart.HEAD);
+            if (m_constraintDictionary.ContainsKey(PoseBodyPart.CHEST))
+                m_constraintDictionary.Remove(PoseBodyPart.CHEST);
+
+            m_constraintDictionary.Add(PoseBodyPart.CHEST, new PoseMapping(GetChestPos(m_avatarHeight)));
+            m_constraintDictionary.Add(PoseBodyPart.HEAD, new PoseMapping(GetHeadPos(m_avatarHeight)));
+
             //DrawHandles();
 
         }
 
         private Vector3 m_rotOffsetFoot = new Vector3(0, -32f, 0);
+
+        public Vector3 GetHeadPos(float height)
+        {
+            Vector3 pos = m_constraintDictionary[PoseBodyPart.PELVIS].Position;
+            Vector3 headOffset = Vector3.up * (height * .4f);
+
+            headOffset = m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * headOffset;
+
+            Debug.DrawLine(pos, pos + headOffset);
+
+            return pos + headOffset;
+            //pos = (m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * Quaternion.AngleAxis(-90, Vector3.right)) * pos;
+        }
+
+        public Vector3 GetChestPos(float height)
+        {
+            Vector3 pos = m_constraintDictionary[PoseBodyPart.PELVIS].Position;
+            Vector3 headOffset = Vector3.up * (height * .25f);
+
+            headOffset = m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * headOffset;
+
+            Debug.DrawLine(pos, pos + headOffset);
+
+            return pos + headOffset;
+            //pos = (m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * Quaternion.AngleAxis(-90, Vector3.right)) * pos;
+        }
 
         private void DrawMeshes()
         {
@@ -442,10 +476,10 @@ namespace Engage.Avatars.Poses
 
         private void DrawPelvis()
         {
-            DrawCube(PoseBodyPart.PELVIS, size: new Vector3(.2f, .10f, .05f), rotOffset: new Vector3(0, -90, 0));
-            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(0f, .1f, 0f), size: new Vector3(.05f, .1f, .05f), rotOffset: new Vector3(0, -90, 0));
-            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f), rotOffset: new Vector3(0, -90, 0));
-            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(-.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f), rotOffset: new Vector3(0, -90, 0));
+            DrawCube(PoseBodyPart.PELVIS, size: new Vector3(.2f, .10f, .05f), rotOffset: new Vector3(0, 0, 0));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(0f, .1f, 0f), size: new Vector3(.05f, .1f, .05f), rotOffset: new Vector3(0, 0, 0));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f), rotOffset: new Vector3(0, 0, 0));
+            DrawCube(PoseBodyPart.PELVIS, posOffset: new Vector3(-.075f, -.03f, -.05f), size: new Vector3(.03f, .03f, .1f), rotOffset: new Vector3(0, 0, 0));
         }
 
         private void DrawArmMeshes()
