@@ -69,17 +69,17 @@ public class CreatorSDKUpdateHandler : EditorWindow
         Task<int> updateTask = Task.Run(() => RunBatchFile(cmdsBatchFile));
         var results = await Task.WhenAny(updateTask);
         
-        if (results.Result == 0)
-        {
+        // if (results.Result == 0)
+        // {
             Debug.Log("Update Complete - Refreshing Assets");
             EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
             AssetDatabase.Refresh();
-        }
-        else
-        {
-            Debug.Log("Update Error Exist Code: "+results);
-            //AssetDatabase.Refresh();
-        }
+        //}
+        // else
+        // {
+        //     Debug.Log("Update Error Exist Code: "+results);
+        //     //AssetDatabase.Refresh();
+        // }
         #if UNITY_2019_3_OR_NEWER
             AssetDatabase.AllowAutoRefresh();
         #endif
