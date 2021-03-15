@@ -85,10 +85,7 @@ namespace AssetBundles
         
         private void OnGUI()
         {
-            if (GUILayout.Button("Test button"))
-            {
-                CreatorSDKUpdateHandler.SDKUpdate(Application.dataPath.Replace("/Assets", ""), Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate");
-            }
+            
             GUILayout.Label("ENGAGE Creator SDK");
             EditorGUILayout.Space();
 
@@ -199,7 +196,7 @@ namespace AssetBundles
 
                     if (currentSDKVersion != NewSDKVersion)
                     {
-                        Debug.Log("Update Found: Current = "+currentSDKVersion +"New: "+NewSDKVersion);
+                        Debug.Log("Update Found: Current = "+currentSDKVersion +" New = "+NewSDKVersion);
                         packageUpToDate=false;
                         packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                         if (File.Exists(path2))

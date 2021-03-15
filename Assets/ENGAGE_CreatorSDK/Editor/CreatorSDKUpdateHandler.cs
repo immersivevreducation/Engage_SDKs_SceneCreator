@@ -1,8 +1,9 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using Process = System.Diagnostics.Process;
+using System.Threading.Tasks;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 
@@ -51,15 +52,41 @@ public class CreatorSDKUpdateHandler : EditorWindow
         }
         else
         {
-            PerformUpdateOverwriteToLocalSDK(updateSDkPath);
+            PerformUpdateOverwriteToLocalSDK(updateSDkPath);          
         }
         
          
         
     }
-    public static void PerformUpdateOverwriteToLocalSDK(string updatePath)
+    public async static void PerformUpdateOverwriteToLocalSDK(string updatePath)
     {
-        RunBatchFile(CreateBatchCMDSFile(updatePath+"\\SDKUpdate.bat", CreateSDKCopyBatchFile(updatePath)));
+        #if UNITY_2019_3_OR_NEWER
+            AssetDatabase.DisallowAutoRefresh(); //seems like this function is missing in 2019.02 becasue of a bug
+            //the update will still work it just wont tell the user that it finished.
+        #endif
+        string cmdsBatchFile = CreateBatchCMDSFile(updatePath+"\\SDKUpdate.bat", CreateSDKCopyBatchFile(updatePath));
+        
+        Task<int> updateTask = Task.Run(() => RunBatchFile(cmdsBatchFile));
+        var results = await Task.WhenAny(updateTask);
+        
+        if (results.Result == 0)
+        {
+            Debug.Log("Update Complete - Refreshing Assets");
+            EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
+            AssetDatabase.Refresh();
+        }
+        else
+        {
+            Debug.Log("Update Error Exist Code: "+results);
+            //AssetDatabase.Refresh();
+        }
+        #if UNITY_2019_3_OR_NEWER
+            AssetDatabase.AllowAutoRefresh();
+        #endif
+       
+        
+        
+        
     }   
     static List<string> CreateSDKCopyBatchFile(string pathToNewSDKFolder)
     {
@@ -67,24 +94,24 @@ public class CreatorSDKUpdateHandler : EditorWindow
         
 
         commands.Add("robocopy "+"\""+pathToNewSDKFolder+"\" "+Application.dataPath+"/ENGAGE_CreatorSDK /MIR");
-        commands.Add("DEL /Q /S "+"\""+pathToNewSDKFolder+"\" ");
+        commands.Add("rmdir  /Q /S "+"\""+pathToNewSDKFolder+"\" ");
 
-        commands.Add("\""+EditorApplication.applicationPath+"\"  -projectPath \""+Application.dataPath.Replace("/Assets", "")+"\" -executeMethod CreatorSDKUpdateHandler.UpdateComplete");
+        //commands.Add("\""+EditorApplication.applicationPath+"\"  -projectPath \""+Application.dataPath.Replace("/Assets", "")+"\" -executeMethod CreatorSDKUpdateHandler.UpdateComplete");
 
         Debug.Log("BatchFile created at: "+pathToNewSDKFolder);
         return commands;
     }
-    public static void UpdateComplete()
-    {
-        Debug.Log("Update Complete");
-        string updateSDkPath = Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate";
-        if (Directory.Exists(updateSDkPath))
-        {
-            DirectoryInfo UpdateDir = new DirectoryInfo(updateSDkPath);
-            UpdateDir.Delete();
-        }
-        EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
-    }
+    // public static void UpdateComplete()
+    // {
+    //     Debug.Log("Update Complete");
+    //     string updateSDkPath = Application.dataPath.Replace("/Assets", "")+@"\SdkUpdate";
+    //     if (Directory.Exists(updateSDkPath))
+    //     {
+    //         DirectoryInfo UpdateDir = new DirectoryInfo(updateSDkPath);
+    //         UpdateDir.Delete();
+    //     }
+    //     EditorUtility.DisplayDialog("Update Complete", "Update Complete", "OK", "");
+    // }
     public static string CreateBatchCMDSFile(string pathforBatch,List<string> input,List<string> input2=null,List<string> input3=null)
         {
 
@@ -146,12 +173,13 @@ public class CreatorSDKUpdateHandler : EditorWindow
     {  
         return (f1.Name == f2.Name);  
     } 
-   static void RunBatchFile(string path)
+   static Task<int> RunBatchFile(string path)
     {
+        var tcs = new TaskCompletionSource<int>();
         FileInfo info = new FileInfo(path);
         ProcessStartInfo startInfo = new ProcessStartInfo(info.FullName);       
-        startInfo.CreateNoWindow = true;
-        startInfo.UseShellExecute = false;
+        // startInfo.CreateNoWindow = true;
+        // startInfo.UseShellExecute = false;
         
         var process = new Process();           
         process.EnableRaisingEvents=true;           
@@ -159,7 +187,13 @@ public class CreatorSDKUpdateHandler : EditorWindow
         
         process.StartInfo=startInfo;
         process.Start();
-            
+
+        process.Exited += (sender, args) =>
+        {
+            tcs.SetResult(process.ExitCode);
+            process.Dispose();
+        };
+        return tcs.Task;    
     }
 
 }
