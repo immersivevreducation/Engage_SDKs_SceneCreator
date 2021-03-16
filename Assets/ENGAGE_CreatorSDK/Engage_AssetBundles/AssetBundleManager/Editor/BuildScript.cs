@@ -47,6 +47,7 @@ namespace AssetBundles
             {
                 EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneOSX);
             }
+            BuildAssetBundles();
         }
 
         public static void BuildAssetBundles()
