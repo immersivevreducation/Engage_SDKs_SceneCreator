@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using Process = System.Diagnostics.Process;
 using System.Threading.Tasks;
@@ -149,11 +150,16 @@ public class CreatorSDKUpdateHandler : EditorWindow
 
         //Filter out items that paths have engage sdk in them, since we will be overwriting the sdk anyway.
         List<FileInfo> filteredSDKOldList = new List<FileInfo>();
+        
+        string[] exclude = {"LightingData","Lightmap","ReflectionProbe"};//Filter out these file names
         foreach (var item in SDKOldList)
         {
             if (!item.FullName.Contains("\\ENGAGE_CreatorSDK\\") && !item.FullName.Contains(".meta")) //also filter out .meta becasue they can be assumed to exist and therefore no need to clutter ui
             {
-                filteredSDKOldList.Add(item);
+                if(!exclude.Any(item.Name.Contains))
+                {
+                    filteredSDKOldList.Add(item);
+                }
             }
             //Debug.Log("SDK Old LISt: "+item.Name); 
         }   
