@@ -180,9 +180,12 @@ namespace Engage.Avatars.Poses
 
         public PoseOverrides() { }
 
-        public PoseOverrides(PoseConstraintData[] constraints, Transform parent = null)
+        public PoseOverrides(PoseConstraintData[] constraints, float minHeight = -1, float maxHeight = -1)
         {
             ClearOverrides();
+
+            m_minHeight = minHeight;
+            m_maxHeight = maxHeight;
 
             for(int i = 0; i < constraints.Length; i++)
             {
@@ -242,5 +245,34 @@ namespace Engage.Avatars.Poses
             m_overrideRightHand = m_overrideLeftHand = m_overrideRightElbow = m_overrideLeftElbow =
             m_overrideRightFoot = m_overrideLeftFoot = m_overrideRightKnee = m_overrideLeftKnee = false;
         }
+
+        #region Restrictions
+
+        private const float MIN_AVATAR_HEIGHT = 1.00f;
+        private const float MAX_AVATAR_HEIGHT = 2.15f;
+
+        [SerializeField]
+        private float m_minHeight = -1f;
+        [SerializeField]
+        private float m_maxHeight = -1f;
+
+        public float MinHeight { get { return m_minHeight; } set { m_minHeight = value; } }
+        public float MaxHeight { get { return m_maxHeight; } set { m_maxHeight = value; } }
+
+        public bool HasMinHeight { get { return m_minHeight > MIN_AVATAR_HEIGHT && m_minHeight < MAX_AVATAR_HEIGHT; } }
+        public bool HasMaxHeight { get { return m_maxHeight > MIN_AVATAR_HEIGHT && m_maxHeight < MAX_AVATAR_HEIGHT; } }
+
+        public bool CheckHeight(float avatarHeight)
+        {
+            if (HasMinHeight && m_minHeight > avatarHeight)
+                return false;
+
+            if (HasMaxHeight && m_maxHeight < avatarHeight)
+                return false;
+
+            return true;
+        }
+
+        #endregion
     }
 }

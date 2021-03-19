@@ -64,17 +64,16 @@ namespace Engage.Avatars.Poses
                     return true;
 
             return false;
-            //return m_overrideDictionary != null && m_overrideDictionary.ContainsKey(archetype);
         }
 
-        public bool GetOverrides(PoseArchetype archetype, out List<PoseOverrides> overrides) 
+        public bool GetOverrides(PoseArchetype archetype, out List<PoseOverrides> overrides)
         {
             if (m_overrides == null || m_overrides.Count == 0)
                 InitialiseOverridesByType();
 
             overrides = null;
 
-            for(int i = 0; i < m_overrides.Count; i++)
+            for (int i = 0; i < m_overrides.Count; i++)
             {
                 if (m_overrides[i].Archetype == archetype)
                 {
@@ -86,30 +85,29 @@ namespace Engage.Avatars.Poses
             return overrides != null;
         }
 
+
+        public bool GetCurrentOverrides(out PoseOverrides poseOverride)
+        {
+            List<PoseOverrides> overrides;
+            poseOverride = null;
+
+            if (!GetOverrides(m_currentArchetype, out overrides))
+                return false;
+
+            if (overrides.Count <= m_currentID)
+                return false;
+
+            poseOverride = overrides[m_currentID];
+            return true;
+        }
+
         public bool IsOverrideSelected(PoseArchetype archetype, int id)
         {
             return m_currentArchetype == archetype && m_currentID == id;
         }
 
-        //public bool PoseOverrides(PoseArchetype archetype, out List<PoseOverrides> poses)
-        //{
-        //    if (!HasOverrides(archetype))
-        //    {
-        //        poses = null;
-        //        return false;
-        //    }
-
-        //    poses = m_overrideDictionary[archetype];
-        //    return true;
-        //}
-
         public void AddPoseOverride(PoseArchetype archetype, PoseOverrides data = null)
         {
-            //if (!HasOverrides(archetype))
-            //    InitialisePoseType();
-
-            //m_overrideDictionary[archetype].Add(data);
-
             if (m_overrides == null || m_overrides.Count == 0)
                 InitialiseOverridesByType();
 
@@ -127,11 +125,6 @@ namespace Engage.Avatars.Poses
 
         public void RemovePoseOverride(PoseArchetype archetype, int id)
         {
-            //if (!HasOverrides(archetype))
-            //    return;
-
-            //m_overrideDictionary[archetype].RemoveAt(id);
-
             if (m_overrides == null || m_overrides.Count == 0)
                 InitialiseOverridesByType();
 
@@ -147,11 +140,6 @@ namespace Engage.Avatars.Poses
 
         public void SetPoseOverride(PoseArchetype archetype, int id, PoseOverrides data = null)
         {
-            //if (!HasOverrides(archetype))
-            //    return;
-
-            //m_overrideDictionary[archetype][id] = data;
-
             if (m_overrides == null)
                 InitialiseOverridesByType();
 
@@ -170,10 +158,6 @@ namespace Engage.Avatars.Poses
             switch (Type)
             {
                 case PoseType.SITTING:
-                    //m_overrideDictionary = new Dictionary<PoseArchetype, List<PoseOverrides>>(2);
-                    //m_overrideDictionary.Add(PoseArchetype.SIT_CLOSED_LEG, new List<PoseOverrides>(1));
-                    //m_overrideDictionary.Add(PoseArchetype.SIT_OPEN_LEG, new List<PoseOverrides>(1));
-
                     m_overrides = new List<PoseOverridesGroup>(2);
                     m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_CLOSED_LEG));
                     m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_OPEN_LEG));
@@ -194,8 +178,6 @@ namespace Engage.Avatars.Poses
 
         public void ResetPoseConstraints()
         {
-            //PoseOverrides overrides = m_overrideDictionary[m_currentArchetype][m_currentID];
-
             List<PoseOverrides> overrides;
             if (!GetOverrides(m_currentArchetype, out overrides))
             {
@@ -227,7 +209,8 @@ namespace Engage.Avatars.Poses
             if (!GetOverrides(m_currentArchetype, out overrides))
                 return;
 
-            overrides[m_currentID] = new PoseOverrides(m_constraintData);
+            PoseOverrides oldOverrides = overrides[m_currentID];
+            overrides[m_currentID] = new PoseOverrides(m_constraintData, oldOverrides.MinHeight, oldOverrides.MaxHeight);
 
 #if UNITY_EDITOR
             RefreshConstraintData();
@@ -370,17 +353,13 @@ namespace Engage.Avatars.Poses
         }
 
         private float m_avatarHeight = 1.88f;
+        public float AvatarHeight { get { return m_avatarHeight; } set { m_avatarHeight = value; } }
 
         private Dictionary<PoseBodyPart, PoseMapping> m_constraintDictionary;
         public Dictionary<PoseBodyPart, PoseMapping> ConstraintDictionary { get { return m_constraintDictionary; } }
 
         public void RefreshConstraintData()
         {
-            //DrawFrustrum(m_centerTransform);
-
-            //if (ConstraintData == null || ConstraintData.Length == 0)
-            //    return;
-
             if (m_constraintDictionary == null)
                 m_constraintDictionary = new Dictionary<PoseBodyPart, PoseMapping>(11);
             else
@@ -420,7 +399,6 @@ namespace Engage.Avatars.Poses
             m_constraintDictionary.Add(PoseBodyPart.HEAD, new PoseMapping(GetHeadPos(m_avatarHeight)));
 
             //DrawHandles();
-
         }
 
         private Vector3 m_rotOffsetFoot = new Vector3(0, -32f, 0);
@@ -435,7 +413,6 @@ namespace Engage.Avatars.Poses
             Debug.DrawLine(pos, pos + headOffset);
 
             return pos + headOffset;
-            //pos = (m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * Quaternion.AngleAxis(-90, Vector3.right)) * pos;
         }
 
         public Vector3 GetChestPos(float height)
@@ -448,7 +425,6 @@ namespace Engage.Avatars.Poses
             Debug.DrawLine(pos, pos + headOffset);
 
             return pos + headOffset;
-            //pos = (m_constraintDictionary[PoseBodyPart.PELVIS].Rotation * Quaternion.AngleAxis(-90, Vector3.right)) * pos;
         }
 
         private void DrawMeshes()

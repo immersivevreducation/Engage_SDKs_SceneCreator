@@ -31,10 +31,12 @@ public class PoseTriggerEditor : Editor
         base.OnInspectorGUI();
 
         DrawAllPoseOverrides();
+        DrawHeightChange();
 
         if (Trigger.HasOverrides(Trigger.Archetype, true))
         {
             DrawOverrideOptions();
+            DrawRestrictions();
             DrawCopyPose();
         }
 
@@ -123,8 +125,6 @@ public class PoseTriggerEditor : Editor
     #region EditorStuff
 
     private bool m_drawEditor = true;
-
-    private float m_avatarHeight = 1.88f;
 
     private bool m_requiresRefresh = false;
 
@@ -239,7 +239,7 @@ public class PoseTriggerEditor : Editor
         {
             PoseData newPose = ScriptableObject.CreateInstance<PoseData>();
 
-            newPose.CopyConstraints(Trigger.ConstraintData, Trigger.Transform, m_avatarHeight);
+            newPose.CopyConstraints(Trigger.ConstraintData, Trigger.Transform, Trigger.AvatarHeight);
 
             AssetDatabase.CreateAsset(newPose, PATH_POSEDATA + m_newPoseName + ".asset");
             AssetDatabase.SaveAssets();
@@ -250,6 +250,76 @@ public class PoseTriggerEditor : Editor
             EditorGUIUtility.PingObject(newPose);
         }
 
+        GUILayout.EndVertical();
+    }
+
+    private void DrawHeightChange()
+    {
+        GUILayout.BeginHorizontal(GUI.skin.box);
+        GUILayout.Label("Height: " + Trigger.AvatarHeight, GUILayout.Width(100));
+        EditorGUI.BeginChangeCheck();
+        float avatarHeight = GUILayout.HorizontalSlider(Trigger.AvatarHeight, 1.5f, 2.15f);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(this, "Changed Avatar Height");
+            Trigger.AvatarHeight = avatarHeight;
+            RefreshView();
+        }
+        GUILayout.EndHorizontal();
+    }
+
+    private void DrawRestrictions()
+    {
+        PoseOverrides poseOverride;
+        if (!Trigger.GetCurrentOverrides(out poseOverride))
+            return;
+
+        GUILayout.BeginVertical("Restrictions", GUI.skin.box);
+        {
+            GUILayout.Space(20);
+            
+            GUILayout.BeginHorizontal();
+            {
+                GUILayout.Label("Max Height", GUILayout.Width(80));
+
+                if (poseOverride.HasMaxHeight)
+                {
+                    GUILayout.Label(poseOverride.MaxHeight.ToString("F2") + "m", GUILayout.Width(80));
+                    poseOverride.MaxHeight = GUILayout.HorizontalSlider(poseOverride.MaxHeight, 1.5f, 2.15f);
+                    GUILayout.Space(15);
+                    if (GUILayout.Button("X", GUILayout.Width(25)))
+                        poseOverride.MaxHeight = -1f;
+                }
+                else
+                {
+                    GUILayout.Label("Unrestricted", GUILayout.Width(80));
+                    if (GUILayout.Button("Set Max Height"))
+                        poseOverride.MaxHeight = 2f;
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            {
+                GUILayout.Label("Min Height", GUILayout.Width(80));
+
+                if (poseOverride.HasMinHeight)
+                {
+                    GUILayout.Label(poseOverride.MinHeight.ToString("F2") + "m", GUILayout.Width(80));
+                    poseOverride.MinHeight = GUILayout.HorizontalSlider(poseOverride.MinHeight, 1.5f, 2.15f);
+                    GUILayout.Space(15);
+                    if (GUILayout.Button("X", GUILayout.Width(25)))
+                        poseOverride.MinHeight = -1f;
+                }
+                else
+                {
+                    GUILayout.Label("Unrestricted", GUILayout.Width(80));
+                    if (GUILayout.Button("Set Min Height"))
+                        poseOverride.MinHeight = 1.6f;
+                }
+            }
+            GUILayout.EndHorizontal();
+        }
         GUILayout.EndVertical();
     }
 
@@ -381,7 +451,7 @@ public class PoseTriggerEditor : Editor
 
             PoseDataHandle handle = pose.GetBodyPartHandle(bodyPart);
             Vector3 pos = Quaternion.AngleAxis(angle, Vector3.up) * handle.Position;
-            pos = (pos * m_avatarHeight) + Trigger.Position;
+            pos = (pos * Trigger.AvatarHeight) + Trigger.Position;
 
             //Debug.Log("Adding constraint " + Trigger.transform.localEulerAngles);
             Quaternion rot = Quaternion.AngleAxis(angle, Vector3.up) * Quaternion.Euler(handle.Rotation);
@@ -447,7 +517,7 @@ public class PoseTriggerEditor : Editor
         Undo.RecordObject(Trigger.DefaultPoseData, "Moved " + bodyPart);
 
         pos -= Trigger.Position;
-        pos /= m_avatarHeight;
+        pos /= Trigger.AvatarHeight;
 
         float angle = Vector3.SignedAngle(Vector3.forward, Trigger.Transform.forward, Vector3.up);
         pos = Quaternion.AngleAxis(-angle, Vector3.up) * pos;
