@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +15,7 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////
     AudioSource audioIn;
 
-    Camera PlayerCamera;
+    Camera playerCamera;
 
     
     [SerializeField]
@@ -132,7 +132,11 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     [SerializeField]
     bool from_PlayerRotation_Z;
     
-
+    ///////////////////////
+    [SerializeField]
+    bool from_PlayerCollision;
+    [SerializeField]
+    Collider playerCollisionTarget;
     ///////////////////////
     [SerializeField]
     bool from_PlayerDistance;
@@ -156,9 +160,19 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     bool requireTriggerPress;
     [SerializeField]
     bool requireGrippedPress;
+
+    
          
-    private void OnEnable() 
-    {        
+    private void OnEnable()
+    {
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        
+        UpdateValues = null;
+        //playerCamera = Engage.ScriptHelper.mainCamera;
         //////////////////////////////
         if (from_Positon_X)
         {
@@ -205,11 +219,11 @@ public class IFXAnimationEffectsSend : MonoBehaviour
         }
         ////////////////////////
         if (from_AudioSpectrum)
-        {   
-            if (audioIn !=null)
+        {
+            if (audioIn != null)
             {
                 UpdateValues += GetAudioSpectrum;
-            }            
+            }
             else
             {
                 Debug.Log("AnimationEffect: from AudioSpectrum selected but audioIn input empty");
@@ -217,10 +231,10 @@ public class IFXAnimationEffectsSend : MonoBehaviour
         }
         if (from_AudioVolume)
         {
-            if (audioIn !=null)
+            if (audioIn != null)
             {
                 UpdateValues += GetAudioVolume;
-            }            
+            }
             else
             {
                 Debug.Log("AnimationEffect: from AudioVolume selected but audioIn input empty");
@@ -228,10 +242,10 @@ public class IFXAnimationEffectsSend : MonoBehaviour
         }
         if (from_AudioPitch)
         {
-            if (audioIn !=null)
+            if (audioIn != null)
             {
                 UpdateValues += GetAudioPitch;
-            }            
+            }
             else
             {
                 Debug.Log("AnimationEffect: from AudioPitch selected but audioIn input empty");
@@ -240,7 +254,7 @@ public class IFXAnimationEffectsSend : MonoBehaviour
         //////////////////////////
         if (from_Sine)
         {
-            if (sineFreqInput !=null || sineAmpInput !=null)
+            if (sineFreqInput != null || sineAmpInput != null)
             {
                 UpdateValues += GetSineFromInput;
             }
@@ -248,7 +262,7 @@ public class IFXAnimationEffectsSend : MonoBehaviour
             {
                 UpdateValues += GetSine;
             }
-            
+
         }
         //////////////////////////
         if (from_IncreaseBY)
@@ -261,12 +275,12 @@ public class IFXAnimationEffectsSend : MonoBehaviour
             {
                 UpdateValues += GetIncreaseByInput;
             }
-            
+
         }
         //////////////////////////
         if (from_Random)
         {
-            if (randomMinInput !=null || randomMaxInput !=null)
+            if (randomMinInput != null || randomMaxInput != null)
             {
                 UpdateValues += GetRandomFromInput;
             }
@@ -274,79 +288,12 @@ public class IFXAnimationEffectsSend : MonoBehaviour
             {
                 UpdateValues += GetRandom;
             }
-            
+
         }
         //////////////////////////
-        // if (from_PlayerPositon_X)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerPostition_X;
-        //     }
-        // }
-        // if (from_PlayerPositon_Y)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerPostition_Y;
-        //     }
-        // }
-        // if (from_PlayerPositon_Z)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerPostition_Z;
-        //     }
-        // }
-        // //////////////////////////
-        // if (from_PlayerRotation_X)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerRotation_X;
-        //     }
-        // }
-        // if (from_PlayerRotation_Y)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerRotation_Y;
-        //     }
-        // }
-        // if (from_PlayerRotation_Z)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null)
-        //     {
-        //     UpdateValues += GetPlayerRotation_Z;
-        //     }
-        // }
-        //  //////////////////////////
-        // if (from_PlayerDistance)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null && playerDistanceTarget !=null)
-        //     {
-        //         UpdateValues += GetPlayerDistance;
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-        //     }
-        // }
-        //  if (from_PlayerHandDistance)
-        // {
-        //     if (Engage.ScriptHelper.mainCamera != null && playerHandDistanceTarget !=null)
-        //     {
-        //         UpdateValues += GetPlayerHandDistance;
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-        //     }
-        // }
-         //////////////////////////
         if (from_Collision)
         {
-            if (collider1 != null && collider2 !=null)
+            if (collider1 != null && collider2 != null)
             {
                 UpdateValues += GetCollision;
             }
@@ -356,29 +303,108 @@ public class IFXAnimationEffectsSend : MonoBehaviour
             }
         }
         //////////////////////////
-        // if (from_PlayerTouch)
-        // {
-        //     if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
-        //     {
-        //         UpdateValues += GetPlayerTouchedVR;
-        //     }
-        //     else
-        //     {
-        //          UpdateValues += GetPlayerTouchedMouse;
-        //     }
-        // }
-
-
-       
+        if (from_PlayerPositon_X)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerPostition_X;
+            // }
+        }
+        if (from_PlayerPositon_Y)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerPostition_Y;
+            // }
+        }
+        if (from_PlayerPositon_Z)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerPostition_Z;
+            // }
+        }
+        //////////////////////////
+        if (from_PlayerRotation_X)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerRotation_X;
+            // }
+        }
+        if (from_PlayerRotation_Y)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerRotation_Y;
+            // }
+        }
+        if (from_PlayerRotation_Z)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerRotation_Z;
+            // }
+        }
+        //////////////////////////
+        if (from_PlayerDistance)
+        {
+            // if (playerCamera != null && playerDistanceTarget != null)
+            // {
+            //     UpdateValues += GetPlayerDistance;
+            // }
+            // else
+            // {
+            //     Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+            // }
+        }
+        if (from_PlayerHandDistance)
+        {
+            // if (playerCamera != null && playerHandDistanceTarget != null)
+            // {
+            //     UpdateValues += GetPlayerHandDistance;
+            // }
+            // else
+            // {
+            //     Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+            // }
+        }
         
-
+        //////////////////////////
+        if (from_PlayerTouch)
+        {
+            // if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
+            // {
+            //     UpdateValues += GetPlayerTouchedVR;
+            // }
+            // else
+            // {
+            //     UpdateValues += GetPlayerTouchedMouse;
+            // }
+        }
+        //////////////////////////
+        if (from_PlayerCollision)
+        {
+            // if (playerCamera != null)
+            // {
+            //     UpdateValues += GetPlayerCollision;
+            // }
+        }
     }
 
     // Update is called once per frame
     float timer = 0;
     void Update()
     {
-        
+        //Check if the player has loaded in yet. if not restart. There is probobly a better way to do this than checking every frame.
+        //only an issue when the script is used in a scene, since the scene loades before the player.
+        if (playerCamera == null )
+        {
+            Initialize();
+            Debug.Log("AnimationEffect Send: Player Not found Restarting");
+            return;
+        }
+
         if (updateRate > 0f)
         {
             timer += Time.deltaTime;
@@ -551,40 +577,40 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     ////////////////////////////////////////
     // private float GetPlayerPostition_X() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraPosition.x;
+    //     float output = playerCamera.transform.position.x;
     //     return output;
     // }
     // private float GetPlayerPostition_Y() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraPosition.y;
+    //     float output = playerCamera.transform.position.y;
     //     return output;
     // }
     // private float GetPlayerPostition_Z() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraPosition.z;
+    //     float output = playerCamera.transform.position.z;
     //     return output;
     // }
 
     // private float GetPlayerRotation_X() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraRotation.x;
+    //     float output = playerCamera.transform.rotation.x;
     //     return output;
     // }
     // private float GetPlayerRotation_Y() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraRotation.y;
+    //     float output = playerCamera.transform.rotation.y;
     //     return output;
     // }
     // private float GetPlayerRotation_Z() 
     // {
-    //     float output = Engage.ScriptHelper.mainCameraRotation.z;
+    //     float output = playerCamera.transform.rotation.z;
     //     return output;
     // }
 
     // ////////////////////////////////////////
     // private float GetPlayerDistance() 
     // {
-    //     float output = Vector3.Distance(playerDistanceTarget.position, Engage.ScriptHelper.mainCameraPosition);
+    //     float output = Vector3.Distance(playerDistanceTarget.position, playerCamera.transform.position);
     //     return output;
     // }
     // private float GetPlayerHandDistance() 
@@ -688,7 +714,7 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     // {
 
     //     //Ray interaction_ray = Engage.ScriptHelper.mainCamera.ScreenPointToRay(Engage.ScriptHelper.mainCamera.WorldToScreenPoint(ENG_TrackedMotionControllers.instance.GetWorldGUIPointerTransform().position));
-    //     Ray interaction_ray = new Ray(Engage.ScriptHelper.mainCamera.transform.position, Engage.ScriptHelper.mainCamera.transform.forward);
+    //     Ray interaction_ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
     //     RaycastHit hit;
     //     if (Input.GetMouseButton(0))
     //     {
@@ -697,6 +723,15 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     //         {
     //             return 1.0f;
     //         }
+    //     }
+    //     return 0.0f;
+    // }
+    // private float GetPlayerCollision() 
+    // {
+        
+    //     if(playerCollisionTarget.bounds.Intersects(ENG_IGM_PlayerManager.instance.myPlayerObject.playerObject.GetComponent<Collider>().bounds))
+    //     {
+    //         return 1.0f;
     //     }
     //     return 0.0f;
     // }
