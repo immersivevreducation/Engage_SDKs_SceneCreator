@@ -135,7 +135,7 @@ namespace AssetBundles
             try
             {
                 updateInProgress = true;
-                wc.DownloadFileAsync(_uri, Application.dataPath+@"/ENGAGE_CreatorSDK/SDKUpdateVersion.txt");
+                wc.DownloadFileAsync(_uri, Application.dataPath.Replace("/Assets", "")+"/"+_filepath);
             }
             catch
             {
