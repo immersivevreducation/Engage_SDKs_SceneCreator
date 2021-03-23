@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4916168968607691018
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6578255592986812065}
+  - component: {fileID: 6659105328821141285}
+  - component: {fileID: 5821775561243739945}
+  m_Layer: 0
+  m_Name: Engage_PoseTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6578255592986812065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4916168968607691018}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.6, y: 0.519, z: -0.784}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6659105328821141285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4916168968607691018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b6428dea09997e479c4457cfbb2314a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_type: 1
+  m_centerTransform: {fileID: 6578255592986812065}
+  m_groundLayers:
+    serializedVersion: 2
+    m_Bits: 2097153
+  m_constraintData: []
+  m_sitTrigger: {fileID: 0}
+  m_collider: {fileID: 5821775561243739945}
+  m_headTransform: {fileID: 0}
+  m_chestTransform: {fileID: 0}
+  m_pelvisTransform: {fileID: 0}
+  m_rightHandTransform: {fileID: 0}
+  m_leftHandTransform: {fileID: 0}
+  m_rightElbowTransform: {fileID: 0}
+  m_leftElbowTransform: {fileID: 0}
+  m_rightFootTransform: {fileID: 0}
+  m_leftFootTransform: {fileID: 0}
+  m_rightKneeTransform: {fileID: 0}
+  m_leftKneeTransform: {fileID: 0}
+  m_overrides:
+  - m_type: 1
+    m_archetype: 1
+    m_poseOverrides:
+    - m_headOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_chestOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_pelvisOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightHandOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftHandOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightElbowOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftElbowOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightFootOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftFootOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightKneeOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftKneeOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_overrideHead: 0
+      m_overrideChest: 0
+      m_overridePelvis: 0
+      m_overrideRightHand: 0
+      m_overrideLeftHand: 0
+      m_overrideRightElbow: 0
+      m_overrideLeftElbow: 0
+      m_overrideRightFoot: 0
+      m_overrideLeftFoot: 0
+      m_overrideRightKnee: 0
+      m_overrideLeftKnee: 0
+      m_minHeight: -1
+      m_maxHeight: -1
+  - m_type: 1
+    m_archetype: 2
+    m_poseOverrides:
+    - m_headOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_chestOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_pelvisOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightHandOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftHandOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightElbowOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftElbowOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightFootOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftFootOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_rightKneeOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_leftKneeOverride:
+        Position: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0, w: 0}
+        FromPoseData: 0
+      m_overrideHead: 0
+      m_overrideChest: 0
+      m_overridePelvis: 0
+      m_overrideRightHand: 0
+      m_overrideLeftHand: 0
+      m_overrideRightElbow: 0
+      m_overrideLeftElbow: 0
+      m_overrideRightFoot: 0
+      m_overrideLeftFoot: 0
+      m_overrideRightKnee: 0
+      m_overrideLeftKnee: 0
+      m_minHeight: -1
+      m_maxHeight: -1
+  m_closedLegDefault: {fileID: 11400000, guid: defdea22d6f871648ab0d137b5dc3086, type: 2}
+  m_openLegDefault: {fileID: 11400000, guid: ee1d0649e1023684e8a1b97898d34c14, type: 2}
+  m_editPoseData: 1
+  m_drawSkeleton: 1
+  m_autoSave: 0
+  EditPelvis: 0
+  EditHead: 0
+  EditChest: 0
+  EditRightHand: 0
+  EditLeftHand: 0
+  EditRightElbow: 0
+  EditLeftElbow: 0
+  EditRightFoot: 0
+  EditLeftFoot: 0
+  EditRightKnee: 0
+  EditLeftKnee: 0
+--- !u!65 &5821775561243739945
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4916168968607691018}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8, y: 1.29, z: 0.66}
+  m_Center: {x: 0, y: 0.15, z: 0.15}

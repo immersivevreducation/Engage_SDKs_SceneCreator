@@ -25,8 +25,8 @@ MonoBehaviour:
   m_pelvisHandle:
     Enabled: 1
     OverrideTracking: 0
-    Position: {x: 0.01, y: 0.01, z: 0.01}
-    Rotation: {x: 0.01, y: -90, z: 0.01}
+    Position: {x: 0.010000011, y: 0.010000011, z: 0.010000011}
+    Rotation: {x: 0.009336869, y: 176.31938, z: 359.98938}
     SnapToGround: 0
     Parent: 0
   m_chestHandle:
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_rightHandHandle:
     Enabled: 0
     OverrideTracking: 0
-    Position: {x: -0.06319563, y: 0.1244028, z: -0.01391807}
+    Position: {x: -0.0631956, y: 0.124402, z: -0.01391807}
     Rotation: {x: 0, y: 0, z: 0}
     SnapToGround: 0
     Parent: 0

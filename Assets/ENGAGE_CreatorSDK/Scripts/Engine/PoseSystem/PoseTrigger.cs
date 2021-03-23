@@ -22,6 +22,9 @@ namespace Engage.Avatars.Poses
         [SerializeField, ReadOnly]
         private LVR_SitTrigger m_sitTrigger;
 
+        [SerializeField]
+        private Collider m_collider;
+
         #region Accessors
 
         public PoseType Type { get { return m_type; } }
@@ -158,6 +161,11 @@ namespace Engage.Avatars.Poses
             switch (Type)
             {
                 case PoseType.SITTING:
+                    m_overrides = new List<PoseOverridesGroup>(2);
+                    m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_CLOSED_LEG));
+                    m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_OPEN_LEG));
+                    break;
+                default:
                     m_overrides = new List<PoseOverridesGroup>(2);
                     m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_CLOSED_LEG));
                     m_overrides.Add(new PoseOverridesGroup(PoseType.SITTING, PoseArchetype.SIT_OPEN_LEG));
