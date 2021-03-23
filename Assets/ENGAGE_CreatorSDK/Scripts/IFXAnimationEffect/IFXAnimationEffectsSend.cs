@@ -398,12 +398,12 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     {
         //Check if the player has loaded in yet. if not restart. There is probobly a better way to do this than checking every frame.
         //only an issue when the script is used in a scene, since the scene loades before the player.
-        if (playerCamera == null )
-        {
-            Initialize();
-            Debug.Log("AnimationEffect Send: Player Not found Restarting");
-            return;
-        }
+        // if (playerCamera == null )
+        // {
+        //     Initialize();
+        //     Debug.Log("AnimationEffect Send: Player Not found Restarting");
+        //     return;
+        // }
 
         if (updateRate > 0f)
         {
