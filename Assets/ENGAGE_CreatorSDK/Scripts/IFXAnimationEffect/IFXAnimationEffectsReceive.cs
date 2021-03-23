@@ -63,6 +63,8 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
     [SerializeField]
     Transform to_Transform;
     [SerializeField]
+    bool use_World_Space;
+    [SerializeField]
     bool to_Positon_X;
     [SerializeField]
     bool to_Positon_Y;
@@ -199,14 +201,20 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
 
     private void OnEnable() 
     {
-        
-
         //////////////////
         if (to_Positon_X)
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToPosition_X;
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToPositionWorld_X;
+                }
+                else
+                {
+                    InputValuesAction += InputToPosition_X;
+                }
+                
             }            
             else
             {
@@ -230,12 +238,19 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToPosition_Y;
-            }            
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToPositionWorld_Y;
+                }
+                else
+                {
+                    InputValuesAction += InputToPosition_Y;
+                }   
+            }
             else
             {
-                Debug.Log("AnimationEffectReceive: To Position Y selected but to_Transform input is empty");
-            }
+                Debug.Log("AnimationEffectReceive: To Position Y  selected but to_Transform input is empty");
+            }  
             
         }
         if (to_Positon_Y_Additive)
@@ -254,7 +269,15 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToPosition_Z;
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToPositionWorld_Z;
+                }
+                else
+                {
+                    InputValuesAction += InputToPosition_Z;
+                }
+                
             }            
             else
             {
@@ -271,16 +294,23 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
             else
             {
                 Debug.Log("AnimationEffectReceive: To Position Z Additive selected but to_Transform input is empty");
-            }
-            
+            }   
         }
         //////////////////
         if (to_Rotation_X)
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_X;
-            }            
+                // if (use_World_Space)
+                // {
+                //     InputValuesAction += InputToRotationWorld_X;
+                // }
+                // else
+                // {
+                    InputValuesAction += InputToRotation_X;
+                //}
+                
+            }             
             else
             {
                 Debug.Log("AnimationEffectReceive: To Rotation X selected but to_Transform input is empty");
@@ -291,8 +321,16 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_Y;
-            }            
+                // if (use_World_Space)
+                // {
+                //     InputValuesAction += InputToRotationWorld_Y;
+                // }
+                // else
+                // {
+                    InputValuesAction += InputToRotation_Y;
+                //}
+                
+            }           
             else
             {
                 Debug.Log("AnimationEffectReceive: To Rotation Y selected but to_Transform input is empty");
@@ -303,8 +341,16 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_Z;
-            }            
+                // if (use_World_Space)
+                // {
+                //     InputValuesAction += InputToRotationWorld_Z;
+                // }
+                // else
+                // {
+                    InputValuesAction += InputToRotation_Z;
+                //}
+                
+            }           
             else
             {
                 Debug.Log("AnimationEffectReceive: To Rotation Z selected but to_Transform input is empty");
@@ -315,7 +361,14 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_X_Additive;
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToRotationWorld_X;
+                }
+                else
+                {
+                    InputValuesAction += InputToRotation_X_Additive;
+                }
             }            
             else
             {
@@ -327,7 +380,14 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_Y_Additive;
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToRotationWorld_Y;
+                }
+                else
+                {
+                    InputValuesAction += InputToRotation_Y_Additive;
+                }
             }            
             else
             {
@@ -339,7 +399,14 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         {
             if (to_Transform !=null)
             {
-                InputValuesAction += InputToRotation_Z_Additive;
+                if (use_World_Space)
+                {
+                    InputValuesAction += InputToRotationWorld_Z;
+                }
+                else
+                {
+                    InputValuesAction += InputToRotation_Y_Additive;
+                }
             }            
             else
             {
@@ -694,6 +761,40 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
         }
     }
     /////////////////////////////////////////////////////
+    public void InputToPositionWorld_X(float input)
+    {
+        Vector3 currentPos = to_Transform.position;
+        currentPos.x = input*weight;       
+        to_Transform.transform.position = currentPos;        
+    }
+    public void InputToPositionWorld_Y(float input)
+    {
+        Vector3 currentPos = to_Transform.position;
+        currentPos.y = input*weight;       
+        to_Transform.transform.position = currentPos;        
+    }
+    public void InputToPositionWorld_Z(float input)
+    {
+        Vector3 currentPos = to_Transform.position;
+        currentPos.z = input*weight;       
+        to_Transform.transform.position = currentPos;        
+    }
+
+    public void InputToRotationWorld_X(float input)
+    { 
+       transform.Rotate(Vector3.right, input*weight, Space.World);        
+    }
+    public void InputToRotationWorld_Y(float input)
+    {
+        
+    transform.Rotate(Vector3.up, input*weight, Space.World);
+    }
+    public void InputToRotationWorld_Z(float input)
+    {
+        
+        transform.Rotate(Vector3.forward, input*weight, Space.World);        
+    }
+    
     public void InputToPosition_X(float input)
     {
         Vector3 currentPos = to_Transform.localPosition;
