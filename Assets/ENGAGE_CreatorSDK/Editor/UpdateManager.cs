@@ -25,9 +25,7 @@ namespace AssetBundles
         readonly float guiLabelWidth = 160f;
         static string packageStatus = "";
         static readonly string _filepath = "CreatorSDKUpdate.zip";
-        static readonly string _localManifestPath = "manifest.xml";
-        static readonly string _xpathConfig = "packageData/autoupdate";
-        static readonly string _xpathVersion = "packageData/checksum";
+    
         static readonly string _packageUrl = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/internal_Sdk/CreatorSDKUpdate.zip?raw=true";
         static readonly string _manifestURL = "https://github.com/immersivevreducation/Engage_CreatorSDK/blob/internal_Sdk/Assets/ENGAGE_CreatorSDK/SDKUpdateVersion.txt?raw=true";
         
@@ -137,7 +135,7 @@ namespace AssetBundles
             try
             {
                 updateInProgress = true;
-                wc.DownloadFileAsync(_uri, Application.dataPath.Replace("/Assets", "")+"/"+_filepath);
+                wc.DownloadFileAsync(_uri, Application.dataPath+@"/ENGAGE_CreatorSDK/SDKUpdateVersion.txt");
             }
             catch
             {
