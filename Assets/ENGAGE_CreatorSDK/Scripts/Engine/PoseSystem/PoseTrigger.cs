@@ -12,6 +12,8 @@ namespace Engage.Avatars.Poses
         private PoseType m_type;
         [SerializeField]
         private Transform m_centerTransform;
+        [SerializeField]
+        private Transform m_floorTransform;
 
         [SerializeField, ReadOnly]
         private LayerMask m_groundLayers = 0;
@@ -348,6 +350,8 @@ namespace Engage.Avatars.Poses
 
         private void OnDrawGizmos()
         {
+            DrawFloorPlane();
+
             if (!m_drawSkeleton)
                 return;
 
@@ -358,6 +362,19 @@ namespace Engage.Avatars.Poses
 
             DrawLines();
             DrawMeshes();
+        }
+
+        private Vector3 m_floorPlaneSize = new Vector3(1f, .01f, 1f);
+        private Color m_floorColour = new Color(0f, 1f, 0f, .5f);
+
+        private void DrawFloorPlane()
+        {
+            if (m_floorTransform == null)
+                return;
+
+            Gizmos.color = m_floorColour;
+            Gizmos.DrawCube(m_floorTransform.position, m_floorPlaneSize);
+            Gizmos.color = Color.white;
         }
 
         private float m_avatarHeight = 1.88f;

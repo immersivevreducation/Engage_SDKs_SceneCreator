@@ -43,4 +43,21 @@ public class LVR_SitTrigger : MonoBehaviour {
 
         return m_advancedPose;
     }
+
+#if UNITY_EDITOR
+
+    private Vector3 m_floorPlaneSize = new Vector3(1f, .01f, 1f);
+    private Color m_floorColour = new Color(0f, 1f, 0f, .5f);
+
+    private void OnDrawGizmos()
+    {
+        if (floorCollider != null)
+        {
+            Gizmos.color = m_floorColour;
+            Gizmos.DrawCube(floorCollider.position, m_floorPlaneSize);
+            Gizmos.color = Color.white;
+        }
+    }
+
+#endif
 }
