@@ -3,7 +3,7 @@ using UnityEditor;
 using Engage.Avatars.Poses;
 using System.Collections.Generic;
 
-[CustomEditor(typeof(PoseTrigger))]
+[CustomEditor(typeof(PoseTrigger)), CanEditMultipleObjects]
 public class PoseTriggerEditor : Editor
 {
     private SerializedObject obj;

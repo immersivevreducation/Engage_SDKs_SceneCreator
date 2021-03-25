@@ -288,11 +288,21 @@ namespace Engage.Avatars.Poses
 
         #region Sit Trigger
 
+        private const string DEFAULT_POSE_PATH = "Assets/ENGAGE_CreatorSDK/Scripts/Engine/PoseSystem/PoseData/";
+
         public void InitialiseFromSitTrigger(LVR_SitTrigger sitTrigger)
         {
             m_sitTrigger = sitTrigger;
 
             m_centerTransform = m_sitTrigger.PelvisTarget;
+            m_floorTransform = m_sitTrigger.floorCollider;
+            m_collider = GetComponentInChildren<Collider>();
+
+#if UNITY_EDITOR
+            m_closedLegDefault = AssetDatabase.LoadAssetAtPath<PoseData>(DEFAULT_POSE_PATH + "Pose_Sit_ClosedLegs.asset");
+            m_openLegDefault = AssetDatabase.LoadAssetAtPath<PoseData>(DEFAULT_POSE_PATH + "Pose_Sit_OpenLegs.asset");
+
+#endif
 
             m_type = PoseType.SITTING;
         }

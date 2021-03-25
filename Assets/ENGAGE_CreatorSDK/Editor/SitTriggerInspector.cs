@@ -37,10 +37,33 @@ public class SitTriggerInspector : Editor
         {
             if (GUILayout.Button("Add Advanced Pose"))
             {
-                pose = tgt.CreateAdvancedPose();
+                //pose = tgt.CreateAdvancedPose();
+                AddAdvancedTrigger();
             }
         }
     }
+
+    private void AddAdvancedTrigger()
+    {
+        foreach (GameObject obj in Selection.objects)
+        {
+            LVR_SitTrigger trigger = obj.GetComponent<LVR_SitTrigger>();
+
+            if (trigger == null)
+                continue;
+
+            if (trigger.HasAdvancedPose)
+                continue;
+
+            Debug.Log("Adding trigger to " + trigger.name);
+
+            if (trigger == tgt)
+                pose = tgt.CreateAdvancedPose();
+            else 
+                trigger.CreateAdvancedPose();
+        }
+    }
+
     protected virtual void OnSceneGUI()
     {
         if (editMode && pose == null)
