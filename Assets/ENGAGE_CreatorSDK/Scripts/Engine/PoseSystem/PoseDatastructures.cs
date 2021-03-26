@@ -85,4 +85,31 @@ namespace Engage.Avatars.Poses
 
         public bool HasMovedFromMap(PoseMapping map) { return map.Position != Anchor.position || map.Rotation != Anchor.rotation; }
     }
+
+    public static class PoseUtils
+    {
+        public static string FriendlyName(this PoseType type)
+        {
+            switch (type)
+            {
+                case PoseType.SITTING:
+                    return "Sit";
+                default:
+                    return "Sit";
+            }
+        }
+
+        public static string FriendlyName(this PoseArchetype type)
+        {
+            switch (type)
+            {
+                case PoseArchetype.SIT_CLOSED_LEG:
+                    return "CloseLeg";
+                case PoseArchetype.SIT_OPEN_LEG:
+                    return "OpenLeg";
+                default:
+                    return "Default";
+            }
+        }
+    }
 }

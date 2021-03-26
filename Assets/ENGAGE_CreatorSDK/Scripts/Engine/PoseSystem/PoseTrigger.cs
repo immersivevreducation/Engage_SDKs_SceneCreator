@@ -120,6 +120,7 @@ namespace Engage.Avatars.Poses
             {
                 if (archetype == m_overrides[i].Archetype)
                 {
+                    data.Name = Type.FriendlyName() + "_" + Archetype.FriendlyName() + "_" + m_overrides[i].OverrideList.Count;
                     m_overrides[i].AddOverrides(data);
                     m_currentArchetype = archetype;
                     m_currentID = i;
@@ -220,7 +221,7 @@ namespace Engage.Avatars.Poses
                 return;
 
             PoseOverrides oldOverrides = overrides[m_currentID];
-            overrides[m_currentID] = new PoseOverrides(m_constraintData, oldOverrides.MinHeight, oldOverrides.MaxHeight);
+            overrides[m_currentID] = new PoseOverrides(m_constraintData, oldOverrides);
 
 #if UNITY_EDITOR
             RefreshConstraintData();

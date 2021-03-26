@@ -62,6 +62,18 @@ namespace Engage.Avatars.Poses
     [System.Serializable]
     public class PoseOverrides
     {
+        [SerializeField]
+        private string m_name = "UnnamedOverride";
+        public string Name
+        {
+            get { return m_name; }
+            set { m_name = value; }
+        }
+
+        [SerializeField]
+        private List<PoseData> m_historyList;
+        public List<PoseData> HistoryList { get { return m_historyList; } set { m_historyList = value; } }
+
         public Dictionary<PoseBodyPart, PoseMapping> Overrides 
         { 
             get 
@@ -180,12 +192,17 @@ namespace Engage.Avatars.Poses
 
         public PoseOverrides() { }
 
-        public PoseOverrides(PoseConstraintData[] constraints, float minHeight = -1, float maxHeight = -1)
+        public PoseOverrides(PoseConstraintData[] constraints, PoseOverrides oldOverrides = null)
         {
             ClearOverrides();
 
-            m_minHeight = minHeight;
-            m_maxHeight = maxHeight;
+            if (oldOverrides != null)
+            {
+                Name = oldOverrides.Name;
+                m_minHeight = oldOverrides.MinHeight;
+                m_maxHeight = oldOverrides.MaxHeight;
+                m_historyList = oldOverrides.HistoryList;
+            }
 
             for(int i = 0; i < constraints.Length; i++)
             {

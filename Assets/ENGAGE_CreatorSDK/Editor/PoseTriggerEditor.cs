@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using Engage.Avatars.Poses;
 using System.Collections.Generic;
+using System.IO;
 
 [CustomEditor(typeof(PoseTrigger)), CanEditMultipleObjects]
 public class PoseTriggerEditor : Editor
@@ -173,9 +174,9 @@ public class PoseTriggerEditor : Editor
     {
         GUILayout.Space(20);
 
-        GUILayout.BeginVertical(Trigger.Archetype + " Overrides " + Trigger.ArchetypeID, GUI.skin.box);
+        DrawPoseName();
 
-        GUILayout.Space(20);
+        GUILayout.BeginVertical();
 
         DrawOverride(PoseBodyPart.PELVIS);
         DrawOverride(PoseBodyPart.HEAD);
@@ -220,9 +221,36 @@ public class PoseTriggerEditor : Editor
         GUILayout.EndVertical();
     }
 
+    private GUIStyle m_guiStyleTextArea = null;
+
+    private void DrawPoseName()
+    {
+        PoseOverrides poseOverride;
+
+        if (!Trigger.GetCurrentOverrides(out poseOverride))
+            return;
+
+        GUILayout.BeginHorizontal();
+
+        if (m_guiStyleTextArea == null)
+        {
+            m_guiStyleTextArea = new GUIStyle(GUI.skin.textField);
+            m_guiStyleTextArea.alignment = TextAnchor.MiddleCenter;
+            m_guiStyleTextArea.fontSize = 16;
+            m_guiStyleTextArea.fontStyle = FontStyle.Bold;
+        }
+
+        poseOverride.Name = GUILayout.TextField(poseOverride.Name, m_guiStyleTextArea);
+
+        GUILayout.EndHorizontal();
+    }
+
     private string m_newPoseName = "newPose";
 
-    private const string PATH_POSEDATA = "Assets/ENGAGE_CreatorSDK/Scripts/Engine/PoseSystem/PoseData/";
+    private const string PATH_POSEDATA = "Assets/ENGAGE_CreatorSDK/Scripts/Engine/PoseSystem/PoseData";
+
+    //[SerializeField]
+    //private List<PoseData> m_historyQueue;
 
     private void DrawExportOption()
     {
@@ -235,19 +263,76 @@ public class PoseTriggerEditor : Editor
         m_newPoseName = GUILayout.TextField(m_newPoseName, 30);
         GUILayout.EndHorizontal();
 
+        string assetPath = PATH_POSEDATA + "/" + Trigger.Type.FriendlyName() + "/" + Trigger.Archetype.FriendlyName() + "/" + m_newPoseName + ".asset";
+
         if (GUILayout.Button("Export Constraints"))
         {
             PoseData newPose = ScriptableObject.CreateInstance<PoseData>();
 
             newPose.CopyConstraints(Trigger.ConstraintData, Trigger.Transform, Trigger.AvatarHeight);
 
-            AssetDatabase.CreateAsset(newPose, PATH_POSEDATA + m_newPoseName + ".asset");
+            if (!Directory.Exists(PATH_POSEDATA + "/" + Trigger.Type.FriendlyName()))
+                AssetDatabase.CreateFolder(PATH_POSEDATA, Trigger.Type.FriendlyName());
+            if (!Directory.Exists(PATH_POSEDATA + "/" + Trigger.Type.FriendlyName() + "/" + Trigger.Archetype.FriendlyName()))
+                AssetDatabase.CreateFolder(PATH_POSEDATA + "/" + Trigger.Type.FriendlyName(), Trigger.Archetype.FriendlyName());
+
+            AssetDatabase.CreateAsset(newPose, assetPath);
             AssetDatabase.SaveAssets();
 
             EditorUtility.FocusProjectWindow();
 
             Selection.activeObject = newPose;
             EditorGUIUtility.PingObject(newPose);
+        }
+
+        PoseData data = AssetDatabase.LoadAssetAtPath<PoseData>(assetPath);
+
+        if (data == null)
+        {
+            GUILayout.Label("Will create new Pose Data");
+        }
+        else
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Will Override PoseData");
+
+            if (GUILayout.Button("Select"))
+            {
+                Selection.objects = new Object[] { data };
+                EditorGUIUtility.PingObject(data);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        PoseOverrides overrides;
+
+        if (!Trigger.GetCurrentOverrides(out overrides))
+        {
+            GUILayout.EndVertical();
+            return;
+        }    
+
+        if (overrides.HistoryList != null && overrides.HistoryList.Count > 0)
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Label("Pose Data History");
+
+            for(int i = overrides.HistoryList.Count - 1; i >= 0; i--)
+            {
+                if (overrides.HistoryList[i] == null)
+                {
+                    overrides.HistoryList.RemoveAt(i);
+                    return;
+                }
+
+                if (GUILayout.Button(overrides.HistoryList[i].name))
+                {
+                    Selection.objects = new Object[] { overrides.HistoryList[i] };
+                    EditorGUIUtility.PingObject(overrides.HistoryList[i]);
+                }
+            }
+
+            GUILayout.EndVertical();
         }
 
         GUILayout.EndVertical();
@@ -534,13 +619,24 @@ public class PoseTriggerEditor : Editor
 
     #region Copying
 
+    private bool m_draggingPose = false;
+
     public void DrawCopyPose()
     {
         Undo.RecordObject(target, "CopiedConstraints");
 
         Event evt = Event.current;
         Rect drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
+
+        CheckDrag();
+
+        GUI.color = m_draggingPose ? Color.green : Color.white;
+
         GUI.Box(drop_area, "Drop PoseTrigger or PoseData to Copy Constraints");
+
+        GUI.color = Color.white;
+
+        m_draggingPose = false;
 
         switch (evt.type)
         {
@@ -570,6 +666,28 @@ public class PoseTriggerEditor : Editor
                     }
                 }
                 break;
+        }
+    }
+
+    private void CheckDrag()
+    {
+        m_draggingPose = false;
+
+        foreach (Object dragged_object in DragAndDrop.objectReferences)
+        {
+            if (dragged_object is PoseData)
+            {
+                m_draggingPose = true;
+                break;
+            }
+
+            GameObject trigger = dragged_object as GameObject;
+
+            if (trigger == null || trigger.GetComponentInChildren<PoseTrigger>(true))
+            {
+                m_draggingPose = true;
+                break;
+            }
         }
     }
 
@@ -603,6 +721,19 @@ public class PoseTriggerEditor : Editor
 
         ClearConstraints();
         PopulateConstraints(pose);
+
+        PoseOverrides overrides;
+        if (Trigger.GetCurrentOverrides(out overrides))
+        {
+            overrides.Name = pose.name;
+
+            if (overrides.HistoryList == null)
+                overrides.HistoryList = new List<PoseData>(3);
+            else if (overrides.HistoryList.Count >= 3)
+                overrides.HistoryList.RemoveAt(0);
+
+            overrides.HistoryList.Add(pose);
+        }
 
         return true;
     }
@@ -684,7 +815,7 @@ public class PoseTriggerEditor : Editor
 
             GUILayout.BeginHorizontal(archetype.ToString(), GUI.skin.box);
 
-            if (GUILayout.Button(archetype.ToString() + " Override " + i))
+            if (GUILayout.Button(poses[i].Name))
             {
                 Trigger.SelectOverride(archetype, i);
                 RefreshView();

@@ -55,7 +55,7 @@ public class SitTriggerInspector : Editor
             if (trigger.HasAdvancedPose)
                 continue;
 
-            Debug.Log("Adding trigger to " + trigger.name);
+            Debug.Log("Adding Advanced Pose Trigger to " + trigger.name);
 
             if (trigger == tgt)
                 pose = tgt.CreateAdvancedPose();
