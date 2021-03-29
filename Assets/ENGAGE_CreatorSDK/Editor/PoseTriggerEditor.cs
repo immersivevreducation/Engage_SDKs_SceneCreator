@@ -141,10 +141,10 @@ public class PoseTriggerEditor : Editor
 
         if (Trigger.EditPelvis)
             DrawHandle(PoseBodyPart.PELVIS);
-        if (Trigger.EditHead)
-            DrawHandle(PoseBodyPart.HEAD);
-        if (Trigger.EditChest)
-            DrawHandle(PoseBodyPart.CHEST);
+        //if (Trigger.EditHead)
+        //    DrawHandle(PoseBodyPart.HEAD);
+        //if (Trigger.EditChest)
+        //    DrawHandle(PoseBodyPart.CHEST);
 
         if (Trigger.EditRightHand)
             DrawHandle(PoseBodyPart.RIGHT_HAND);
@@ -179,8 +179,8 @@ public class PoseTriggerEditor : Editor
         GUILayout.BeginVertical();
 
         DrawOverride(PoseBodyPart.PELVIS);
-        DrawOverride(PoseBodyPart.HEAD);
-        DrawOverride(PoseBodyPart.CHEST);
+        //DrawOverride(PoseBodyPart.HEAD);
+        //DrawOverride(PoseBodyPart.CHEST);
 
         DrawOverride(PoseBodyPart.RIGHT_HAND);
         DrawOverride(PoseBodyPart.LEFT_HAND);
@@ -479,12 +479,12 @@ public class PoseTriggerEditor : Editor
 
     private void PopulateConstraints(PoseData data = null)
     {
-        if (!HasConstraint(PoseBodyPart.HEAD))
-            AddConstraint(PoseBodyPart.HEAD, data);
+        //if (!HasConstraint(PoseBodyPart.HEAD))
+        //    AddConstraint(PoseBodyPart.HEAD, data);
         if (!HasConstraint(PoseBodyPart.PELVIS))
             AddConstraint(PoseBodyPart.PELVIS, data);
-        if (!HasConstraint(PoseBodyPart.CHEST))
-            AddConstraint(PoseBodyPart.CHEST, data);
+        //if (!HasConstraint(PoseBodyPart.CHEST))
+        //    AddConstraint(PoseBodyPart.CHEST, data);
 
         if (!HasConstraint(PoseBodyPart.RIGHT_HAND))
             AddConstraint(PoseBodyPart.RIGHT_HAND, data);

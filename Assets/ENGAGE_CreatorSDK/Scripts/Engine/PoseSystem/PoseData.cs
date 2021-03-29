@@ -72,8 +72,8 @@ namespace Engage.Avatars.Poses
                 m_handleDictionary.Clear();
 
             AddHandle(PoseBodyPart.PELVIS, m_pelvisHandle);
-            AddHandle(PoseBodyPart.HEAD, m_headHandle);
-            AddHandle(PoseBodyPart.CHEST, m_chestHandle);
+            //AddHandle(PoseBodyPart.HEAD, m_headHandle);
+            //AddHandle(PoseBodyPart.CHEST, m_chestHandle);
 
             AddHandle(PoseBodyPart.RIGHT_FOOT, m_rightFootHandle);
             AddHandle(PoseBodyPart.LEFT_FOOT, m_leftFootHandle);
