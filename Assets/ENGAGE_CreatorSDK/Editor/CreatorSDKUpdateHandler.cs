@@ -31,8 +31,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
         string updateZipPath =projectFolder+"/CreatorSDKUpdate.zip";
         if (File.Exists(updateZipPath))
         {
-            lzip.decompress_File(updateZipPath, updateSDkPath, progress);
-            Debug.Log("Decompressed");
+            lzip.decompress_File(updateZipPath, updateSDkPath, progress);            
         }
         else
         {
@@ -94,7 +93,7 @@ public class CreatorSDKUpdateHandler : EditorWindow
         List<string> commands = new List<string>();
         
 
-        commands.Add("robocopy "+"\""+pathToNewSDKFolder+"\" "+Application.dataPath+"/ENGAGE_CreatorSDK /MIR");
+        commands.Add("robocopy "+"\""+pathToNewSDKFolder+"\" "+Application.dataPath+"/ENGAGE_CreatorSDK /MIR /R:0 /W:0");///R:0 /W:0 is to try skip libzip can't copy error
         commands.Add("rmdir  /Q /S "+"\""+pathToNewSDKFolder+"\" ");
 
         //commands.Add("\""+EditorApplication.applicationPath+"\"  -projectPath \""+Application.dataPath.Replace("/Assets", "")+"\" -executeMethod CreatorSDKUpdateHandler.UpdateComplete");

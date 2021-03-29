@@ -194,6 +194,7 @@ namespace AssetBundles
 
                     if (currentSDKVersion != NewSDKVersion)
                     {
+                        ShowUpdateWindow();
                         Debug.Log("Update Found: Current = "+currentSDKVersion +" New = "+NewSDKVersion);
                         packageUpToDate=false;
                         packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
@@ -212,6 +213,7 @@ namespace AssetBundles
                 else
                 {
                     Debug.Log("Local SDK version file not found");
+                    ShowUpdateWindow();
                     packageUpToDate=false;
                     packageStatus = "New Creator SDK Update Available!\n\nPlease click \"Update to Latest Version\" to stay up-to-date";
                 }
