@@ -386,6 +386,7 @@ namespace Engage.Avatars.Poses
             Gizmos.color = m_floorColour;
             Gizmos.DrawCube(m_floorTransform.position, m_floorPlaneSize);
             Gizmos.color = Color.white;
+
         }
 
         private float m_avatarHeight = 1.88f;
@@ -467,11 +468,27 @@ namespace Engage.Avatars.Poses
         {
             DrawPelvis();
 
-            DrawCube(ConstraintDictionary[PoseBodyPart.HEAD].Position, ConstraintDictionary[PoseBodyPart.HEAD].Rotation, ConstraintDictionary[PoseBodyPart.HEAD].FromPoseData ? Color.blue : Color.red);
+            DrawSphere(ConstraintDictionary[PoseBodyPart.HEAD].Position, Color.green, size: .12f);
             DrawSphere(ConstraintDictionary[PoseBodyPart.CHEST].Position, ConstraintDictionary[PoseBodyPart.CHEST].FromPoseData ? Color.green : Color.yellow);
+            DrawViewFrustrum();
 
             DrawLegMeshes();
             DrawArmMeshes();
+        }
+
+        private void DrawViewFrustrum()
+        {
+            Quaternion viewport = transform.rotation;
+            viewport *= Quaternion.AngleAxis(90, Vector3.up);
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(ConstraintDictionary[PoseBodyPart.HEAD].Position, viewport, Vector3.one);
+
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.color = Color.green;
+
+            Gizmos.DrawFrustum(Vector3.zero, 35f, .5f, 0, 1);
+
+            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.color = Color.white;
         }
 
         private void DrawLegMeshes()
