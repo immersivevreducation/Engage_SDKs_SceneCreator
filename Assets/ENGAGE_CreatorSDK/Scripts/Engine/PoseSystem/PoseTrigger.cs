@@ -27,6 +27,14 @@ namespace Engage.Avatars.Poses
         [SerializeField]
         private Collider m_collider;
 
+        [SerializeField]
+        private Vector3 m_exitPosition = Vector3.zero;
+        public bool HasExitPosition { get { return m_exitPosition != Vector3.zero; } }
+        public Vector3 ExitPosition { 
+            get { return m_exitPosition == null ? Vector3.zero : transform.position + m_exitPosition; }
+            set { m_exitPosition = value; }
+        }
+
         #region Accessors
 
         public PoseType Type { get { return m_type; } }
@@ -474,6 +482,9 @@ namespace Engage.Avatars.Poses
 
             DrawLegMeshes();
             DrawArmMeshes();
+
+            if (HasExitPosition)
+                DrawSphere(ExitPosition, Color.cyan, .1f);
         }
 
         private void DrawViewFrustrum()

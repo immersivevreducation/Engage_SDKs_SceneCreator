@@ -34,6 +34,14 @@ public class PoseTriggerEditor : Editor
         DrawAllPoseOverrides();
         DrawHeightChange();
 
+        if (Trigger.HasExitPosition)
+        {
+            if (GUILayout.Button("Zero Exit Position"))
+                Trigger.ExitPosition = Vector3.zero;
+        }
+        else if (GUILayout.Button("Add Exit Position"))
+            Trigger.ExitPosition = Vector3.forward;
+
         if (Trigger.HasOverrides(Trigger.Archetype, true))
         {
             DrawOverrideOptions();
@@ -120,6 +128,7 @@ public class PoseTriggerEditor : Editor
             return;
 
         DrawHandles();
+        DrawExitPosition();
         //UpdateMeshes();
     }
 
@@ -128,6 +137,19 @@ public class PoseTriggerEditor : Editor
     private bool m_drawEditor = true;
 
     private bool m_requiresRefresh = false;
+
+    private void DrawExitPosition()
+    {
+        if (!Trigger.HasExitPosition)
+            return;
+
+        Vector3 pos = Handles.PositionHandle(Trigger.ExitPosition, Quaternion.identity);
+
+        if (pos == Trigger.ExitPosition)
+            return;
+
+        Trigger.ExitPosition = pos - Trigger.transform.position;
+    }
 
     private void DrawHandles()
     {
