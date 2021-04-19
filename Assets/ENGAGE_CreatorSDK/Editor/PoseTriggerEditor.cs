@@ -287,6 +287,8 @@ public class PoseTriggerEditor : Editor
 
         string assetPath = PATH_POSEDATA + "/" + Trigger.Type.FriendlyName() + "/" + Trigger.Archetype.FriendlyName() + "/" + m_newPoseName + ".asset";
 
+        PoseOverrides overrides;
+
         if (GUILayout.Button("Export Constraints"))
         {
             PoseData newPose = ScriptableObject.CreateInstance<PoseData>();
@@ -305,6 +307,12 @@ public class PoseTriggerEditor : Editor
 
             Selection.activeObject = newPose;
             EditorGUIUtility.PingObject(newPose);
+
+            //PoseOverrides overrides;
+            if (Trigger.GetCurrentOverrides(out overrides))
+            {
+                overrides.Name = m_newPoseName;
+            }
         }
 
         PoseData data = AssetDatabase.LoadAssetAtPath<PoseData>(assetPath);
@@ -325,8 +333,6 @@ public class PoseTriggerEditor : Editor
             }
             GUILayout.EndHorizontal();
         }
-
-        PoseOverrides overrides;
 
         if (!Trigger.GetCurrentOverrides(out overrides))
         {
