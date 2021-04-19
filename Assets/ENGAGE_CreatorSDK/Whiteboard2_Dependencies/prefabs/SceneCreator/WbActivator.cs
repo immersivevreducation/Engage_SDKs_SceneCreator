@@ -9,7 +9,6 @@ public class WbActivator : MonoBehaviour {
     {
 #if UNITY_ENGAGE
         if (WbUi.I.surface == surface) {
-            //Wb2Ui.I.buttonDisconnect();
         } else {
             //dont connect if already connected to a surface
             if (WbUi.I.surface != null) {
@@ -20,7 +19,7 @@ public class WbActivator : MonoBehaviour {
             Ray lookRay = WbUi.I.input.getLookRay();
             float distance = (surface.transform.position - lookRay.origin).magnitude;
             if (distance < surface.d.disconnectDistance *0.9f) {
-                WbBoss.I.tryLockSurface(surface);
+                WbBoss.I.connectToSurface(surface,0,true);
             }
         }
 #endif
