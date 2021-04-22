@@ -29,12 +29,7 @@ namespace Engage.Avatars.Poses
 
         [SerializeField]
         private Vector3 m_exitPosition = Vector3.zero;
-        public bool HasExitPosition { get { return m_exitPosition != Vector3.zero; } }
-        public Vector3 ExitPosition { 
-            get { return m_exitPosition == null ? Vector3.zero : transform.position + m_exitPosition; }
-            set { m_exitPosition = value; }
-        }
-
+        
         #region Accessors
 
         public PoseType Type { get { return m_type; } }
@@ -51,6 +46,13 @@ namespace Engage.Avatars.Poses
         private Transform m_headTransform, m_chestTransform, m_pelvisTransform,
             m_rightHandTransform, m_leftHandTransform, m_rightElbowTransform, m_leftElbowTransform,
             m_rightFootTransform, m_leftFootTransform, m_rightKneeTransform, m_leftKneeTransform = null;
+
+        public bool HasExitPosition { get { return m_exitPosition != Vector3.zero; } }
+        public Vector3 ExitPosition
+        {
+            get { return m_exitPosition == null ? Vector3.zero : transform.position + m_exitPosition; }
+            set { m_exitPosition = value; }
+        }
 
         #endregion
 
