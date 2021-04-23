@@ -332,7 +332,7 @@ namespace IFXTools{
             {
                 //Save Image to file
                 byte[] bytes = thumbnailImage.EncodeToPNG();
-                File.WriteAllBytes(path +"/"+ ifxObject.name + ".png", bytes);
+                File.WriteAllBytes(path +"/"+ ifxObject.name.Replace("(Clone)","") + ".png", bytes);
             }
             else
             {
