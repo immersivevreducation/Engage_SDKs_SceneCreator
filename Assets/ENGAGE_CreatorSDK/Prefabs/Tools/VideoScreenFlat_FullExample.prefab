@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4446985556366068}
   m_Layer: 16
-  m_Name: VidScreenMed`
+  m_Name: VideoScreenFlat_FullExample
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tvScreenWeb: {fileID: 1371451411153794}
-  tvScreenNotLoaded: {fileID: 0}
+  tvScreenNotLoaded: {fileID: 6189189082677723801}
   onlyShowLoadingScreen: 0
   disableDuringScripts: 0
   onlyShowWhenPlaying: 0
