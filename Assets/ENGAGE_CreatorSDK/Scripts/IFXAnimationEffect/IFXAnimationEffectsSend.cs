@@ -303,93 +303,93 @@ public class IFXAnimationEffectsSend : MonoBehaviour
             }
         }
         //////////////////////////
-        if (from_PlayerPositon_X)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerPostition_X;
-            // }
-        }
-        if (from_PlayerPositon_Y)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerPostition_Y;
-            // }
-        }
-        if (from_PlayerPositon_Z)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerPostition_Z;
-            // }
-        }
-        //////////////////////////
-        if (from_PlayerRotation_X)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerRotation_X;
-            // }
-        }
-        if (from_PlayerRotation_Y)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerRotation_Y;
-            // }
-        }
-        if (from_PlayerRotation_Z)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerRotation_Z;
-            // }
-        }
-        //////////////////////////
-        if (from_PlayerDistance)
-        {
-            // if (playerCamera != null && playerDistanceTarget != null)
-            // {
-            //     UpdateValues += GetPlayerDistance;
-            // }
-            // else
-            // {
-            //     Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-            // }
-        }
-        if (from_PlayerHandDistance)
-        {
-            // if (playerCamera != null && playerHandDistanceTarget != null)
-            // {
-            //     UpdateValues += GetPlayerHandDistance;
-            // }
-            // else
-            // {
-            //     Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-            // }
-        }
+        // if (from_PlayerPositon_X)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerPostition_X;
+        //     }
+        // }
+        // if (from_PlayerPositon_Y)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerPostition_Y;
+        //     }
+        // }
+        // if (from_PlayerPositon_Z)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerPostition_Z;
+        //     }
+        // }
+        // //////////////////////////
+        // if (from_PlayerRotation_X)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerRotation_X;
+        //     }
+        // }
+        // if (from_PlayerRotation_Y)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerRotation_Y;
+        //     }
+        // }
+        // if (from_PlayerRotation_Z)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerRotation_Z;
+        //     }
+        // }
+        // //////////////////////////
+        // if (from_PlayerDistance)
+        // {
+        //     if (playerCamera != null && playerDistanceTarget != null)
+        //     {
+        //         UpdateValues += GetPlayerDistance;
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+        //     }
+        // }
+        // if (from_PlayerHandDistance)
+        // {
+        //     if (playerCamera != null && playerHandDistanceTarget != null)
+        //     {
+        //         UpdateValues += GetPlayerHandDistance;
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+        //     }
+        // }
         
-        //////////////////////////
-        if (from_PlayerTouch)
-        {
-            // if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
-            // {
-            //     UpdateValues += GetPlayerTouchedVR;
-            // }
-            // else
-            // {
-            //     UpdateValues += GetPlayerTouchedMouse;
-            // }
-        }
-        //////////////////////////
-        if (from_PlayerCollision)
-        {
-            // if (playerCamera != null)
-            // {
-            //     UpdateValues += GetPlayerCollision;
-            // }
-        }
+        // //////////////////////////
+        // if (from_PlayerTouch)
+        // {
+        //     if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
+        //     {
+        //         UpdateValues += GetPlayerTouchedVR;
+        //     }
+        //     else
+        //     {
+        //         UpdateValues += GetPlayerTouchedMouse;
+        //     }
+        // }
+        // //////////////////////////
+        // if (from_PlayerCollision)
+        // {
+        //     if (playerCamera != null)
+        //     {
+        //         UpdateValues += GetPlayerCollision;
+        //     }
+        // }
     }
 
     // Update is called once per frame
@@ -398,12 +398,12 @@ public class IFXAnimationEffectsSend : MonoBehaviour
     {
         //Check if the player has loaded in yet. if not restart. There is probobly a better way to do this than checking every frame.
         //only an issue when the script is used in a scene, since the scene loades before the player.
-        // if (playerCamera == null )
-        // {
-        //     Initialize();
-        //     Debug.Log("AnimationEffect Send: Player Not found Restarting");
-        //     return;
-        // }
+        if (playerCamera == null )
+        {
+            Initialize();
+            Debug.Log("AnimationEffect Send: Player Not found Restarting");
+            return;
+        }
 
         if (updateRate > 0f)
         {

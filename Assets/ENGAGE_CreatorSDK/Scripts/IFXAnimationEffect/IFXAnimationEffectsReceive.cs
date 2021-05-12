@@ -425,7 +425,7 @@ public class IFXAnimationEffectsReceive : MonoBehaviour
                 }
                 else
                 {
-                    InputValuesAction += InputToRotation_Y_Additive;
+                    InputValuesAction += InputToRotation_Z_Additive;
                 }
             }            
             else

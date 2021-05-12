@@ -90,36 +90,36 @@ public class IFXAnimationEffectsGrabableObject : MonoBehaviour
         // {
         //     vrMode= true;
         // }
-        // if (testingMode != true)
-        // {
-        //     primaryHand = ENG_TrackedMotionControllers.instance.primaryHand;
-        //     secondaryHand = ENG_TrackedMotionControllers.instance.secondaryHand;
+        if (testingMode != true)
+        {
+            // primaryHand = ENG_TrackedMotionControllers.instance.primaryHand;
+            // secondaryHand = ENG_TrackedMotionControllers.instance.secondaryHand;
 
-        //     if (ENG_TrackedMotionControllers.instance.controllerTransform[primaryHand] !=null)
-        //     {
-        //         primaryhandtransform = ENG_TrackedMotionControllers.instance.controllerTransform[primaryHand];
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect Grabable Object: Primary hand controllers not found");
-        //     }
+            // if (ENG_TrackedMotionControllers.instance.controllerTransform[primaryHand] !=null)
+            // {
+            //     primaryhandtransform = ENG_TrackedMotionControllers.instance.controllerTransform[primaryHand];
+            // }
+            // else
+            // {
+            //     Debug.Log("AnimationEffect Grabable Object: Primary hand controllers not found");
+            // }
 
-        //     if (ENG_TrackedMotionControllers.instance.controllerTransform[secondaryHand] !=null)
-        //     {
-        //         Secondaryhandtransform = ENG_TrackedMotionControllers.instance.controllerTransform[secondaryHand];
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect Grabable Object:Secondary hand controllers not found");
-        //     }
+            // if (ENG_TrackedMotionControllers.instance.controllerTransform[secondaryHand] !=null)
+            // {
+            //     Secondaryhandtransform = ENG_TrackedMotionControllers.instance.controllerTransform[secondaryHand];
+            // }
+            // else
+            // {
+            //     Debug.Log("AnimationEffect Grabable Object:Secondary hand controllers not found");
+            // }
             
-        // }
-        // else
-        // {
+        }
+        else
+        {
             primaryhandtransform = testingTransform;
             //Secondaryhandtransform = testingTransform;
             Debug.Log("AnimationEffect Grabable Object: Using testing transforms");
-        //}        
+        }        
     }
 
     // Update is called once per frame
@@ -145,38 +145,38 @@ public class IFXAnimationEffectsGrabableObject : MonoBehaviour
 
     private void MouseGrabObject()
     {
-        // if (Input.GetMouseButton(0))
-        // {
-        //     if (primaryHandChild != null)
-        //     {
-        //         MoveObjectWithLimiters(primaryHandChild.transform);
-        //         return;
-        //     }
-        //     Debug.Log("IFXAnimationEffect-Grabbable: Clicked");
-        //     //interaction_ray = Engage.ScriptHelper.mainCamera.ScreenPointToRay(Engage.ScriptHelper.mainCamera.WorldToScreenPoint(ENG_TrackedMotionControllers.instance.GetWorldGUIPointerTransform().position));
-        //     interaction_ray = new Ray(Engage.ScriptHelper.mainCamera.transform.position, Engage.ScriptHelper.mainCamera.transform.forward);
-        //     RaycastHit hit;
-        //     if (colliderOnTThis.Raycast(interaction_ray,out hit, 5.0f))
-        //     {
-        //         currentlyGrabbed = true;
-        //         if (primaryHandChild == null)
-        //         {
-        //             primaryHandChild = new GameObject("handChild - Mouse");
-        //             primaryHandChild.transform.position = transform.position;
-        //             primaryHandChild.transform.rotation = transform.rotation;
-        //             primaryHandChild.transform.SetParent(Engage.ScriptHelper.mainCamera.transform, true);
-        //         }
+        if (Input.GetMouseButton(0))
+        {
+            // if (primaryHandChild != null)
+            // {
+            //     MoveObjectWithLimiters(primaryHandChild.transform);
+            //     return;
+            // }
+            // Debug.Log("IFXAnimationEffect-Grabbable: Clicked");
+            // //interaction_ray = Engage.ScriptHelper.mainCamera.ScreenPointToRay(Engage.ScriptHelper.mainCamera.WorldToScreenPoint(ENG_TrackedMotionControllers.instance.GetWorldGUIPointerTransform().position));
+            // interaction_ray = new Ray(Engage.ScriptHelper.mainCamera.transform.position, Engage.ScriptHelper.mainCamera.transform.forward);
+            // RaycastHit hit;
+            // if (colliderOnTThis.Raycast(interaction_ray,out hit, 5.0f))
+            // {
+            //     currentlyGrabbed = true;
+            //     if (primaryHandChild == null)
+            //     {
+            //         primaryHandChild = new GameObject("handChild - Mouse");
+            //         primaryHandChild.transform.position = transform.position;
+            //         primaryHandChild.transform.rotation = transform.rotation;
+            //         primaryHandChild.transform.SetParent(Engage.ScriptHelper.mainCamera.transform, true);
+            //     }
 
-        //         Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
-        //         Debug.Log("IFXAnimationEffect-Grabbable: Did Hit");
+            //     Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            //     Debug.Log("IFXAnimationEffect-Grabbable: Did Hit");
 
-        //     }
-        // }
-        // else if(primaryHandChild!=null)
-        // {
-        //     currentlyGrabbed = false;
-        //     Destroy (primaryHandChild);
-        // }
+            // }
+        }
+        else if(primaryHandChild!=null)
+        {
+            currentlyGrabbed = false;
+            Destroy (primaryHandChild);
+        }
         
     }
 

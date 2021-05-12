@@ -275,7 +275,7 @@ public class IFXToolsBasicBundleBuilder : EditorWindow {
             string batchmode = "";
                               
             commands.Add("\""+unityEXELoc+"\" -quit "+batchmode+" -buildTarget \"OSXUniversal\" -projectPath \""+projectWinLoc+"/IFXBuildToolProjects/Mac"+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
-            commands.Add("robocopy "+"\""+projectWinLoc +"/IFXBuildToolProjects/Mac/AssetBundles/OSX"+"\""+" "+"\""+projectWinLoc+"/AssetBundles/Mac"+"\"");
+            commands.Add("robocopy "+"\""+projectWinLoc +"/IFXBuildToolProjects/Mac/AssetBundles/OSX"+"\""+" "+"\""+projectWinLoc+"/AssetBundles/OSX"+"\"");
             return commands;
             
         }

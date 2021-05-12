@@ -163,6 +163,8 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                     IFXToolSM.DeleteFolderContents(userSettings.projectWinLoc+ "/AssetBundles/Windows"); //clears out old bundles                
                     //Build the bundle
                     AssetBundles.BuildScript.BuildAssetBundles();
+                    File.Delete(userSettings.projectWinLoc+ "/AssetBundles/Windows/windows");
+                    File.Delete(userSettings.projectWinLoc+ "/AssetBundles/Windows/windows.manifest");
                     IFXToolSM.CopyFolderContents(userSettings.projectWinLoc+ "/AssetBundles/Windows", cdnLocalWinLoc);            
                 }
                 
@@ -270,6 +272,8 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
 
             commands.Add("\""+EditorApplication.applicationPath+"\" -quit "+batchmode+" -buildTarget \"Android\" -projectPath \""+userSettings.projectAndroidLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Android/AssetBundles/Android"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Android"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\Android\\Android"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\Android\\Android.manifest"+"\"");
             if (cdnLocalLoc !=null)
             {
                 if (!string.IsNullOrEmpty(userSettings.cdnAndroidIFXLoc))
@@ -297,11 +301,15 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
             }                      
             commands.Add("\""+EditorApplication.applicationPath+"\" -quit "+batchmode+" -buildTarget \"iOS\" -projectPath \""+userSettings.projectiOSLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
             commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/iOS/AssetBundles/iOS"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\iOS\\iOS"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\iOS\\iOS.manifest"+"\"");
             if (cdnLocalLoc !=null)
             {
                 if (!string.IsNullOrEmpty(userSettings.cdniOSIFXLoc))
                 {
-                    commands.Add("robocopy "+"\""+userSettings.projectiOSLoc+"/AssetBundles/iOS"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                    
+                    commands.Add("robocopy "+"\""+userSettings.projectWinLoc+"/AssetBundles/iOS"+"\""+" "+"\""+cdnLocalLoc+"\"");
+                    
                 }
             }
             return commands;
@@ -323,7 +331,9 @@ using IFXToolSM = IFXTools.IFXToolsStaticMethods;
                batchmode = "";
             }                      
             commands.Add("\""+EditorApplication.applicationPath+"\" -quit "+batchmode+" -buildTarget \"OSXUniversal\" -projectPath \""+userSettings.projectMacLoc+"\" -executeMethod AssetBundles.BuildScript.BuildAssetBundles");
-            commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Mac/AssetBundles/OSX"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/Mac"+"\"");
+            commands.Add("robocopy "+"\""+userSettings.projectWinLoc +"/IFXBuildToolProjects/Mac/AssetBundles/OSX"+"\""+" "+"\""+userSettings.projectWinLoc+"/AssetBundles/OSX"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\OSX\\OSX"+"\"");
+            commands.Add("DEL \\Q \\F "+"\""+userSettings.projectWinLoc+"\\AssetBundles\\OSX\\OSX.manifest"+"\"");
             if (cdnLocalLoc !=null)
             {
                 if (!string.IsNullOrEmpty(userSettings.cdnMacIFXLoc))
