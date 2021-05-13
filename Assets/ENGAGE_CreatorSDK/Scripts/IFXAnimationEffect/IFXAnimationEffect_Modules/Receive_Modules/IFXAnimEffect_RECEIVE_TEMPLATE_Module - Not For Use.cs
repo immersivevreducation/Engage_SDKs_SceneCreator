@@ -4,7 +4,9 @@ using UnityEngine;
 public class IFXAnimEffect_RECEIVE_TEMPLATE_Module : IFXAnimEffect_RECEIVE_Module
 {
     // a name for this type of module for use in the editor
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Template";} }
+    #endif
     //////////////////////////////////
     //This is an example of an option you could have
     // [SerializeField]

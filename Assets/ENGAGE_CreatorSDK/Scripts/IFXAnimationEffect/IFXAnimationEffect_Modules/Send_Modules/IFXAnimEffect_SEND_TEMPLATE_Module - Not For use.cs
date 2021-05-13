@@ -4,7 +4,9 @@ using UnityEngine;
 public class IFXAnimEffect_SEND_Template_Module : IFXAnimEffect_SEND_Module
 {
     // Used In The Editor to show what type of module this is 
-    public override string moduleType {get{ return "Enter module type here, for example Transform";} }
+    #if UNITY_EDITOR
+    public override string moduleType {get{ return "Template";} }
+    #endif
     delegate float UpdateValuesDelegate();
     UpdateValuesDelegate UpdateValues;
 

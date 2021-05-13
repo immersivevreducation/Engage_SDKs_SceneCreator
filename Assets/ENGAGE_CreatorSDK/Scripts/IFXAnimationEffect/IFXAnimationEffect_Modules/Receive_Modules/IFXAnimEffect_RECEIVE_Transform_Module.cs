@@ -6,7 +6,9 @@ public class IFXAnimEffect_RECEIVE_Transform_Module : IFXAnimEffect_RECEIVE_Modu
 
     //Action<float> this.InputFloatAction;
     //Action<bool> InputBoolAction;
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Transform";} }
+    #endif
     [SerializeField]
     Transform to_Transform;
     [SerializeField]

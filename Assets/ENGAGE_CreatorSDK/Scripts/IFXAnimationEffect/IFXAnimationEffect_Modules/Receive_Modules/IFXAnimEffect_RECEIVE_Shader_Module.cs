@@ -4,7 +4,9 @@ using System;
 [RequireComponent(typeof(IFXAnimEffect_RECEIVE_MAIN))]
 public class IFXAnimEffect_RECEIVE_Shader_Module : IFXAnimEffect_RECEIVE_Module
 {
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Shader";} }
+    #endif
     [SerializeField]
     Material materialIn;
     [SerializeField]

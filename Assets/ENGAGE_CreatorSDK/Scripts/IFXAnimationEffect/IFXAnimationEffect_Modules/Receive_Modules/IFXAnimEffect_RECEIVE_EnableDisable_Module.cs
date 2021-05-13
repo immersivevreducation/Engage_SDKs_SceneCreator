@@ -6,7 +6,9 @@ using UnityEngine;
 public class IFXAnimEffect_RECEIVE_EnableDisable_Module : IFXAnimEffect_RECEIVE_Module
 {
 
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "EnableDisable";} }
+    #endif
 
     [SerializeField]
     List<Behaviour> to_EnableDisableComponents;

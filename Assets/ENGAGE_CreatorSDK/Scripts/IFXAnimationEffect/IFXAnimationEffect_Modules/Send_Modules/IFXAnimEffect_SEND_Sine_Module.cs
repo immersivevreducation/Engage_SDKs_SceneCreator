@@ -1,10 +1,12 @@
 using UnityEngine;
-
+[AddComponentMenu("IFXAnimEffect_SEND/Sine - IFX SEND Module")]
 [RequireComponent(typeof(IFXAnimEffect_SEND_MAIN))]
 public class IFXAnimEffect_SEND_Sine_Module : IFXAnimEffect_SEND_Module
 {
     
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Sine";} }
+    #endif
     delegate float UpdateValuesDelegate();
     UpdateValuesDelegate UpdateValues;
 

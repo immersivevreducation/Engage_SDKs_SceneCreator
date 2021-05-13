@@ -4,7 +4,9 @@ using UnityEngine.Events;
 [RequireComponent(typeof(IFXAnimEffect_RECEIVE_MAIN))]
 public class IFXAnimEffect_RECEIVE_Event_Module : IFXAnimEffect_RECEIVE_Module
 {
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Event";} }
+    #endif
     //////////////////////////////////
     [Header("Invoke event while anim effect trigger is TRUE")]
 

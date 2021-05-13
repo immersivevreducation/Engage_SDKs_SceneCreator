@@ -3,7 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(IFXAnimEffect_SEND_MAIN))]
 public class IFXAnimEffect_SEND_Transforms_Module : IFXAnimEffect_SEND_Module
 {
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Transform";} }
+    #endif
     //public override string moduleType ="Transform";
     
     [SerializeField]

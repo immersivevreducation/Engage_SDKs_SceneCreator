@@ -3,7 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(IFXAnimEffect_RECEIVE_MAIN))]
 public class IFXAnimEffect_RECEIVE_Animator_Module : IFXAnimEffect_RECEIVE_Module
 {
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Animator";} }
+    #endif
     [SerializeField]
     Animator to_Animator;
 

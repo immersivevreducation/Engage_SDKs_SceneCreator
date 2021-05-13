@@ -5,7 +5,9 @@ using System.Linq;
 public class IFXAnimEffect_SEND_Audio_Module : IFXAnimEffect_SEND_Module
 {
     
+    #if UNITY_EDITOR
     public override string moduleType {get{ return "Audio";} }
+    #endif
     delegate float UpdateValuesDelegate();
     UpdateValuesDelegate UpdateValues;
 
