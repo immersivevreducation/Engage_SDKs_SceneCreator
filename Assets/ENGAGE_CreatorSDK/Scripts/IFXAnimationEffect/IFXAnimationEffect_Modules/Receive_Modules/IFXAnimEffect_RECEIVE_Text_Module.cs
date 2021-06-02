@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 [RequireComponent(typeof(TextMeshPro))]
-[AddComponentMenu("IFXAnimEffect_SEND/Text - IFX RECEIVE Module")]
+[AddComponentMenu("IFXAnimEffect_RECEIVE/Text - IFX RECEIVE Module")]
 [RequireComponent(typeof(IFXAnimEffect_RECEIVE_MAIN))]
 public class IFXAnimEffect_RECEIVE_Text_Module : IFXAnimEffect_RECEIVE_Module
 {
