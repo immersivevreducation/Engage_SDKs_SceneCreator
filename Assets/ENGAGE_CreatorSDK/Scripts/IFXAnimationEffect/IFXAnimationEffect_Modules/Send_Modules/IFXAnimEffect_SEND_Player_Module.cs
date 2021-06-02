@@ -57,94 +57,102 @@ public class IFXAnimEffect_SEND_Player_Module : IFXAnimEffect_SEND_Module
 
     private void OnEnable()
     {
-        // playerCamera = Engage.ScriptHelper.mainCamera;
-        // if (from_PlayerPositon_X)
+        // if (Engage.ScriptHelper.mainCamera !=null)
         // {
-        //     if (playerCamera != null)
+        //     playerCamera = Engage.ScriptHelper.mainCamera;
+        //     if (from_PlayerPositon_X)
         //     {
-        //         UpdateValues += GetPlayerPostition_X;
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerPostition_X;
+        //         }
+        //     }
+        //     if (from_PlayerPositon_Y)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerPostition_Y;
+        //         }
+        //     }
+        //     if (from_PlayerPositon_Z)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerPostition_Z;
+        //         }
+        //     }
+        //     //////////////////////////
+        //     if (from_PlayerRotation_X)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerRotation_X;
+        //         }
+        //     }
+        //     if (from_PlayerRotation_Y)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerRotation_Y;
+        //         }
+        //     }
+        //     if (from_PlayerRotation_Z)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerRotation_Z;
+        //         }
+        //     }
+        //     //////////////////////////
+        //     if (from_PlayerDistance)
+        //     {
+        //         if (playerCamera != null && playerDistanceTarget != null)
+        //         {
+        //             UpdateValues += GetPlayerDistance;
+        //         }
+        //         else
+        //         {
+        //             Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+        //         }
+        //     }
+        //     if (from_PlayerHandDistance)
+        //     {
+        //         if (playerCamera != null && playerHandDistanceTarget != null)
+        //         {
+        //             UpdateValues += GetPlayerHandDistance;
+        //         }
+        //         else
+        //         {
+        //             Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+        //         }
+        //     }
+            
+        //     //////////////////////////
+        //     if (from_PlayerTouch)
+        //     {
+        //         if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
+        //         {
+        //             UpdateValues += GetPlayerTouchedVR;
+        //         }
+        //         else
+        //         {
+        //             UpdateValues += GetPlayerTouchedMouse;
+        //         }
+        //     }
+        //     //////////////////////////
+        //     if (from_PlayerCollision)
+        //     {
+        //         if (playerCamera != null)
+        //         {
+        //             UpdateValues += GetPlayerCollision;
+        //         }
         //     }
         // }
-        // if (from_PlayerPositon_Y)
+        // else
         // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerPostition_Y;
-        //     }
-        // }
-        // if (from_PlayerPositon_Z)
-        // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerPostition_Z;
-        //     }
-        // }
-        // //////////////////////////
-        // if (from_PlayerRotation_X)
-        // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerRotation_X;
-        //     }
-        // }
-        // if (from_PlayerRotation_Y)
-        // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerRotation_Y;
-        //     }
-        // }
-        // if (from_PlayerRotation_Z)
-        // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerRotation_Z;
-        //     }
-        // }
-        // //////////////////////////
-        // if (from_PlayerDistance)
-        // {
-        //     if (playerCamera != null && playerDistanceTarget != null)
-        //     {
-        //         UpdateValues += GetPlayerDistance;
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-        //     }
-        // }
-        // if (from_PlayerHandDistance)
-        // {
-        //     if (playerCamera != null && playerHandDistanceTarget != null)
-        //     {
-        //         UpdateValues += GetPlayerHandDistance;
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
-        //     }
+        //      UpdateValues += Restart;
         // }
         
-        // //////////////////////////
-        // if (from_PlayerTouch)
-        // {
-        //     if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
-        //     {
-        //         UpdateValues += GetPlayerTouchedVR;
-        //     }
-        //     else
-        //     {
-        //         UpdateValues += GetPlayerTouchedMouse;
-        //     }
-        // }
-        // //////////////////////////
-        // if (from_PlayerCollision)
-        // {
-        //     if (playerCamera != null)
-        //     {
-        //         UpdateValues += GetPlayerCollision;
-        //     }
-        // }
         
     }
     //This method gets called by SEND_Main to retrive to value from the delegate. Only one method should be returning values.
@@ -153,7 +161,103 @@ public class IFXAnimEffect_SEND_Player_Module : IFXAnimEffect_SEND_Module
        AnimationEffectVariable.Value = UpdateValues();
     }
     ///////////////////////////////////////////////
-
+    // private float Restart()
+    // {
+    //     Debug.Log("AnimationEffect: Player not found... Restarting");
+    //     if (Engage.ScriptHelper.mainCamera !=null)
+    //     {
+    //         UpdateValues -= Restart;
+    //         playerCamera = Engage.ScriptHelper.mainCamera;
+    //         if (from_PlayerPositon_X)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+                    
+    //             }
+    //         }
+    //         if (from_PlayerPositon_Y)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerPostition_Y;
+    //             }
+    //         }
+    //         if (from_PlayerPositon_Z)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerPostition_Z;
+    //             }
+    //         }
+    //         //////////////////////////
+    //         if (from_PlayerRotation_X)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerRotation_X;
+    //             }
+    //         }
+    //         if (from_PlayerRotation_Y)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerRotation_Y;
+    //             }
+    //         }
+    //         if (from_PlayerRotation_Z)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerRotation_Z;
+    //             }
+    //         }
+    //         //////////////////////////
+    //         if (from_PlayerDistance)
+    //         {
+    //             if (playerCamera != null && playerDistanceTarget != null)
+    //             {
+    //                 UpdateValues += GetPlayerDistance;
+    //             }
+    //             else
+    //             {
+    //                 Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+    //             }
+    //         }
+    //         if (from_PlayerHandDistance)
+    //         {
+    //             if (playerCamera != null && playerHandDistanceTarget != null)
+    //             {
+    //                 UpdateValues += GetPlayerHandDistance;
+    //             }
+    //             else
+    //             {
+    //                 Debug.Log("AnimationEffect: from player distance selected but player distance target input empty");
+    //             }
+    //         }
+            
+    //         //////////////////////////
+    //         if (from_PlayerTouch)
+    //         {
+    //             if (Engage.ScriptHelper.using_vr && ENG_TrackedMotionControllers.instance != null)
+    //             {
+    //                 UpdateValues += GetPlayerTouchedVR;
+    //             }
+    //             else
+    //             {
+    //                 UpdateValues += GetPlayerTouchedMouse;
+    //             }
+    //         }
+    //         //////////////////////////
+    //         if (from_PlayerCollision)
+    //         {
+    //             if (playerCamera != null)
+    //             {
+    //                 UpdateValues += GetPlayerCollision;
+    //             }
+    //         }
+    //     }
+    //     return 0;
+    // }
     // private float GetPlayerPostition_X() 
     // {
     //     if (playerCamera != null)

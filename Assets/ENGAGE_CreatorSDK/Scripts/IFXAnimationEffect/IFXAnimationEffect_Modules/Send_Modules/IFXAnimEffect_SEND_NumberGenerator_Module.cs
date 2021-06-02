@@ -6,7 +6,6 @@ public class IFXAnimEffect_SEND_NumberGenerator_Module : IFXAnimEffect_SEND_Modu
     #if UNITY_EDITOR
     public override string moduleType {get{ return "NumberGen";} }
     #endif
-    IFXAnimEffect_SEND_MAIN sendMainComponent;
 
     delegate float UpdateValuesDelegate();
     UpdateValuesDelegate UpdateValues;
@@ -35,7 +34,7 @@ public class IFXAnimEffect_SEND_NumberGenerator_Module : IFXAnimEffect_SEND_Modu
 
     private void OnEnable()
     {
-        sendMainComponent= gameObject.GetComponent<IFXAnimEffect_SEND_MAIN>();
+        
         if (from_IncreaseBY)
         {
             if (incrementInput == null)

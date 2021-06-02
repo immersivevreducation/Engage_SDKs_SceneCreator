@@ -1,5 +1,6 @@
 using UnityEngine;
-
+// Uncomment the line below and enter how you want this module to show in the component menu
+//[AddComponentMenu("IFXAnimEffect_SEND/Template - IFX SEND Module")]
 [RequireComponent(typeof(IFXAnimEffect_SEND_MAIN))]
 public class IFXAnimEffect_SEND_Template_Module : IFXAnimEffect_SEND_Module
 {
