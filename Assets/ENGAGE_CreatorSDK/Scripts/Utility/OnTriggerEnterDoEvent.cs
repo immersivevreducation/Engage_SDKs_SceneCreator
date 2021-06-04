@@ -7,7 +7,7 @@ public class OnTriggerEnterDoEvent : MonoBehaviour
 {
     public LayerMask layerMask;
     public UnityEvent eventToInvoke;
-
+    public string optional_objectNameToEnterContains;
 
     private void OnTriggerEnter(Collider other)
     {
