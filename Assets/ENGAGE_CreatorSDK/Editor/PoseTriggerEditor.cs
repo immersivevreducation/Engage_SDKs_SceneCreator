@@ -114,7 +114,7 @@ public class PoseTriggerEditor : Editor
         GUILayout.BeginHorizontal(GUI.skin.box);
         GUILayout.Label("Height: " + Trigger.AvatarHeight, GUILayout.Width(100));
         EditorGUI.BeginChangeCheck();
-        float avatarHeight = GUILayout.HorizontalSlider(Trigger.AvatarHeight, 1.5f, 2.15f);
+        float avatarHeight = GUILayout.HorizontalSlider(Trigger.AvatarHeight, 1.37f, 1.95f);
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(this, "Changed Avatar Height");
@@ -141,7 +141,7 @@ public class PoseTriggerEditor : Editor
                 if (poseOverride.HasMaxHeight)
                 {
                     GUILayout.Label(poseOverride.MaxHeight.ToString("F2") + "m", GUILayout.Width(80));
-                    poseOverride.MaxHeight = GUILayout.HorizontalSlider(poseOverride.MaxHeight, 1.5f, 2.15f);
+                    poseOverride.MaxHeight = GUILayout.HorizontalSlider(poseOverride.MaxHeight, 1.37f, 1.95f);
                     GUILayout.Space(15);
                     if (GUILayout.Button("X", GUILayout.Width(25)))
                         poseOverride.MaxHeight = -1f;
@@ -150,7 +150,7 @@ public class PoseTriggerEditor : Editor
                 {
                     GUILayout.Label("Unrestricted", GUILayout.Width(80));
                     if (GUILayout.Button("Set Max Height"))
-                        poseOverride.MaxHeight = 2f;
+                        poseOverride.MaxHeight = 1.95f;
                 }
             }
             GUILayout.EndHorizontal();
@@ -162,7 +162,7 @@ public class PoseTriggerEditor : Editor
                 if (poseOverride.HasMinHeight)
                 {
                     GUILayout.Label(poseOverride.MinHeight.ToString("F2") + "m", GUILayout.Width(80));
-                    poseOverride.MinHeight = GUILayout.HorizontalSlider(poseOverride.MinHeight, 1.5f, 2.15f);
+                    poseOverride.MinHeight = GUILayout.HorizontalSlider(poseOverride.MinHeight, 1.37f, 1.95f);
                     GUILayout.Space(15);
                     if (GUILayout.Button("X", GUILayout.Width(25)))
                         poseOverride.MinHeight = -1f;
@@ -171,7 +171,7 @@ public class PoseTriggerEditor : Editor
                 {
                     GUILayout.Label("Unrestricted", GUILayout.Width(80));
                     if (GUILayout.Button("Set Min Height"))
-                        poseOverride.MinHeight = 1.6f;
+                        poseOverride.MinHeight = 1.37f;
                 }
             }
             GUILayout.EndHorizontal();
