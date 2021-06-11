@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using Math = System.Math;
 using System;
-//[System.Serializable]
+[AddComponentMenu("IFXAnimEffect_SEND/SEND MAIN")]
 public class IFXAnimEffect_SEND_MAIN : MonoBehaviour
 {
     delegate void UpdateValuesDelegate();
@@ -19,7 +19,7 @@ public class IFXAnimEffect_SEND_MAIN : MonoBehaviour
     [SerializeField]
     float updateRate = 0f;
 
-    private void OnEnable()
+    private void Start()
     {
         foreach (IFXAnimEffect_SEND_Module module in SEND_Modules)
         {

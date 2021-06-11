@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using Math = System.Math;
-
-[CreateAssetMenu(fileName = "Data", menuName = "IFXAnimationEffectVariable/Float", order = 1)]
-public class IFXAnimationEffectFloatVariable : ScriptableObject
+[AddComponentMenu("IFXAnimEffect/Float - IFXAnimationEffect")]
+public class IFXAnimationEffectFloatVariable : MonoBehaviour
 {
     public float Value;
      [SerializeField]

@@ -16,9 +16,10 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
     UpdateValuesDelegate UpdateValues;
 
     //////////////////////////////////
-    
     [SerializeField]
-    bool fps;
+    bool averageFps;
+    [SerializeField]
+    bool currentFps;
     [SerializeField]
     bool allocatedRam;
     [SerializeField]
@@ -28,7 +29,7 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
     [Header("Get System Info -----------------------------")]
     bool totalMemory;
     [SerializeField]
-    bool GraphicsMemory;
+    bool totalGraphicsMemory;
     [SerializeField]
     bool coreCount;
 
@@ -36,6 +37,11 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
     [Tooltip("0=null, 1=win, 2=Android, 3=Mac, 4=Iphone")]
     [SerializeField]
     bool SystemType;
+    ////////////////////////
+    float updateInterval = 5F;
+    double lastInterval;
+    int frames;
+    float fps;
 
     //SEND MODULES SHOULD ONLY SEND ONE VALUE!
     //You can use if statments and the UpdateValues delegate to choose the appropriate update method though
@@ -44,10 +50,16 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
 
     private void OnEnable()
     {
+        lastInterval = Time.realtimeSinceStartup;
+        frames = 0;
         //Add method to UpdateValues delagate here. For example
-        if (fps)
+        if (averageFps)
         {
-            UpdateValues += GetFPS;
+            UpdateValues += GetAverageFPS;
+        }
+        if (currentFps)
+        {
+            UpdateValues += GetCurrentFPS;
         }
         if (allocatedRam)
         {
@@ -61,9 +73,9 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
         {
             UpdateValues += GetTotalSystemRam;
         }
-        if (GraphicsMemory)
+        if (totalGraphicsMemory)
         {
-            UpdateValues += GetGraphicsRam;
+            UpdateValues += GetTotalGraphicsRam;
         }
         if (coreCount)
         {
@@ -83,20 +95,33 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
     }
     ///////////////////////////////////////////////
 
-    //Add your methods here for example
-    private float GetFPS() 
+    
+    private float GetAverageFPS() 
+    {
+        ++frames;
+        float timeNow = Time.realtimeSinceStartup;
+        if (timeNow > lastInterval + updateInterval)
+        {
+            fps = (float)(frames / (timeNow - lastInterval));
+            frames = 0;
+            lastInterval = timeNow;
+        }
+        
+        return (float)Math.Round(fps);
+    }
+    private float GetCurrentFPS() 
     {
         float output = (float)Math.Round((1f / Time.unscaledDeltaTime));
         return output;
     }
     private float GetAllocatedRam() 
     {
-        float output = Profiler.GetTotalAllocatedMemoryLong()/ 1048576f;;
+        float output = (float)Math.Round(Profiler.GetTotalAllocatedMemoryLong()/ 1048576f);;
         return output;
     }
      private float GetReservedRam() 
     {
-        float output = Profiler.GetTotalReservedMemoryLong() / 1048576f;
+        float output = (float)Math.Round(Profiler.GetTotalReservedMemoryLong() / 1048576f);
         return output;
     }
     private float GetTotalSystemRam() 
@@ -104,7 +129,7 @@ public class IFXAnimEffect_SEND_PerformanceProfile_Module : IFXAnimEffect_SEND_M
         float output = SystemInfo.systemMemorySize;
         return output;
     }
-    private float GetGraphicsRam() 
+    private float GetTotalGraphicsRam() 
     {
         float output = SystemInfo.graphicsMemorySize;
         return output;

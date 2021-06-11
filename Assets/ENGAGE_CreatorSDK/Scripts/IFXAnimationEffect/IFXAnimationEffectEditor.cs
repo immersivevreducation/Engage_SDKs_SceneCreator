@@ -1,10 +1,8 @@
-
-#if UNITY_EDITOR  
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+#if UNITY_EDITOR
 public class IFXAnimationEffectEditorSEND : EditorWindow
 {
 
@@ -331,6 +329,7 @@ public class IFXAnimationEffectEditorRECEIVE : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 }
+#endif
 // public class IFXAnimationEffectEditor_RECEIVE : EditorWindow
 // {
 //     [MenuItem("IFXAnimationEffect/IFXAnimationEffect Editor SEND")]
@@ -346,6 +345,4 @@ public class IFXAnimationEffectEditorRECEIVE : EditorWindow
         
 //     }
 // }
-
-#endif
 

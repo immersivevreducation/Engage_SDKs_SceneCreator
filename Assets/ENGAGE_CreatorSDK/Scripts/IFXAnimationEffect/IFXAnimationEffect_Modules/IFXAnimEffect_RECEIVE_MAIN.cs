@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using Math = System.Math;
 using System;
 
-
+[AddComponentMenu("IFXAnimEffect_RECEIVE/RECEIVE MAIN")]
 public class IFXAnimEffect_RECEIVE_MAIN : MonoBehaviour
 {
     Action<float> ModulesInputFloatAction;
@@ -18,7 +18,9 @@ public class IFXAnimEffect_RECEIVE_MAIN : MonoBehaviour
     //[SerializeField]
     public List<IFXAnimEffect_RECEIVE_Module> RECEIVE_Modules = new List<IFXAnimEffect_RECEIVE_Module>();
     [SerializeField]
-    float currentValue;    
+    float currentValue;
+    [SerializeField]
+    float updateRate = 0f;    
 
    [Tooltip("Multiplies the effect of the input value. 1 = 1:1 ratio. Minus Numbers reverse the effect")] 
     [SerializeField]
@@ -63,7 +65,7 @@ public class IFXAnimEffect_RECEIVE_MAIN : MonoBehaviour
     Vector2 triggerValueRange;
 
     /////////////////////////////
-    private void OnEnable()
+    private void Start()
     {
         foreach (IFXAnimEffect_RECEIVE_Module module in RECEIVE_Modules)
         {
@@ -77,46 +79,61 @@ public class IFXAnimEffect_RECEIVE_MAIN : MonoBehaviour
                 {
                     ModulesInputBoolAction += module.ReceiveInputBool;
                 }
-            }
-            
-            
+            }    
         }
-        //Debug.Log(InputBoolAction);
     }
+    float timer = 0;
     private void Update()
     {
-        //InputTrigger(false);                              
+        if (updateRate > 0f)
+        {
+            timer += Time.deltaTime;
+            if (timer > updateRate)
+            {
+                DistrubuteInput();
+                timer = 0;
+            }
+        }
+        else
+        {
+            DistrubuteInput();
+            
+        }
+                              
+
+    }
+
+    private void DistrubuteInput() 
+    {
         float valueIN = AnimationEffectVariable.GetMathOutput() * weight;
-        
-        if (inputSmoothing >0f)
-        {        
-           if (currentValue != valueIN)
-           {
+
+        if (inputSmoothing > 0f)
+        {
+            if (currentValue != valueIN)
+            {
                 float t = 1f * Time.deltaTime;
-                currentValue = Mathf.Lerp(currentValue, valueIN, t / inputSmoothing);                  
-           }              
+                currentValue = Mathf.Lerp(currentValue, valueIN, t / inputSmoothing);
+            }
         }
         else
         {
             currentValue = valueIN;
         }
-        
-        if (ModulesInputFloatAction !=null)
+
+        if (ModulesInputFloatAction != null)
         {
-           if (InputLimiter(currentValue))
+            if (InputLimiter(currentValue))
             {
                 ModulesInputFloatAction(currentValue);
             }
         }
         
-        if (ModulesInputBoolAction !=null)
+        if (ModulesInputBoolAction != null)
         {
             ModulesInputBoolAction(InputTrigger(currentValue));
         }
-
-        //InputTrigger(InputLimiterAndTrigger(currentValue, triggerThreshold, triggerValueRange, moreThan_Trigger, lessThan_Trigger));                        
-        
     }
+
     bool InputLimiter(float input)
     {
         
