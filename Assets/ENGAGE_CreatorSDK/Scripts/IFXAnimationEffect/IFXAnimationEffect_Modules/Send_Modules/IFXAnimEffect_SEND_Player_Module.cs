@@ -156,10 +156,10 @@ public class IFXAnimEffect_SEND_Player_Module : IFXAnimEffect_SEND_Module
         
     }
     //This method gets called by SEND_Main to retrive to value from the delegate. Only one method should be returning values.
-    public override void SendOutput()
-    {
-       AnimationEffectVariable.Value = UpdateValues();
-    }
+    // public override void SendOutput()
+    // {
+    //    AnimationEffectVariable.Value = UpdateValues();
+    // }
     ///////////////////////////////////////////////
     // private float Restart()
     // {
