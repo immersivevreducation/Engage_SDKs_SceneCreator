@@ -48,7 +48,7 @@ GameObject:
   m_TagString: TeleportSeat
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967291
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &956259167867838013
 Transform:
@@ -155,7 +155,7 @@ MonoBehaviour:
     BodyPart: 9
   m_sitTrigger: {fileID: 926644779094528215}
   m_collider: {fileID: 985593925227841271}
-  m_exitPosition: {x: 0, y: 0, z: 0}
+  m_exitPosition: {x: 0, y: 1.5, z: 0}
   m_headTransform: {fileID: 0}
   m_chestTransform: {fileID: 0}
   m_pelvisTransform: {fileID: 4690452106990078314}
@@ -264,7 +264,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967291
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &956259163916610989
 Transform:
